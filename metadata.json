@@ -1,0 +1,54 @@
+{
+  "name": "aursu-tlsinfo",
+  "version": "0.1.0",
+  "author": "aursu",
+  "summary": "Manage TLS data (private keys, certificates)",
+  "license": "Apache-2.0",
+  "source": "https://github.com/aursu/puppet-tlsinfo.git",
+  "project_page": "https://github.com/aursu/puppet-tlsinfo",
+  "issues_url": "https://github.com/aursu/puppet-tlsinfo/issues",
+  "dependencies": [
+
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "OracleLinux",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Scientific",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Fedora",
+      "operatingsystemrelease": [
+        "25"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 4.7.0 < 6.0.0"
+    }
+  ],
+  "pdk-version": "1.7.0",
+  "template-url": "https://github.com/puppetlabs/pdk-templates",
+  "template-ref": "1.7.0-0-g57412ed"
+}
