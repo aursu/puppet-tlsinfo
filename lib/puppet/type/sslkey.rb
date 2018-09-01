@@ -21,6 +21,87 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     defaultto :present
+
+    # We have to treat :present specially, because it works with any
+    # type of file.
+    def insync?(currentvalue)
+        unless currentvalue == :absent or resource.replace?
+          return true
+        end
+
+        if self.should == :present
+          return !(currentvalue.nil? or currentvalue == :absent)
+        else
+          return super(currentvalue)
+        end
+      end
+
+      def retrieve
+        if stat = @resource.stat
+          return stat.ftype.intern
+        else
+          if self.should == :false
+            return :false
+          else
+            return :absent
+          end
+        end
+      end
+
+      def sync
+        @resource.remove_existing(self.should)
+        if self.should == :absent
+          return :file_removed
+        end
+
+        event = super
+
+        event
+      end
+
+  end
+
+    # @return [String] The type of the current file, cast to a string.
+  def read_current_type
+    stat_info = stat
+    if stat_info
+      stat_info.ftype.to_s
+    else
+      nil
+    end
+  end
+
+  # Back up and remove the file or directory at `self[:path]`.
+  #
+  # @param  [Symbol] should The file type replacing the current content.
+  # @return [Boolean] True if the file was removed, else False
+  # @raises [fail???] If the file could not be backed up or could not be removed.
+  def remove_existing(should)
+    wanted_type = should.to_s
+    current_type = read_current_type
+
+    if current_type.nil?
+      return false
+    end
+
+    if current_type == wanted_type
+      return false
+    end
+
+    return remove_file(current_type, wanted_type)
+  end
+
+  # @return [Boolean] if the file was removed (which is always true currently)
+  # @api private
+  def remove_file(current_type, wanted_type)
+    debug "Removing existing #{current_type} for replacement with #{wanted_type}"
+    Puppet::FileSystem.unlink(self[:path])
+    stat_needed
+    true
+  end
+
+  def stat_needed
+    @stat = :needs_stat
   end
 
   def self.title_patterns
