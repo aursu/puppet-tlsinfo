@@ -301,13 +301,13 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     # We want to print names, not numbers
-    def is_to_s(current) # rubocop:disable Naming/PredicateName
-      super(provider.uid2name(current) || current)
-    end
+    #def is_to_s(current) # rubocop:disable Naming/PredicateName
+    #  super(provider.uid2name(current) || current)
+    #end
 
-    def should_to_s(newvalue)
-      super(provider.uid2name(newvalue) || newvalue)
-    end
+    #def should_to_s(newvalue)
+    #  super(provider.uid2name(newvalue) || newvalue)
+    #end
   end
 
   newproperty(:group) do
