@@ -287,13 +287,13 @@ Puppet::Type.newtype(:sslkey) do
       # evaluate this property, because they might be added during the catalog
       # apply.
       @should.map! do |val|
-        provider.name2uid(val) or raise "Could not find user #{val}"
+        provider.name2uid(val) || fail(Puppet::Error, _('Could not find user %{user}') % { user: val })
       end
 
       return true if @should.include?(current)
 
       unless Puppet.features.root?
-        warnonce "Cannot manage ownership unless running as root"
+        warnonce 'Cannot manage ownership unless running as root'
         return true
       end
 
@@ -302,12 +302,12 @@ Puppet::Type.newtype(:sslkey) do
 
     # We want to print names, not numbers
     def is_to_s(currentvalue)
-        super(provider.uid2name(currentvalue) || currentvalue)
-      end
+      super(provider.uid2name(currentvalue) || currentvalue)
+    end
 
-      def should_to_s(newvalue)
-        super(provider.uid2name(newvalue) || newvalue)
-      end
+    def should_to_s(newvalue)
+      super(provider.uid2name(newvalue) || newvalue)
+    end
   end
 
   newproperty(:group) do
@@ -325,14 +325,14 @@ Puppet::Type.newtype(:sslkey) do
       # evaluate this property, because they might be added during the catalog
       # apply.
       @should.map! do |val|
-        fail "Could not find group #{val}" unless provider.name2gid(val)
+        provider.name2gid(val) || fail(Puppet::Error, _('Could not find group %{group}') % { group: val })
       end
 
       @should.include?(current)
     end
 
     # We want to print names, not numbers
-    def is_to_s(currentvalue) # rubocop:disable Naming/PredicateName
+    def is_to_s(currentvalue)
       super(provider.gid2name(currentvalue) || currentvalue)
     end
 
@@ -476,7 +476,7 @@ Puppet::Type.newtype(:sslkey) do
     wanted_type = should.to_s
     current_type = (read_current_type == 'file') ? 'present' : nil
 
-    return false if (current_type.nil? || current_type == wanted_type)
+    return false if current_type.nil? || current_type == wanted_type
 
     remove_file
   end
