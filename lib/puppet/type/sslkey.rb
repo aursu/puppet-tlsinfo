@@ -431,6 +431,7 @@ Puppet::Type.newtype(:sslkey) do
       Puppet.info _("type :sslkey \"validate\" method - check @parameters[:content]")
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(@parameters[:content].actual_content)
+      Puppet.info _("type :sslkey \"validate\" method - updated @parameters[:content]")
     end
 
     provider.validate if provider.respond_to?(:validate)
