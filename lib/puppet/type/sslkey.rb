@@ -197,7 +197,7 @@ Puppet::Type.newtype(:sslkey) do
       # not in sync if ensure => present but file not exist
       return false if current == :absent
 
-      # in sync if parameter replace is self (we do not replace content)
+      # in sync if parameter replace is false (we do not replace content)
       return true unless resource.replace?
 
       super(current)
