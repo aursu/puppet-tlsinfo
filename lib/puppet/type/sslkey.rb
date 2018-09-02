@@ -420,10 +420,10 @@ Puppet::Type.newtype(:sslkey) do
     req
   end
 
-  SOURCE_ONLY_CHECKSUMS = [:none, :ctime, :mtime]
-
   validate do
-    SOURCE_ONLY_CHECKSUMS.each do |checksum_type|
+    Puppet.info _("type :sslkey \"validate\" method with \"self.should\" \"%{value}\"") % { value: self.should }
+
+    [:none, :ctime, :mtime].each do |checksum_type|
       self.fail _("You cannot specify content when using checksum '%{checksum_type}'") % { checksum_type: checksum_type } if self[:checksum] == checksum_type && !self[:content].nil?
     end
 
@@ -436,6 +436,8 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   def initialize(hash)
+
+    Puppet.info _("type :sslkey \"initialize\" method with parameter \"hash\" \"%{value}\"") % { value: hash }
 
     super
 
