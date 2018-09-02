@@ -8,9 +8,8 @@ Puppet::Type.newtype(:sslkey) do
       Puppet::FileSystem.unlink(@resource[:path])
     end
 
-    aliasvalue(:false, :absent)
-
     newvalue(:present) do
+      Puppet.info _("property :ensure newvalue constructor with parameter :present")
       # Make sure we're not managing the content some other way
       if property = @resource.property(:content)
         property.sync
@@ -25,39 +24,36 @@ Puppet::Type.newtype(:sslkey) do
     # We have to treat :present specially, because it works with any
     # type of file.
     def insync?(currentvalue)
-        unless currentvalue == :absent or resource.replace?
-          return true
-        end
-
-        if self.should == :present
-          return !(currentvalue.nil? or currentvalue == :absent)
-        else
-          return super(currentvalue)
-        end
+      Puppet.info _("property :ensure \"insync?\" with parameter \"currentvalue\" \"%{value}\"") % { value: currentvalue }
+      unless currentvalue == :absent or resource.replace?
+        return true
       end
 
-      def retrieve
-        if stat = @resource.stat
-          return stat.ftype.intern
-        else
-          if self.should == :false
-            return :false
-          else
-            return :absent
-          end
-        end
+      if self.should == :present
+        return !(currentvalue.nil? or currentvalue == :absent)
+      else
+        return super(currentvalue)
+      end
+    end
+
+    def retrieve
+      Puppet.info _("property :ensure \"retrieve\" method with \"self.should\" \"%{value}\"") % { value: self.should }
+      if stat = @resource.stat
+        return :present
+      else
+        return :absent
+      end
+    end
+
+    def sync
+      Puppet.info _("property :ensure \"sync\" method with \"self.should\" \"%{value}\"") % { value: self.should }
+      @resource.remove_existing(self.should)
+      if self.should == :absent
+        return :file_removed
       end
 
-      def sync
-        @resource.remove_existing(self.should)
-        if self.should == :absent
-          return :file_removed
-        end
-
-        event = super
-
-        event
-      end
+      super
+    end
 
   end
 
