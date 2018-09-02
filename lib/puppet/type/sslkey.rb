@@ -287,13 +287,13 @@ Puppet::Type.newtype(:sslkey) do
       # evaluate this property, because they might be added during the catalog
       # apply.
       @should.map! do |val|
-        fail "Could not find user #{val}" unless provider.name2uid(val)
+        provider.name2uid(val) or raise "Could not find user #{val}"
       end
 
       return true if @should.include?(current)
 
       unless Puppet.features.root?
-        warnonce 'Cannot manage ownership unless running as root'
+        warnonce "Cannot manage ownership unless running as root"
         return true
       end
 
@@ -301,13 +301,13 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     # We want to print names, not numbers
-    #def is_to_s(current) # rubocop:disable Naming/PredicateName
-    #  super(provider.uid2name(current) || current)
-    #end
+    def is_to_s(currentvalue)
+        super(provider.uid2name(currentvalue) || currentvalue)
+      end
 
-    #def should_to_s(newvalue)
-    #  super(provider.uid2name(newvalue) || newvalue)
-    #end
+      def should_to_s(newvalue)
+        super(provider.uid2name(newvalue) || newvalue)
+      end
   end
 
   newproperty(:group) do
