@@ -472,22 +472,11 @@ Puppet::Type.newtype(:sslkey) do
     nil
   end
 
-  # Back up and remove the file or directory at `self[:path]`.
-  #
-  # @param  [Symbol] should The file type replacing the current content.
-  # @return [Boolean] True if the file was removed, else False
-  # @raises [fail???] If the file could not be backed up or could not be removed.
   def remove_existing(should)
     wanted_type = should.to_s
     current_type = (read_current_type == 'file') ? 'present' : nil
 
-    if current_type.nil?
-      return false
-    end
-
-    if current_type == wanted_type
-      return false
-    end
+    return false if (current_type.nil? || current_type == wanted_type)
 
     remove_file
   end
