@@ -421,13 +421,14 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   validate do
-    Puppet.info _("type :sslkey \"validate\" method with \"self.should\" \"%{value}\"") % { value: self.should }
+    Puppet.info _("type :sslkey \"validate\" method")
 
     [:none, :ctime, :mtime].each do |checksum_type|
       self.fail _("You cannot specify content when using checksum '%{checksum_type}'") % { checksum_type: checksum_type } if self[:checksum] == checksum_type && !self[:content].nil?
     end
 
     if @parameters[:content] && @parameters[:content].actual_content
+      Puppet.info _("type :sslkey \"validate\" method - check @parameters[:content]")
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(@parameters[:content].actual_content)
     end
