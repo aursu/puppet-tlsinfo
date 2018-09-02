@@ -2,6 +2,11 @@ require 'puppet/util/symbolic_file_mode'
 require 'puppet/util/checksums'
 
 Puppet::Type.newtype(:sslkey) do
+  def self.title_patterns
+    # strip trailing slashes from path but allow the root directory, including
+    # for example "/" or "C:/"
+    [[%r{^(/|.+:/|.*[^/])/*\Z}m, [[:path]]]]
+  end
 
   ensurable do
     newvalue(:absent) do
@@ -9,9 +14,8 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     newvalue(:present) do
-      Puppet.info _("property :ensure newvalue constructor with parameter :present")
       # Make sure we're not managing the content some other way
-      if property = @resource.property(:content)
+      if (property = @resource.property(:content))
         property.sync
       else
         @resource.write
@@ -21,32 +25,20 @@ Puppet::Type.newtype(:sslkey) do
 
     defaultto :present
 
-    # We have to treat :present specially, because it works with any
-    # type of file.
     def insync?(currentvalue)
-      Puppet.info _("property :ensure \"insync?\" with parameter \"currentvalue\" \"%{value}\"") % { value: currentvalue }
-      unless currentvalue == :absent or resource.replace?
+      unless currentvalue == :absent || resource.replace?
         return true
       end
 
-      if self.should == :present
-        return !(currentvalue.nil? or currentvalue == :absent)
-      else
-        return super(currentvalue)
-      end
+      super(currentvalue)
     end
 
     def retrieve
-      Puppet.info _("property :ensure \"retrieve\" method with \"self.should\" \"%{value}\"") % { value: self.should }
-      if stat = @resource.stat
-        return :present
-      else
-        return :absent
-      end
+      return :present if @resource.stat
+      :absent
     end
 
     def sync
-      Puppet.info _("property :ensure \"sync\" method with \"self.should\" \"%{value}\"") % { value: self.should }
       @resource.remove_existing(self.should)
       if self.should == :absent
         return :file_removed
@@ -54,62 +46,11 @@ Puppet::Type.newtype(:sslkey) do
 
       super
     end
-
-  end
-
-    # @return [String] The type of the current file, cast to a string.
-  def read_current_type
-    stat_info = stat
-    if stat_info
-      stat_info.ftype.to_s
-    else
-      nil
-    end
-  end
-
-  # Back up and remove the file or directory at `self[:path]`.
-  #
-  # @param  [Symbol] should The file type replacing the current content.
-  # @return [Boolean] True if the file was removed, else False
-  # @raises [fail???] If the file could not be backed up or could not be removed.
-  def remove_existing(should)
-    wanted_type = should.to_s
-    current_type = read_current_type
-
-    if current_type.nil?
-      return false
-    end
-
-    if current_type == wanted_type
-      return false
-    end
-
-    return remove_file(current_type, wanted_type)
-  end
-
-  # @return [Boolean] if the file was removed (which is always true currently)
-  # @api private
-  def remove_file(current_type, wanted_type)
-    debug "Removing existing #{current_type} for replacement with #{wanted_type}"
-    Puppet::FileSystem.unlink(self[:path])
-    stat_needed
-    true
-  end
-
-  def stat_needed
-    @stat = :needs_stat
-  end
-
-  def self.title_patterns
-    # strip trailing slashes from path but allow the root directory, including
-    # for example "/" or "C:/"
-    [ [ %r{^(/|.+:/|.*[^/])/*\Z}m, [ [ :path ] ] ] ]
   end
 
   newparam(:path) do
-    desc <<-'EOT'
-      The path to the private key to manage.  Must be fully qualified.
-    EOT
+    desc 'The path to the private key to manage.  Must be fully qualified.'
+
     isnamevar
 
     validate do |value|
@@ -119,7 +60,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     munge do |value|
-      if value.start_with?('//') and ::File.basename(value) == "/"
+      if value.start_with?('//') && ::File.basename(value) == '/'
         # This is a UNC path pointing to a share, so don't add a trailing slash
         ::File.expand_path(value)
       else
@@ -128,7 +69,7 @@ Puppet::Type.newtype(:sslkey) do
     end
   end
 
-  newparam(:replace, :boolean => true, :parent => Puppet::Parameter::Boolean) do
+  newparam(:replace, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc "Whether to replace a private key file that already exists on the local
       system but whose content doesn't match what the `content` attribute
       specifies. Setting this to false allows sslkey resources to initialize private
@@ -143,11 +84,11 @@ Puppet::Type.newtype(:sslkey) do
     include Puppet::Util::SymbolicFileMode
 
     validate do |value|
-      if !value.is_a?(String)
-        raise Puppet::Error, "The file mode specification must be a string, not '#{value.class.name}'"
+      unless value.is_a?(String)
+        fail Puppet::Error, "The file mode specification must be a string, not '#{value.class.name}'"
       end
-      unless value.nil? or valid_symbolic_mode?(value)
-        raise Puppet::Error, "The file mode specification is invalid: #{value.inspect}"
+      unless value.nil? || valid_symbolic_mode?(value)
+        fail Puppet::Error, "The file mode specification is invalid: #{value.inspect}"
       end
     end
 
@@ -155,7 +96,7 @@ Puppet::Type.newtype(:sslkey) do
       return nil if value.nil?
 
       unless valid_symbolic_mode?(value)
-        raise Puppet::Error, "The file mode specification is invalid: #{value.inspect}"
+        fail Puppet::Error, "The file mode specification is invalid: #{value.inspect}"
       end
 
       normalize_symbolic_mode(value)
@@ -187,33 +128,33 @@ Puppet::Type.newtype(:sslkey) do
 
       The default checksum type is md5."
 
-    newvalues "md5", "md5lite", "sha224", "sha256", "sha256lite", "sha384", "sha512", "mtime", "ctime", "none"
+    newvalues 'md5', 'md5lite', 'sha224', 'sha256', 'sha256lite', 'sha384', 'sha512', 'mtime', 'ctime', 'none'
 
     defaultto do
       Puppet[:digest_algorithm].to_sym
     end
 
     validate do |value|
-      if Puppet::Util::Platform.fips_enabled? && (value == :md5 || value == :md5lite)
-        raise ArgumentError, _("MD5 is not supported in FIPS mode")
+      if Puppet::Util::Platform.fips_enabled? && [:md5, :md5lite].include?(value)
+        fail ArgumentError, _('MD5 is not supported in FIPS mode')
       end
     end
 
     def sum(content)
       content = content.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? content.binary_buffer : content
-      type = digest_algorithm()
+      type = digest_algorithm
       "{#{type}}" + send(type, content)
     end
 
     def sum_file(path)
-      type = digest_algorithm()
-      method = type.to_s + "_file"
+      type = digest_algorithm
+      method = type.to_s + '_file'
       "{#{type}}" + send(method, path).to_s
     end
 
     def sum_stream(&block)
-      type = digest_algorithm()
-      method = type.to_s + "_stream"
+      type = digest_algorithm
+      method = type.to_s + '_stream'
       checksum = send(method, &block)
       "{#{type}}#{checksum}"
     end
@@ -228,11 +169,12 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   newproperty(:content) do
+    include Puppet::Util::Checksums
+
     attr_reader :actual_content
 
     munge do |value|
-      Puppet.info _("property :content munge with value %{value}") % { value: value }
-      if value == :absent
+      if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
         @actual_content = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
@@ -241,39 +183,37 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def length
-      (actual_content and actual_content.length) || 0
+      actual_content&.length || 0
     end
 
     def content
       self.should
     end
 
-    def insync?(is)
-      Puppet.info _("property :content insync? with parameter \"is\" \"%{value}\"") % { value: is }
-      if resource.should_be_file?
-        return false if is == :absent
-      else
-        return true
-      end
+    def insync?(current)
+      # in sync if ensure => absent
+      return true unless resource.should_be_file?
 
-      return true if !resource.replace?
+      # not in sync if ensure => present but file not exist
+      return false if current == :absent
 
-      super(is)
+      # in sync if parameter replace is self (we do not replace content)
+      return true unless resource.replace?
+
+      super(current)
     end
 
     def property_matches?(current, desired)
-      # If checksum_value is specified, it overrides comparing the content field.
-      checksum_type = resource.parameter(:checksum).value
-
       # The inherited equality is always accepted, so use it if valid.
       return true if super(current, desired)
-      return date_matches?(checksum_type, current, desired)
+
+      checksum_type = resource.parameter(:checksum).value
+      date_matches?(checksum_type, current, desired)
     end
 
     def retrieve
-      return :absent unless stat = resource.stat
+      return :absent unless (stat = resource.stat)
       begin
-        Puppet.info _("property :content retrieve method")
         resource.parameter(:checksum).sum_file(resource[:path])
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
@@ -282,12 +222,12 @@ Puppet::Type.newtype(:sslkey) do
 
     def date_matches?(checksum_type, current, desired)
       time_types = [:mtime, :ctime]
-      return false if !time_types.include?(checksum_type)
+      return false unless time_types.include?(checksum_type)
       return false unless current && desired
 
       begin
         if checksum?(current) || checksum?(desired)
-          raise if !time_types.include?(sumtype(current).to_sym) || !time_types.include?(sumtype(desired).to_sym)
+          fail if !time_types.include?(sumtype(current).to_sym) || !time_types.include?(sumtype(desired).to_sym)
           current = sumdata(current)
           desired = sumdata(desired)
         end
@@ -299,7 +239,6 @@ Puppet::Type.newtype(:sslkey) do
 
     # Make sure we're also managing the checksum property.
     def should=(value)
-      Puppet.info _("property :content should= method with parameter \"value\" \"%{value}\"") % {value: value}
       # treat the value as a bytestring
       value = value.b if value.is_a?(String)
       @resource.newattr(:checksum) unless @resource.parameter(:checksum)
@@ -308,20 +247,18 @@ Puppet::Type.newtype(:sslkey) do
 
     # Just write our content out to disk.
     def sync
-      Puppet.info _("property :content sync method")
       return_event = resource.stat ? :file_changed : :file_created
       resource.write
       return_event
     end
 
     def write(file)
-      Puppet.info _("property :content write method")
-      resource.parameter(:checksum).sum_stream { |sum|
-        each_chunk_from { |chunk|
+      resource.parameter(:checksum).sum_stream do |sum|
+        each_chunk_from do |chunk|
           sum << chunk
           file.print chunk
-        }
-      }
+        end
+      end
     end
 
     private
@@ -329,36 +266,34 @@ Puppet::Type.newtype(:sslkey) do
     # the content is munged so if it's a checksum source_or_content is nil
     # unless the checksum indirectly comes from source
     def each_chunk_from
-        Puppet.info _("property :content each_chunk_from method with actual content \"%{value}\"") % {value: actual_content}
       if actual_content.is_a?(String)
         yield actual_content
       elsif actual_content.nil?
         yield ''
       end
     end
-
   end
 
   newproperty(:owner) do
     include Puppet::Util::Warnings
 
-    desc <<-EOT
+    desc <<-DOC
       The user to whom the private key file should belong.  Argument can be
       a user name or a user ID.
-    EOT
+    DOC
 
     def insync?(current)
       # We don't want to validate/munge users until we actually start to
       # evaluate this property, because they might be added during the catalog
       # apply.
       @should.map! do |val|
-        provider.name2uid(val) or raise "Could not find user #{val}"
+        fail "Could not find user #{val}" unless provider.name2uid(val)
       end
 
       return true if @should.include?(current)
 
       unless Puppet.features.root?
-        warnonce "Cannot manage ownership unless running as root"
+        warnonce 'Cannot manage ownership unless running as root'
         return true
       end
 
@@ -366,8 +301,8 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     # We want to print names, not numbers
-    def is_to_s(currentvalue)
-      super(provider.uid2name(currentvalue) || currentvalue)
+    def is_to_s(current) # rubocop:disable Naming/PredicateName
+      super(provider.uid2name(current) || current)
     end
 
     def should_to_s(newvalue)
@@ -376,13 +311,13 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   newproperty(:group) do
-    desc <<-EOT
+    desc <<-DOC
       Which group should own the private key file. Argument can be either a
       group name or a group ID.
-    EOT
+    DOC
 
     validate do |group|
-      raise(Puppet::Error, "Invalid group name '#{group.inspect}'") unless group and group != ""
+      fail(Puppet::Error, "Invalid group name '#{group.inspect}'") unless group && group != ''
     end
 
     def insync?(current)
@@ -390,14 +325,14 @@ Puppet::Type.newtype(:sslkey) do
       # evaluate this property, because they might be added during the catalog
       # apply.
       @should.map! do |val|
-        provider.name2gid(val) or raise "Could not find group #{val}"
+        fail "Could not find group #{val}" unless provider.name2gid(val)
       end
 
       @should.include?(current)
     end
 
     # We want to print names, not numbers
-    def is_to_s(currentvalue)
+    def is_to_s(currentvalue) # rubocop:disable Naming/PredicateName
       super(provider.gid2name(currentvalue) || currentvalue)
     end
 
@@ -409,10 +344,10 @@ Puppet::Type.newtype(:sslkey) do
   autorequire(:file) do
     req = []
     path = Pathname.new(self[:path])
-    if !path.root?
+    unless path.root?
       # Start at our parent, to avoid autorequiring ourself
       parents = path.parent.enum_for(:ascend)
-      if found = parents.find { |p| catalog.resource(:file, p.to_s) }
+      if (found = parents.find { |p| catalog.resource(:file, p.to_s) })
         req << found.to_s
       end
     end
@@ -421,32 +356,25 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   validate do
-    Puppet.info _("type :sslkey \"validate\" method")
-
     [:none, :ctime, :mtime].each do |checksum_type|
       self.fail _("You cannot specify content when using checksum '%{checksum_type}'") % { checksum_type: checksum_type } if self[:checksum] == checksum_type && !self[:content].nil?
     end
 
-    if @parameters[:content] && @parameters[:content].actual_content
-      Puppet.info _("type :sslkey \"validate\" method - check @parameters[:content]")
+    if @parameters[:content]&.actual_content
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(@parameters[:content].actual_content)
-      Puppet.info _("type :sslkey \"validate\" method - updated @parameters[:content]")
     end
 
     provider.validate if provider.respond_to?(:validate)
   end
 
   def initialize(hash)
-
-    Puppet.info _("type :sslkey \"initialize\" method with parameter \"hash\" \"%{value}\"") % { value: hash }
-
     super
 
     # If they've specified a source, we get our 'should' values
     # from it.
-    if !self[:ensure] &&  self[:content]
-        self[:ensure] = :present
+    if !self[:ensure] && self[:content]
+      self[:ensure] = :present
     end
 
     @stat = :needs_stat
@@ -459,7 +387,7 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   def should_be_file?
-    return self[:ensure] == :present
+    self[:ensure] == :present
   end
 
   def stat
@@ -472,10 +400,10 @@ Puppet::Type.newtype(:sslkey) do
     rescue Errno::ENOTDIR
       nil
     rescue Errno::EACCES
-      warning _("Could not stat; permission denied")
+      warning _('Could not stat; permission denied')
       nil
     rescue Errno::EINVAL
-      warning _("Could not stat; invalid pathname")
+      warning _('Could not stat; invalid pathname')
       nil
     end
   end
@@ -485,7 +413,7 @@ Puppet::Type.newtype(:sslkey) do
   def write
     c = property(:content)
 
-    mode = self.should(:mode) # might be nil
+    mode = should(:mode) # might be nil
     mode_int = mode ? symbolic_mode_to_int(mode, Puppet::Util::DEFAULT_POSIX_MODE) : nil
 
     if write_temporary_file?
@@ -497,7 +425,7 @@ Puppet::Type.newtype(:sslkey) do
 
         begin
           file.fsync
-        rescue NotImplementedError
+        rescue NotImplementedError # rubocop:disable Lint/HandleExceptions
           # fsync may not be implemented by Ruby on all platforms, but
           # there is absolutely no recovery path if we detect that.  So, we just
           # ignore the return code.
@@ -511,7 +439,7 @@ Puppet::Type.newtype(:sslkey) do
       end
     else
       umask = mode ? 000 : 022
-      Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int ) { |f| c.write(f) if c } }
+      Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c.write(f) if c } } # rubocop:disable Style/SafeNavigation
     end
 
     # make sure all of the modes are actually correct
@@ -522,7 +450,7 @@ Puppet::Type.newtype(:sslkey) do
 
   # Should we validate the checksum of the file we're writing?
   def validate_checksum?
-    self[:checksum] !~ /time/
+    self[:checksum] !~ %r{time}
   end
 
   # Make sure the file we wrote out is what we think it is.
@@ -535,7 +463,45 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   def write_temporary_file?
-    (c = property(:content) and c.length)
+    (c = property(:content)) && c.length
+  end
+
+  # @return [String] The type of the current file, cast to a string.
+  def read_current_type
+    return stat.ftype.to_s if stat
+    nil
+  end
+
+  # Back up and remove the file or directory at `self[:path]`.
+  #
+  # @param  [Symbol] should The file type replacing the current content.
+  # @return [Boolean] True if the file was removed, else False
+  # @raises [fail???] If the file could not be backed up or could not be removed.
+  def remove_existing(should)
+    wanted_type = should.to_s
+    current_type = (read_current_type == 'file') ? 'present' : nil
+
+    if current_type.nil?
+      return false
+    end
+
+    if current_type == wanted_type
+      return false
+    end
+
+    remove_file
+  end
+
+  # @return [Boolean] if the file was removed (which is always true currently)
+  # @api private
+  def remove_file
+    Puppet::FileSystem.unlink(self[:path])
+    stat_needed
+    true
+  end
+
+  def stat_needed
+    @stat = :needs_stat
   end
 
   # There are some cases where all of the work does not get done on
@@ -550,5 +516,4 @@ Puppet::Type.newtype(:sslkey) do
       thing.sync unless thing.safe_insync?(currentvalue)
     end
   end
-
 end

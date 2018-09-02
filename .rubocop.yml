@@ -118,3 +118,13 @@ Style/MixinUsage:
   Enabled: false
 Style/RescueStandardError:
   Enabled: false
+Style/SignalException:
+  EnforcedStyle: semantic
+Style/DateTime:
+  Enabled: false
+Style/RedundantSelf:
+  Enabled: false
+Style/NumericLiteralPrefix:
+  Enabled: false
+Lint/BooleanSymbol:
+  Enabled: false
