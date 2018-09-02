@@ -235,6 +235,7 @@ Puppet::Type.newtype(:sslkey) do
     attr_reader :actual_content
 
     munge do |value|
+      Puppet.info _("property :content munge with value %{value}") % { value: value }
       if value == :absent
         value
       else
@@ -252,6 +253,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def insync?(is)
+      Puppet.info _("property :content insync? with parameter \"is\" \"%{value}\"") % { value: is }
       if resource.should_be_file?
         return false if is == :absent
       else
@@ -275,6 +277,7 @@ Puppet::Type.newtype(:sslkey) do
     def retrieve
       return :absent unless stat = resource.stat
       begin
+        Puppet.info _("property :content retrieve method")
         resource.parameter(:checksum).sum_file(resource[:path])
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
@@ -300,6 +303,7 @@ Puppet::Type.newtype(:sslkey) do
 
     # Make sure we're also managing the checksum property.
     def should=(value)
+      Puppet.info _("property :content should= method with parameter \"value\" \"%{value}\"") % {value: value}
       # treat the value as a bytestring
       value = value.b if value.is_a?(String)
       @resource.newattr(:checksum) unless @resource.parameter(:checksum)
@@ -308,12 +312,14 @@ Puppet::Type.newtype(:sslkey) do
 
     # Just write our content out to disk.
     def sync
+      Puppet.info _("property :content sync method")
       return_event = resource.stat ? :file_changed : :file_created
       resource.write
       return_event
     end
 
     def write(file)
+      Puppet.info _("property :content write method")
       resource.parameter(:checksum).sum_stream { |sum|
         each_chunk_from { |chunk|
           sum << chunk
@@ -327,6 +333,7 @@ Puppet::Type.newtype(:sslkey) do
     # the content is munged so if it's a checksum source_or_content is nil
     # unless the checksum indirectly comes from source
     def each_chunk_from
+        Puppet.info _("property :content each_chunk_from method with actual content \"%{value}\"") % {value: actual_content}
       if actual_content.is_a?(String)
         yield actual_content
       elsif actual_content.nil?
