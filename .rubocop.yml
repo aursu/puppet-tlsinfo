@@ -116,3 +116,5 @@ Style/FrozenStringLiteralComment:
   EnforcedStyle: never
 Style/MixinUsage:
   Enabled: false
+Style/RescueStandardError:
+  Enabled: false
