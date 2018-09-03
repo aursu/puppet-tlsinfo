@@ -37,7 +37,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def retrieve
-      return :present if @resource.stat&.ftype.to_s == 'file'
+      return :present if (stat = @resource.stat) && stat.ftype.to_s == 'file'
       :absent
     end
 
@@ -88,12 +88,13 @@ Puppet::Type.newtype(:sslkey) do
     defaultto :true
   end
 
-  newproperty(:secret) do
-    desc "Encrypted private key password"
+  newparam(:password) do
+    desc 'Encrypted private key password'
 
     validate do |value|
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
+
 
     nodefault
   end
