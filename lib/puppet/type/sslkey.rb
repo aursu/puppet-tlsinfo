@@ -174,12 +174,14 @@ Puppet::Type.newtype(:sslkey) do
     attr_reader :actual_content
 
     validate do |value|
+      Puppet.info _("property :content, method 'validate', value %{value}") % {value: value}
       if value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, "Private key must be provided via 'content' property" unless @actual_content
       end
     end
 
     munge do |value|
+      Puppet.info _("property :content, method 'munge', value %{value}") % {value: value}
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
@@ -197,14 +199,21 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def insync?(current)
+      Puppet.info _("property :content, method 'insync?', 'current' value %{value}") % {value: current}
       # in sync if ensure => absent
       return true unless resource.should_be_file?
+
+      Puppet.info _("property :content, method 'insync?', 'return true unless resource.should_be_file?' not returned")
 
       # not in sync if ensure => present but file not exist
       return false if current == :absent
 
+      Puppet.info _("property :content, method 'insync?', 'return false if current == :absent' not returned")
+
       # in sync if parameter replace is false (we do not replace content)
       return true unless resource.replace?
+
+      Puppet.info _("property :content, method 'insync?', 'return true unless resource.replace?' not returned")
 
       super(current)
     end
@@ -218,7 +227,9 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def retrieve
-      return :absent unless (stat = resource.stat)
+      Puppet.info _("property :content, method 'retrieve'")
+      # Private key file must be not empty.
+      return :absent unless (stat = resource.stat && stat.size > 0)
       begin
         resource.parameter(:checksum).sum_file(resource[:path])
       rescue => detail
