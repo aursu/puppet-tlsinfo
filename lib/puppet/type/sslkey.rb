@@ -2,6 +2,8 @@ require 'puppet/util/symbolic_file_mode'
 require 'puppet/util/checksums'
 
 Puppet::Type.newtype(:sslkey) do
+  include Puppet::Util::SymbolicFileMode
+
   def self.title_patterns
     # strip trailing slashes from path but allow the root directory, including
     # for example "/" or "C:/"
