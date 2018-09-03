@@ -470,6 +470,15 @@ Puppet::Type.newtype(:sslkey) do
     property_fix
   end
 
+  def remove_existing(should)
+    wanted_type = should.to_s
+    current_type = (read_current_type == 'file') ? 'present' : nil
+
+    return false if current_type.nil? || current_type == wanted_type
+
+    remove_file
+  end
+
   private
 
   # Should we validate the checksum of the file we're writing?
@@ -494,15 +503,6 @@ Puppet::Type.newtype(:sslkey) do
   def read_current_type
     return stat.ftype.to_s if stat
     nil
-  end
-
-  def remove_existing(should)
-    wanted_type = should.to_s
-    current_type = (read_current_type == 'file') ? 'present' : nil
-
-    return false if current_type.nil? || current_type == wanted_type
-
-    remove_file
   end
 
   # @return [Boolean] if the file was removed (which is always true currently)
