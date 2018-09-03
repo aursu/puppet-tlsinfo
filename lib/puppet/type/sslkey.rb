@@ -95,7 +95,6 @@ Puppet::Type.newtype(:sslkey) do
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
 
-    sensitive true
   end
 
   # copied from https://github.com/puppetlabs/puppet/blob/master/lib/puppet/type/file/mode.rb
