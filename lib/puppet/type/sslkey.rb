@@ -1,5 +1,6 @@
 require 'puppet/util/symbolic_file_mode'
 require 'puppet/util/checksums'
+require 'openssl'
 
 Puppet::Type.newtype(:sslkey) do
   include Puppet::Util::SymbolicFileMode
@@ -187,8 +188,12 @@ Puppet::Type.newtype(:sslkey) do
       elsif value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, 'Private key must be provided via :content property' unless @actual_content
       else
-        # TODO: check non-empty private key
-        #       check if password provided and match
+        Puppet.info _("Private key password '%{password}'") % {password: @resource[:password]}
+        begin:
+          OpenSSL::PKey::RSA.new(value)
+        rescue OpenSSL::PKey::RSAError => e
+          raise Puppet::Error, "Can not read private key content (#{e.message})"
+        end
       end
     end
 
