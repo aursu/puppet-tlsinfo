@@ -16,6 +16,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     newvalue(:present) do
+      Puppet.info _("property :ensure, method 'newvalue'")
       # Make sure we're not managing the content some other way
       if (property = @resource.property(:content))
         property.sync
@@ -28,6 +29,7 @@ Puppet::Type.newtype(:sslkey) do
     defaultto :present
 
     def insync?(current)
+      Puppet.info _("property :ensure, method 'insync?' current is %{value}") % {value: current}
       unless current == :absent || resource.replace?
         return true
       end
@@ -36,11 +38,13 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def retrieve
+      Puppet.info _("property :ensure, method 'retrieve'")
       return :present if @resource.stat&.ftype.to_s == 'file'
       :absent
     end
 
     def sync
+      Puppet.info _("property :ensure, method 'sync'")
       should = self.should
       current = retrieve
 
@@ -394,6 +398,7 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   validate do
+    Puppet.info _("type :sslkey, method 'validate', path %{value}") % {value: self[:path]}
     [:none, :ctime, :mtime].each do |checksum_type|
       self.fail _("You cannot specify content when using checksum '%{checksum_type}'") % { checksum_type: checksum_type } if self[:checksum] == checksum_type && !self[:content].nil?
     end
@@ -450,12 +455,14 @@ Puppet::Type.newtype(:sslkey) do
   # Write out the private key file. To write content, we use property :content
   # write method
   def write
+    Puppet.info _("type :sslkey, method 'write'")
     c = property(:content)
 
     mode = should(:mode) # might be nil
     mode_int = mode ? symbolic_mode_to_int(mode, Puppet::Util::DEFAULT_POSIX_MODE) : nil
 
     if c&.length
+      Puppet.info _("type :sslkey, method 'write', c.length is %{value}") % {value: c.length}
       Puppet::Util.replace_file(self[:path], mode_int) do |file|
         file.binmode
 
@@ -477,6 +484,7 @@ Puppet::Type.newtype(:sslkey) do
         fail_if_checksum_is_wrong(file.path, content_checksum) if validate_checksum?
       end
     else
+      Puppet.info _("type :sslkey, method 'write', c.length is %{value}") % {value: c&.length}
       umask = mode ? 000 : 022
       Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c&.write(f) } }
     end
