@@ -88,7 +88,7 @@ Puppet::Type.newtype(:sslkey) do
     defaultto :true
   end
 
-  newproperty(:password) do
+  newproperty(:secret) do
     desc "Encrypted private key password"
 
     validate do |value|
