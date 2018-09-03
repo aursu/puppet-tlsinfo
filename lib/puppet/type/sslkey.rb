@@ -27,22 +27,28 @@ Puppet::Type.newtype(:sslkey) do
 
     defaultto :present
 
-    def insync?(currentvalue)
-      unless currentvalue == :absent || resource.replace?
+    def insync?(current)
+      unless current == :absent || resource.replace?
         return true
       end
 
-      super(currentvalue)
+      super(current)
     end
 
     def retrieve
-      return :present if @resource.stat
+      return :present if @resource.stat&.ftype.to_s == 'file'
       :absent
     end
 
     def sync
-      @resource.remove_existing(self.should)
-      if self.should == :absent
+      should = self.should
+      current = retrieve
+
+      unless current == :absent || current == should
+        @resource.remove_file
+      end
+
+      if should == :absent
         return :file_removed
       end
 
@@ -179,9 +185,11 @@ Puppet::Type.newtype(:sslkey) do
       Puppet.info _("property :content, method 'validate', value '%{value}' for path %{path}") % {value: value, path: resource[:path]}
       if value.nil? || value.empty?
         fail Puppet::Error, "Private key must be not empty"
-      end
-      if value == :absent || (value.is_a?(String) && checksum?(value))
+      elsif value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, "Private key must be provided via 'content' property" unless @actual_content
+      else
+        # TODO: check non-empty private key
+        #       check if password provided and match
       end
     end
 
@@ -190,6 +198,7 @@ Puppet::Type.newtype(:sslkey) do
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
+        # TODO: read content with OpenSSL::PKey::RSA and return in PEM form (encrypted if password provided)
         @actual_content = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
         resource.parameter(:checksum).sum(@actual_content)
       end
@@ -234,7 +243,7 @@ Puppet::Type.newtype(:sslkey) do
     def retrieve
       Puppet.info _("property :content, method 'retrieve' for path %{path}") % {path: resource[:path]}
       # Private key file must be not empty.
-      return :absent unless ((stat = resource.stat) && stat.size > 0)
+      return :absent unless (stat = resource.stat) && stat.size > 0
       begin
         resource.parameter(:checksum).sum_file(resource[:path])
       rescue => detail
@@ -398,6 +407,7 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   def initialize(hash)
+    Puppet.info _("type :sslkey, method 'initialize', hash %{value}") % {value: hash}
     super
 
     # If they've specified a source, we get our 'should' values
@@ -445,7 +455,7 @@ Puppet::Type.newtype(:sslkey) do
     mode = should(:mode) # might be nil
     mode_int = mode ? symbolic_mode_to_int(mode, Puppet::Util::DEFAULT_POSIX_MODE) : nil
 
-    if write_temporary_file?
+    if c&.length
       Puppet::Util.replace_file(self[:path], mode_int) do |file|
         file.binmode
 
@@ -468,20 +478,19 @@ Puppet::Type.newtype(:sslkey) do
       end
     else
       umask = mode ? 000 : 022
-      Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c.write(f) if c } } # rubocop:disable Style/SafeNavigation
+      Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c&.write(f) } }
     end
 
     # make sure all of the modes are actually correct
     property_fix
   end
 
-  def remove_existing(should)
-    wanted_type = should.to_s
-    current_type = (read_current_type == 'file') ? 'present' : nil
-
-    return false if current_type.nil? || current_type == wanted_type
-
-    remove_file
+  # @return [Boolean] if the file was removed (which is always true currently)
+  # @api private
+  def remove_file
+    Puppet::FileSystem.unlink(self[:path])
+    stat_needed
+    true
   end
 
   private
@@ -500,22 +509,10 @@ Puppet::Type.newtype(:sslkey) do
         (%{content_checksum} vs %{newsum})") % { content_checksum: content_checksum, newsum: newsum }
   end
 
-  def write_temporary_file?
-    (c = property(:content)) && c.length
-  end
-
   # @return [String] The type of the current file, cast to a string.
   def read_current_type
     return stat.ftype.to_s if stat
     nil
-  end
-
-  # @return [Boolean] if the file was removed (which is always true currently)
-  # @api private
-  def remove_file
-    Puppet::FileSystem.unlink(self[:path])
-    stat_needed
-    true
   end
 
   def stat_needed
