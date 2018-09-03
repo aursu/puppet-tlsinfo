@@ -173,6 +173,12 @@ Puppet::Type.newtype(:sslkey) do
 
     attr_reader :actual_content
 
+    validate do |value|
+      if value == :absent || (value.is_a?(String) && checksum?(value))
+        fail Puppet::Error, "Private key must be provided via 'content' property" unless @actual_content
+      end
+    end
+
     munge do |value|
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
@@ -272,6 +278,15 @@ Puppet::Type.newtype(:sslkey) do
         yield ''
       end
     end
+  end
+
+  newproperty(:password) do
+
+    validate do |value|
+      raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
+    end
+
+    sensitive true
   end
 
   newproperty(:owner) do
