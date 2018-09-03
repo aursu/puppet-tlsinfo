@@ -389,9 +389,11 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     if @parameters[:content]&.actual_content
+      Puppet.info _("type :sslkey, method 'validate' for path %{path}, content and actual_content are existing") % {path: self[:path]}
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(@parameters[:content].actual_content)
     else
+      Puppet.info _("type :sslkey, method 'validate' for path %{path}, content and actual_content are NOT existing, replace is %{replcae}") % {path: self[:path], replace: self[:replace]}
       self.fail _("Property :content is mandatory if replace => true") unless self[:replace]
     end
 
