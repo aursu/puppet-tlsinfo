@@ -110,4 +110,11 @@ Puppet::Type.type(:sslkey).provide :posix do
     error.set_backtrace detail.backtrace
     raise error
   end
+
+  def password
+  end
+
+  def password=(value)
+  end
+
 end
