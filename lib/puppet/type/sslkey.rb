@@ -176,7 +176,10 @@ Puppet::Type.newtype(:sslkey) do
     attr_reader :actual_content
 
     validate do |value|
-      Puppet.info _("property :content, method 'validate', value %{value} for path %{path}") % {value: value, path: resource[:path]}
+      Puppet.info _("property :content, method 'validate', value '%{value}' for path %{path}") % {value: value, path: resource[:path]}
+      if value.nil? || value.empty?
+        fail Puppet::Error, "Private key must be not empty"
+      end
       if value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, "Private key must be provided via 'content' property" unless @actual_content
       end
