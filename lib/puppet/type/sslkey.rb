@@ -88,12 +88,14 @@ Puppet::Type.newtype(:sslkey) do
     defaultto :true
   end
 
-  newproperty(:password) do
+  newparam(:password) do
     desc "Encrypted private key password"
 
     validate do |value|
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
+
+    nodefault
   end
 
   # copied from https://github.com/puppetlabs/puppet/blob/master/lib/puppet/type/file/mode.rb
