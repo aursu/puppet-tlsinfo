@@ -183,9 +183,9 @@ Puppet::Type.newtype(:sslkey) do
 
     validate do |value|
       if value.nil? || value.empty?
-        fail Puppet::Error, "Private key must be not empty"
+        fail Puppet::Error, 'Private key must be not empty'
       elsif value == :absent || (value.is_a?(String) && checksum?(value))
-        fail Puppet::Error, "Private key must be provided via 'content' property" unless @actual_content
+        fail Puppet::Error, 'Private key must be provided via :content property' unless @actual_content
       else
         # TODO: check non-empty private key
         #       check if password provided and match
@@ -211,10 +211,10 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def insync?(current)
-      # in sync if ensure => absent
+      # in sync if ensure is :absent
       return true unless resource.should_be_file?
 
-      # not in sync if ensure => present but file not exist
+      # not in sync if ensure is :present but file not exist
       return false if current == :absent
 
       # in sync if parameter replace is false (we do not replace content)
@@ -296,10 +296,11 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   newproperty(:password) do
-
     validate do |value|
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
+
+    sensitive = true
   end
 
   newproperty(:owner) do
@@ -392,7 +393,7 @@ Puppet::Type.newtype(:sslkey) do
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(@parameters[:content].actual_content)
     else
-      self.fail _(':content property is mandatory for private key (if :ensure is :present and :replace is true)') if should_be_file? && self[:replace]
+      self.fail _(':content property is mandatory for private key') if should_be_file? && self[:replace]
     end
 
     provider.validate if provider.respond_to?(:validate)
@@ -522,4 +523,5 @@ Puppet::Type.newtype(:sslkey) do
       thing.sync unless thing.safe_insync?(currentvalue)
     end
   end
+
 end
