@@ -16,7 +16,6 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     newvalue(:present) do
-      Puppet.info _("property :ensure, method 'newvalue' for path %{path}") % {path: @resource[:path]}
       # Make sure we're not managing the content some other way
       if (property = @resource.property(:content))
         property.sync
@@ -29,7 +28,6 @@ Puppet::Type.newtype(:sslkey) do
     defaultto :present
 
     def insync?(current)
-      Puppet.info _("property :ensure, method 'insync?' current is %{value} for path %{path}") % {value: current, path: @resource[:path]}
       unless current == :absent || resource.replace?
         return true
       end
@@ -38,13 +36,11 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def retrieve
-      Puppet.info _("property :ensure, method 'retrieve' for path %{path}") % {path: @resource[:path]}
       return :present if @resource.stat&.ftype.to_s == 'file'
       :absent
     end
 
     def sync
-      Puppet.info _("property :ensure, method 'sync' for path %{path}") % {path: @resource[:path]}
       should = self.should
       current = retrieve
 
@@ -186,7 +182,6 @@ Puppet::Type.newtype(:sslkey) do
     attr_reader :actual_content
 
     validate do |value|
-      Puppet.info _("property :content, method 'validate', value '%{value}' for path %{path}") % {value: value, path: resource[:path]}
       if value.nil? || value.empty?
         fail Puppet::Error, "Private key must be not empty"
       elsif value == :absent || (value.is_a?(String) && checksum?(value))
@@ -198,7 +193,6 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     munge do |value|
-      Puppet.info _("property :content, method 'munge', value %{value} for path %{path}") % {value: value, path: resource[:path]}
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
@@ -217,21 +211,14 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def insync?(current)
-      Puppet.info _("property :content, method 'insync?', 'current' value %{value} for path %{path}") % {value: current, path: resource[:path]}
       # in sync if ensure => absent
       return true unless resource.should_be_file?
-
-      Puppet.info _("property :content, method 'insync?', 'return true unless resource.should_be_file?' not returned")
 
       # not in sync if ensure => present but file not exist
       return false if current == :absent
 
-      Puppet.info _("property :content, method 'insync?', 'return false if current == :absent' not returned")
-
       # in sync if parameter replace is false (we do not replace content)
       return true unless resource.replace?
-
-      Puppet.info _("property :content, method 'insync?', 'return true unless resource.replace?' not returned")
 
       super(current)
     end
@@ -245,7 +232,6 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def retrieve
-      Puppet.info _("property :content, method 'retrieve' for path %{path}") % {path: resource[:path]}
       # Private key file must be not empty.
       return :absent unless (stat = resource.stat) && stat.size > 0
       begin
@@ -398,7 +384,6 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   validate do
-    Puppet.info _("type :sslkey, method 'validate', path %{value}") % {value: self[:path]}
     [:none, :ctime, :mtime].each do |checksum_type|
       self.fail _("You cannot specify content when using checksum '%{checksum_type}'") % { checksum_type: checksum_type } if self[:checksum] == checksum_type && !self[:content].nil?
     end
@@ -406,13 +391,14 @@ Puppet::Type.newtype(:sslkey) do
     if @parameters[:content]&.actual_content
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(@parameters[:content].actual_content)
+    else
+      self.fail _("Property :content is mandatory if replace => true") unless self[:replace]
     end
 
     provider.validate if provider.respond_to?(:validate)
   end
 
   def initialize(hash)
-    Puppet.info _("type :sslkey, method 'initialize', hash %{value}") % {value: hash}
     super
 
     # If they've specified a source, we get our 'should' values
@@ -455,14 +441,12 @@ Puppet::Type.newtype(:sslkey) do
   # Write out the private key file. To write content, we use property :content
   # write method
   def write
-    Puppet.info _("type :sslkey, method 'write'")
     c = property(:content)
 
     mode = should(:mode) # might be nil
     mode_int = mode ? symbolic_mode_to_int(mode, Puppet::Util::DEFAULT_POSIX_MODE) : nil
 
     if c&.length
-      Puppet.info _("type :sslkey, method 'write', c.length is %{value}") % {value: c.length}
       Puppet::Util.replace_file(self[:path], mode_int) do |file|
         file.binmode
 
@@ -484,7 +468,6 @@ Puppet::Type.newtype(:sslkey) do
         fail_if_checksum_is_wrong(file.path, content_checksum) if validate_checksum?
       end
     else
-      Puppet.info _("type :sslkey, method 'write', c.length is %{value}") % {value: c&.length}
       umask = mode ? 000 : 022
       Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c&.write(f) } }
     end
