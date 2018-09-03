@@ -229,7 +229,7 @@ Puppet::Type.newtype(:sslkey) do
     def retrieve
       Puppet.info _("property :content, method 'retrieve'")
       # Private key file must be not empty.
-      return :absent unless (stat = resource.stat && stat.size > 0)
+      return :absent unless ((stat = resource.stat) && stat.size > 0)
       begin
         resource.parameter(:checksum).sum_file(resource[:path])
       rescue => detail
