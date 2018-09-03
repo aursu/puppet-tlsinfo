@@ -16,7 +16,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     newvalue(:present) do
-      Puppet.info _("property :ensure, method 'newvalue'")
+      Puppet.info _("property :ensure, method 'newvalue' for path %{path}") % {path: @resource[:path]}
       # Make sure we're not managing the content some other way
       if (property = @resource.property(:content))
         property.sync
@@ -29,7 +29,7 @@ Puppet::Type.newtype(:sslkey) do
     defaultto :present
 
     def insync?(current)
-      Puppet.info _("property :ensure, method 'insync?' current is %{value}") % {value: current}
+      Puppet.info _("property :ensure, method 'insync?' current is %{value} for path %{path}") % {value: current, path: @resource[:path]}
       unless current == :absent || resource.replace?
         return true
       end
@@ -38,13 +38,13 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def retrieve
-      Puppet.info _("property :ensure, method 'retrieve'")
+      Puppet.info _("property :ensure, method 'retrieve' for path %{path}") % {path: @resource[:path]}
       return :present if @resource.stat&.ftype.to_s == 'file'
       :absent
     end
 
     def sync
-      Puppet.info _("property :ensure, method 'sync'")
+      Puppet.info _("property :ensure, method 'sync' for path %{path}") % {path: @resource[:path]}
       should = self.should
       current = retrieve
 
