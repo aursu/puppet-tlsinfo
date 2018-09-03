@@ -88,6 +88,16 @@ Puppet::Type.newtype(:sslkey) do
     defaultto :true
   end
 
+  newparam(:password) do
+    desc "Encrypted private key password"
+
+    validate do |value|
+      raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
+    end
+
+    sensitive true
+  end
+
   # copied from https://github.com/puppetlabs/puppet/blob/master/lib/puppet/type/file/mode.rb
   newproperty(:mode) do
     include Puppet::Util::SymbolicFileMode
@@ -298,14 +308,6 @@ Puppet::Type.newtype(:sslkey) do
         yield ''
       end
     end
-  end
-
-  newparam(:password) do
-    validate do |value|
-      raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
-    end
-
-    sensitive = true
   end
 
   newproperty(:owner) do
