@@ -218,7 +218,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def length
-      actual_content&.length || 0
+      (actual_content and actual_content.length) || 0
     end
 
     def content
@@ -396,9 +396,9 @@ Puppet::Type.newtype(:sslkey) do
       self.fail _("You cannot specify content when using checksum '%{checksum_type}'") % { checksum_type: checksum_type } if self[:checksum] == checksum_type && !self[:content].nil?
     end
 
-    if @parameters[:content]&.actual_content
+    if (c = @parameters[:content]) && c.actual_content
       # Now that we know the checksum, update content (in case it was created before checksum was known).
-      @parameters[:content].value = @parameters[:checksum].sum(@parameters[:content].actual_content)
+      @parameters[:content].value = @parameters[:checksum].sum(c.actual_content)
     else
       self.fail _(':content property is mandatory for private key') if should_be_file? && self[:replace]
     end
@@ -449,12 +449,10 @@ Puppet::Type.newtype(:sslkey) do
   # Write out the private key file. To write content, we use property :content
   # write method
   def write
-    c = property(:content)
-
     mode = should(:mode) # might be nil
     mode_int = mode ? symbolic_mode_to_int(mode, Puppet::Util::DEFAULT_POSIX_MODE) : nil
 
-    if c&.length
+    if (c = property(:content)) && c.length
       Puppet::Util.replace_file(self[:path], mode_int) do |file|
         file.binmode
 
@@ -477,7 +475,7 @@ Puppet::Type.newtype(:sslkey) do
       end
     else
       umask = mode ? 000 : 022
-      Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c&.write(f) } }
+      Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c.write(f) if c } }
     end
 
     # make sure all of the modes are actually correct
