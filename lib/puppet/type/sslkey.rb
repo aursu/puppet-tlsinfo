@@ -300,7 +300,7 @@ Puppet::Type.newtype(:sslkey) do
     end
   end
 
-  newproperty(:password) do
+  newparam(:password) do
     validate do |value|
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
