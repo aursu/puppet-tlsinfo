@@ -295,7 +295,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def modulus
-      rsa_key_modulus(keyobj) unless keyobj.nil?
+      return rsa_key_modulus(keyobj) unless keyobj.nil?
       nil
     end
 
