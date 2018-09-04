@@ -227,7 +227,7 @@ Puppet::Type.newtype(:sslkey) do
         value
       else
         @keyobj = read_rsa_key(value)
-        @actual_content = rsa_to_pem(key)
+        @actual_content = rsa_to_pem(keyobj)
 
         resource.parameter(:checksum).sum(modulus)
       end
