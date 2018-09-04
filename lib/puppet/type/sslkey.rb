@@ -1,6 +1,7 @@
 require 'puppet/util/symbolic_file_mode'
 require 'puppet/util/checksums'
 require 'openssl'
+require 'securerandom'
 
 Puppet::Type.newtype(:sslkey) do
   include Puppet::Util::SymbolicFileMode
@@ -11,6 +12,7 @@ Puppet::Type.newtype(:sslkey) do
     [[%r{^(/|.+:/|.*[^/])/*\Z}m, [[:path]]]]
   end
 
+  # password must be a property defined before content property
   newproperty(:password) do
     desc 'Encrypted private key password'
 
@@ -196,9 +198,10 @@ Puppet::Type.newtype(:sslkey) do
       elsif value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, 'Private key must be provided via :content property' unless @actual_content
       else
-        Puppet.info _("Private key password '%{password}'") % { password: @resource[:password] }
+        # get password from resource hash (if provided) or define it as random password
+        password = @resource[:password] || SecureRandom.urlsafe_base64(10)
         begin
-          OpenSSL::PKey::RSA.new(value)
+          OpenSSL::PKey::RSA.new(value, password)
         rescue OpenSSL::PKey::RSAError => e
           raise Puppet::Error, "Can not read private key content (#{e.message})"
         end
