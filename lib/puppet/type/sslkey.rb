@@ -21,11 +21,11 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     # password is always in sync (we do not handle it as real property)
-    def insync?(current)
-      true
-    end
+    #def insync?(current)
+    #  true
+    #end
 
-    sensitive true
+    sensitive = true
   end
 
   ensurable do
