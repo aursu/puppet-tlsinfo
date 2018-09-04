@@ -227,6 +227,7 @@ Puppet::Type.newtype(:sslkey) do
         value
       else
         @keyobj = read_rsa_key(value)
+        fail Puppet::Error, _('Munging failed: can not read keypair content') if keyobj.nil?
         @actual_content = rsa_to_pem(keyobj)
 
         resource.parameter(:checksum).sum(modulus)
