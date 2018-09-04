@@ -205,7 +205,7 @@ Puppet::Type.newtype(:sslkey) do
   newproperty(:content) do
     include Puppet::Util::Checksums
 
-    attr_reader :actual_content
+    attr_reader :actual_content, :keyobj
 
     validate do |value|
       if value.nil? || value.empty?
@@ -226,10 +226,10 @@ Puppet::Type.newtype(:sslkey) do
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
-        key = read_rsa_key(value)
-
+        @keyobj = read_rsa_key(value)
         @actual_content = rsa_to_pem(key)
-        resource.parameter(:checksum).sum(actual_content)
+
+        resource.parameter(:checksum).sum(modulus)
       end
     end
 
@@ -261,7 +261,7 @@ Puppet::Type.newtype(:sslkey) do
         raw = File.read(resource[:path])
         key = read_rsa_key(raw)
         return :absent if key.nil?
-        resource.parameter(:checksum).sum(rsa_to_pem(key))
+        resource.parameter(:checksum).sum(rsa_key_modulus(key))
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
       end
@@ -289,6 +289,11 @@ Puppet::Type.newtype(:sslkey) do
           file.print chunk
         end
       end
+    end
+
+    def modulus
+      rsa_key_modulus(keyobj) if keyobj
+      nil
     end
 
     private
@@ -414,9 +419,9 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   validate do
-    if (c = @parameters[:content]) && c.actual_content
+    if (c = @parameters[:content]) && c.keyobj
       # Now that we know the checksum, update content (in case it was created before checksum was known).
-      @parameters[:content].value = @parameters[:checksum].sum(c.actual_content)
+      @parameters[:content].value = @parameters[:checksum].sum(c.modulus)
     else
       self.fail _(':content property is mandatory for private key') if should_be_file? && self[:replace]
     end
