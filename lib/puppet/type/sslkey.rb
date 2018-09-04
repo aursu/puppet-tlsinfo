@@ -25,7 +25,9 @@ Puppet::Type.newtype(:sslkey) do
     #  true
     #end
 
-    sensitive = true
+    def should_to_s(value)
+      super('[redacted]')
+    end
   end
 
   ensurable do
