@@ -19,6 +19,13 @@ Puppet::Type.newtype(:sslkey) do
     validate do |value|
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
+
+    # password is always in sync (we do not handle it as real property)
+    def insync?(current)
+      true
+    end
+
+    sensitive true
   end
 
   ensurable do
