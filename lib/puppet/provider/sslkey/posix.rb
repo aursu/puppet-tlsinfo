@@ -8,6 +8,8 @@ Puppet::Type.type(:sslkey).provide :posix do
 
   require 'etc'
 
+  attr_accessor :password
+
   def uid2name(id)
     return id.to_s if id.is_a?(Symbol) || id.is_a?(String)
     return nil if id > Puppet[:maximum_uid].to_i
