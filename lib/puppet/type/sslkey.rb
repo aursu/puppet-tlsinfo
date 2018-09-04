@@ -20,6 +20,11 @@ Puppet::Type.newtype(:sslkey) do
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
 
+    munge do |value|
+      return value if value.is_a?(String)
+      nil
+    end
+
     # password is always in sync (we do not handle it as real property)
     def insync?(current)
       true
@@ -157,7 +162,7 @@ Puppet::Type.newtype(:sslkey) do
 
       The default checksum type is md5."
 
-    newvalues 'md5', 'md5lite', 'sha224', 'sha256', 'sha256lite', 'sha384', 'sha512', 'mtime', 'ctime', 'none'
+    newvalues 'md5', 'md5lite', 'sha224', 'sha256', 'sha256lite', 'sha384', 'sha512'
 
     defaultto do
       Puppet[:digest_algorithm].to_sym
@@ -208,12 +213,11 @@ Puppet::Type.newtype(:sslkey) do
       elsif value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, 'Private key must be provided via :content property' unless @actual_content
       else
-        # get password from resource hash (if provided) or define it as random password
-        password = @resource[:password] || SecureRandom.urlsafe_base64(10)
-        begin
-          OpenSSL::PKey::RSA.new(value, password)
-        rescue OpenSSL::PKey::RSAError => e
-          raise Puppet::Error, "Can not read private key content (#{e.message})"
+        key = read_rsa_key(raw)
+        fail Puppet::Error, _('Can not read keypair content') if key.nil?
+        fail Puppet::Error, _('Provided keypair does not contain a private key') unless key.private?
+        if (size = rsa_key_size(key)) < 2048
+          fail Puppet::Error, _("Provided key is too weak (key size is #{size}")
         end
       end
     end
@@ -222,8 +226,9 @@ Puppet::Type.newtype(:sslkey) do
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
-        # TODO: read content with OpenSSL::PKey::RSA and return in PEM form (encrypted if password provided)
-        @actual_content = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
+        key = read_rsa_key(value)
+
+        @actual_content = rsa_to_pem(key)
         resource.parameter(:checksum).sum(@actual_content)
       end
     end
@@ -249,38 +254,16 @@ Puppet::Type.newtype(:sslkey) do
       super(current)
     end
 
-    def property_matches?(current, desired)
-      # The inherited equality is always accepted, so use it if valid.
-      return true if super(current, desired)
-
-      checksum_type = resource.parameter(:checksum).value
-      date_matches?(checksum_type, current, desired)
-    end
-
     def retrieve
       # Private key file must be not empty.
       return :absent unless (stat = resource.stat) && stat.size > 0
       begin
-        resource.parameter(:checksum).sum_file(resource[:path])
+        raw = File.read(resource[:path])
+        key = read_rsa_key(raw)
+        return :absent if key.nil?
+        resource.parameter(:checksum).sum(rsa_to_pem(key))
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
-      end
-    end
-
-    def date_matches?(checksum_type, current, desired)
-      time_types = [:mtime, :ctime]
-      return false unless time_types.include?(checksum_type)
-      return false unless current && desired
-
-      begin
-        if checksum?(current) || checksum?(desired)
-          fail if !time_types.include?(sumtype(current).to_sym) || !time_types.include?(sumtype(desired).to_sym)
-          current = sumdata(current)
-          desired = sumdata(desired)
-        end
-        DateTime.parse(current) >= DateTime.parse(desired)
-      rescue => detail
-        self.fail Puppet::Error, "Resource with checksum_type #{checksum_type} didn't contain a date in #{current} or #{desired}", detail.backtrace
       end
     end
 
@@ -309,6 +292,34 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     private
+
+    def read_rsa_key(value)
+      raw = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
+      # get :password property (if provided) or define it as random password
+      password = @resource[:password] || SecureRandom.urlsafe_base64(10)
+      OpenSSL::PKey::RSA.new(raw, password)
+    rescue OpenSSL::PKey::RSAError => e
+      warning _('Can not create RSA PKey object (%{message})') % {message: e.message}
+      nil
+    end
+
+    # openssl rsa -des3 -in <key> -passout pass:<@resource[:password]>
+    def rsa_to_pem(key)
+      if (password = @resource[:password])
+        cipher = OpenSSL::Cipher.new('DES3')
+        key.to_pem(cipher, password)
+      else
+        key.to_pem
+      end
+    end
+
+    def rsa_key_modulus(key)
+      key.params['n'].to_s(16)
+    end
+
+    def rsa_key_size(key)
+      key.params['n'].num_bits
+    end
 
     # the content is munged so if it's a checksum source_or_content is nil
     # unless the checksum indirectly comes from source
@@ -403,10 +414,6 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   validate do
-    [:none, :ctime, :mtime].each do |checksum_type|
-      self.fail _("You cannot specify content when using checksum '%{checksum_type}'") % { checksum_type: checksum_type } if self[:checksum] == checksum_type && !self[:content].nil?
-    end
-
     if (c = @parameters[:content]) && c.actual_content
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(c.actual_content)
