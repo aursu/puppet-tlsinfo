@@ -94,9 +94,6 @@ Puppet::Type.newtype(:sslkey) do
     validate do |value|
       raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
     end
-
-
-    nodefault
   end
 
   # copied from https://github.com/puppetlabs/puppet/blob/master/lib/puppet/type/file/mode.rb
@@ -199,7 +196,7 @@ Puppet::Type.newtype(:sslkey) do
       elsif value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, 'Private key must be provided via :content property' unless @actual_content
       else
-        Puppet.info _("Private key password '%{password}'") % {password: resource.parameter(:password).value}
+        Puppet.info _("Private key password '%{password}'") % {password: @resource.password}
         begin
           OpenSSL::PKey::RSA.new(value)
         rescue OpenSSL::PKey::RSAError => e
@@ -489,6 +486,10 @@ Puppet::Type.newtype(:sslkey) do
     Puppet::FileSystem.unlink(self[:path])
     stat_needed
     true
+  end
+
+  def password
+    self[:password]
   end
 
   private
