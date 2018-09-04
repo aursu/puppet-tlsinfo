@@ -211,9 +211,9 @@ Puppet::Type.newtype(:sslkey) do
       if value.nil? || value.empty?
         fail Puppet::Error, 'Private key must be not empty'
       elsif value == :absent || (value.is_a?(String) && checksum?(value))
-        fail Puppet::Error, 'Private key must be provided via :content property' unless @actual_content
+        fail Puppet::Error, 'Private key must be provided via :content property' unless actual_content
       else
-        key = read_rsa_key(raw)
+        key = read_rsa_key(value)
         fail Puppet::Error, _('Can not read keypair content') if key.nil?
         fail Puppet::Error, _('Provided keypair does not contain a private key') unless key.private?
         if (size = rsa_key_size(key)) < 2048
@@ -229,7 +229,7 @@ Puppet::Type.newtype(:sslkey) do
         key = read_rsa_key(value)
 
         @actual_content = rsa_to_pem(key)
-        resource.parameter(:checksum).sum(@actual_content)
+        resource.parameter(:checksum).sum(actual_content)
       end
     end
 
