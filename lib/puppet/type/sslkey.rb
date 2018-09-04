@@ -524,12 +524,6 @@ Puppet::Type.newtype(:sslkey) do
         (%{content_checksum} vs %{newsum})") % { content_checksum: content_checksum, newsum: newsum }
   end
 
-  # @return [String] The type of the current file, cast to a string.
-  def read_current_type
-    return stat.ftype.to_s if stat
-    nil
-  end
-
   def stat_needed
     @stat = :needs_stat
   end
