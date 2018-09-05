@@ -144,8 +144,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
       # therefore verification passed if chain has both certificate itself and IM CA
       return true if store.chain.count > 1
     end
-    fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) \
-      is not valid for certificate %{path} (issuer: %{issuer})') % { casubject: resource.cacertobj.subject.to_s,
+    fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) is not valid for certificate %{path} (issuer: %{issuer})') % { casubject: resource.cacertobj.subject.to_s,
       path: resource[:path], issuer: resource.certobj.issuer.to_s }
   end
 end
