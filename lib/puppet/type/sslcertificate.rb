@@ -428,8 +428,8 @@ Puppet::Type.newtype(:sslcertificate) do
     self[:pkey]
   end
 
-  autorequire(:sslkey) do
-    self[:pkey]
+  autorequire(:sslcertificate) do
+    self[:cacert]
   end
 
   validate do
