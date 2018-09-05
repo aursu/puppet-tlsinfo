@@ -460,8 +460,8 @@ Puppet::Type.newtype(:sslcertificate) do
       self.fail _(':content property is mandatory for certificate') if should_be_file? && self[:replace]
     end
 
-    if certobj && self[:pkey]
-      self.fail _('Certificate public key does not match private key') unless certobj.check_private_key(self[:pkey].keyobj)
+    if certobj && (p = @parameters[:pkey])
+      self.fail _('Certificate public key does not match private key') unless certobj.check_private_key(p.keyobj)
     end
 
     provider.validate if provider.respond_to?(:validate)
