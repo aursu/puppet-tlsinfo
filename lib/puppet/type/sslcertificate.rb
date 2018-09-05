@@ -550,7 +550,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   def lookupcatalog(path)
     return nil unless catalog
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r.should(:path), r.title].iclude?(path) }
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r.should(:path), r.title].include?(path) }
   end
 
   def content
