@@ -147,4 +147,12 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) is not valid for certificate %{path} (issuer: %{issuer})') % { casubject: resource.cacertobj.subject.to_s,
       path: resource[:path], issuer: resource.certobj.issuer.to_s }
   end
+
+  def chain
+    validate unless store
+    return nil unless store && store.chain
+
+    store.chain.reject{|c| c.subject == c.issuer }.map{|c| c.to_pem}.join
+  end
+
 end

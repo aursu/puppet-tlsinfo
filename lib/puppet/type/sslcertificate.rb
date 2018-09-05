@@ -143,12 +143,17 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:replace, boolean: true, parent: Puppet::Parameter::Boolean) do
-    desc "Whether to replace a private key file that already exists on the local
-      system but whose content doesn't match what the `content` attribute
+    desc "Whether to replace a certificate file that already exists on the local
+      system but whose content doesn't match what the 'content' attribute
       specifies. Setting this to false allows sslkey resources to initialize private
       key file without overwriting future changes.  Note that this only affects
       content; Puppet will still manage ownership and permissions. Defaults to
       `true`."
+    defaultto :true
+  end
+
+  newparam(:chain, boolean: true, parent: Puppet::Parameter::Boolean) do
+    desc "Whether to place Intermediate certificate into certificate file or not"
     defaultto :true
   end
 
@@ -275,6 +280,10 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def insync?(current)
+
+      if resource.chain?
+        Puppet.info _(':chain parameter is set; capath is %{capath}; current value is %{value}') % {capath: @resource[:capath], value: current}
+      end
       # in sync if ensure is :absent
       return true unless resource.should_be_file?
 
@@ -292,9 +301,15 @@ Puppet::Type.newtype(:sslcertificate) do
       return :absent unless (stat = resource.stat) && stat.size > 0
       begin
         raw = File.read(resource[:path])
-        cert = read_x509_cert(raw)
-        return :absent if cert.nil?
-        resource.parameter(:checksum).sum(x509_cert_modulus(cert))
+        chain = read_x509_chain(raw)
+        return :absent if chain.nil?
+
+        cert = chain[0]
+        if chain.count == 1
+          resource.parameter(:checksum).sum(x509_cert_modulus(cert))
+        else
+          raw
+        end
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
       end
@@ -338,6 +353,18 @@ Puppet::Type.newtype(:sslcertificate) do
     rescue OpenSSL::X509::CertificateError => e
       warning _('Can not create X509 Certificate object (%{message})') % {message: e.message}
       nil
+    end
+
+    def read_x509_chain(path)
+      raw = File.read(path)
+      cert = read_x509_cert(raw)
+      return nil if cert.nil?
+
+      store = OpenSSL::X509::Store.new
+      store.add_file(path)
+      store.verify(cert)
+
+      return store.chain
     end
 
     def cert_to_pem(cert)
