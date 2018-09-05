@@ -71,9 +71,9 @@ Puppet::Type.newtype(:sslcertificate) do
     munge do |value|
       if value.start_with?('//') && ::File.basename(value) == '/'
         # This is a UNC path pointing to a share, so don't add a trailing slash
-        ::File.expand_path(value)
+        File.expand_path(value)
       else
-        ::File.join(::File.split(::File.expand_path(value)))
+        File.join(File.split(File.expand_path(value)))
       end
     end
   end
@@ -98,7 +98,7 @@ Puppet::Type.newtype(:sslcertificate) do
         # This is a UNC path pointing to a share, so don't add a trailing slash
         keypath = File.expand_path(value)
       else
-        keypath = File.join(::File.split(::File.expand_path(value)))
+        keypath = File.join(File.split(File.expand_path(value)))
       end
       @sslkey =  @resource.catalog.resource(:sslkey, keypath)
       keypath
@@ -130,7 +130,7 @@ Puppet::Type.newtype(:sslcertificate) do
         # This is a UNC path pointing to a share, so don't add a trailing slash
         certpath = File.expand_path(value)
       else
-        certpath = File.join(::File.split(::File.expand_path(value)))
+        certpath = File.join(File.split(File.expand_path(value)))
       end
       @sslcert = @resource.catalog.resource(:sslcertificate, certpath)
       certpath
@@ -553,6 +553,11 @@ Puppet::Type.newtype(:sslcertificate) do
 
   def certobj
     return content.certobj if content
+    nil
+  end
+
+  def cacertobj
+    return @parameters[:cacert].certobj if @parameters[:cacert]
     nil
   end
 
