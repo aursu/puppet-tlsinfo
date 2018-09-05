@@ -81,6 +81,8 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:pkey) do
     desc 'The path to the private key to use. Must be fully qualified.'
 
+    attr_reader :sslkey
+
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
         fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
@@ -91,19 +93,15 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
+      keypath = nil
       if value.start_with?('//') && ::File.basename(value) == '/'
         # This is a UNC path pointing to a share, so don't add a trailing slash
-        ::File.expand_path(value)
+        keypath = File.expand_path(value)
       else
-        ::File.join(::File.split(::File.expand_path(value)))
+        keypath = File.join(::File.split(::File.expand_path(value)))
       end
-    end
-
-    def sslkey
-      return @sslkey if @sslkey
-
-      @sslkey = @resource.catalog.resource(:sslkey, should)
-      @sslkey
+      @sslkey =  @resource.catalog.resource(:sslkey, keypath)
+      keypath
     end
 
     def keyobj
@@ -115,6 +113,8 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:cacert) do
     desc 'The path to the private key to use. Must be fully qualified.'
 
+    attr_reader :sslcert
+
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
         fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
@@ -125,19 +125,15 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
+      certpath = nil
       if value.start_with?('//') && ::File.basename(value) == '/'
         # This is a UNC path pointing to a share, so don't add a trailing slash
-        ::File.expand_path(value)
+        certpath = File.expand_path(value)
       else
-        ::File.join(::File.split(::File.expand_path(value)))
+        certpath = File.join(::File.split(::File.expand_path(value)))
       end
-    end
-
-    def sslcert
-      return @sslcert if @sslcert
-
-      @sslcert = @resource.catalog.resource(:sslcertificate, should)
-      @sslcert
+      @sslcert = @resource.catalog.resource(:sslcertificate, certpath)
+      certpath
     end
 
     def certobj
