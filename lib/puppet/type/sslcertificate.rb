@@ -119,7 +119,6 @@ Puppet::Type.newtype(:sslcertificate) do
       unless Puppet::Util.absolute_path?(value)
         fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
       end
-      # unless @resource.catalog.resource(:sslcertificate, value)
       unless resource.lookupcatalog(value)
         fail Puppet::Error, _("You must define resource Sslcertificate[%{path}]") % {path: value}
       end
