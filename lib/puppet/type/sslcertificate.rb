@@ -119,7 +119,8 @@ Puppet::Type.newtype(:sslcertificate) do
       unless Puppet::Util.absolute_path?(value)
         fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
       end
-      unless @resource.catalog.resource(:sslcertificate, value)
+      # unless @resource.catalog.resource(:sslcertificate, value)
+      unless resource.lookupcatalog(value)
         fail Puppet::Error, _("You must define resource Sslcertificate[%{path}]") % {path: value}
       end
     end
@@ -132,7 +133,7 @@ Puppet::Type.newtype(:sslcertificate) do
       else
         certpath = File.join(File.split(File.expand_path(value)))
       end
-      @sslcert = @resource.catalog.resource(:sslcertificate, certpath)
+      @sslcert = resource.lookupcatalog(certpath)
       certpath
     end
 
@@ -545,6 +546,11 @@ Puppet::Type.newtype(:sslcertificate) do
     Puppet::FileSystem.unlink(self[:path])
     stat_needed
     true
+  end
+
+  def lookupcatalog(path)
+    return nil unless catalog
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r.should(:path), r.title].iclude?(path) }
   end
 
   def content
