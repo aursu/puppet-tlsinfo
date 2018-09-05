@@ -234,11 +234,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     def length
-      (actual_content and actual_content.length) || 0
-    end
-
-    def content
-      self.should
+      (actual_content && actual_content.length) || 0
     end
 
     def insync?(current)
@@ -511,6 +507,15 @@ Puppet::Type.newtype(:sslkey) do
     Puppet::FileSystem.unlink(self[:path])
     stat_needed
     true
+  end
+
+  def content
+    @parameters[:content]
+  end
+
+  def keyobj
+    return content.keyobj if content
+    nil
   end
 
   private

@@ -98,6 +98,18 @@ Puppet::Type.newtype(:sslcertificate) do
         ::File.join(::File.split(::File.expand_path(value)))
       end
     end
+
+    def sslkey
+      return @sslkey if @sslkey
+
+      @sslkey = @resource.catalog.resource(:sslkey, should)
+      @sslkey
+    end
+
+    def keyobj
+      return sslkey.keyobj if sslkey
+      nil
+    end
   end
 
   newparam(:cacert) do
@@ -119,6 +131,18 @@ Puppet::Type.newtype(:sslcertificate) do
       else
         ::File.join(::File.split(::File.expand_path(value)))
       end
+    end
+
+    def sslcert
+      return @sslcert if @sslcert
+
+      @sslcert = @resource.catalog.resource(:sslcertificate, should)
+      @sslcert
+    end
+
+    def certobj
+      return sslcert.certobj if sslcert
+      nil
     end
   end
 
@@ -252,10 +276,6 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def length
       (actual_content and actual_content.length) || 0
-    end
-
-    def content
-      self.should
     end
 
     def insync?(current)
@@ -440,6 +460,10 @@ Puppet::Type.newtype(:sslcertificate) do
       self.fail _(':content property is mandatory for certificate') if should_be_file? && self[:replace]
     end
 
+    if certobj && self[:pkey]
+      self.fail _('Certificate public key does not match private key') unless certobj.check_private_key(self[:pkey].keyobj)
+    end
+
     provider.validate if provider.respond_to?(:validate)
   end
 
@@ -525,6 +549,15 @@ Puppet::Type.newtype(:sslcertificate) do
     Puppet::FileSystem.unlink(self[:path])
     stat_needed
     true
+  end
+
+  def content
+    @parameters[:content]
+  end
+
+  def certobj
+    return content.certobj if content
+    nil
   end
 
   private
