@@ -116,11 +116,14 @@ Puppet::Type.newtype(:sslcertificate) do
     attr_reader :sslcert
 
     validate do |value|
-      unless Puppet::Util.absolute_path?(value)
-        fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
-      end
-      unless resource.lookupcatalog(value)
-        fail Puppet::Error, _("You must define resource Sslcertificate[%{path}]") % {path: value}
+      value = [value] if value.is_a?(String)
+      value.each do |imca|
+        unless Puppet::Util.absolute_path?(imca)
+          fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: imca }
+        end
+        unless resource.lookupcatalog(imca)
+          fail Puppet::Error, _("You must define resource Sslcertificate[%{path}]") % {path: imca}
+        end
       end
     end
 
