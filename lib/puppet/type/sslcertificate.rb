@@ -297,7 +297,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def retrieve
-      Puppet.info _('method retrieve; resource: %{resource}; capath: %{capath}') % {resource: @resource, capath: @resource[:capath]}
+      Puppet.info _('method retrieve; resource: %{resource};') % {resource: @resource}
 
       # Private key file must be not empty.
       return :absent unless (stat = resource.stat) && stat.size > 0
