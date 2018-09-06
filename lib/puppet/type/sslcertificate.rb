@@ -137,13 +137,13 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def certobj
-      return sslcert.certobj if sslcert
-      nil
+      return nil unless sslcert
+      sslcert.certobj
     end
 
     def certchain
-      return sslcert.certchain if sslcert
-      nil
+      return nil unless sslcert
+      sslcert.certchain
     end
   end
 
@@ -386,7 +386,7 @@ Puppet::Type.newtype(:sslcertificate) do
     # the content is munged so if it's a checksum source_or_content is nil
     # unless the checksum indirectly comes from source
     def each_chunk_from
-      if resource.chain? && (c = provider.chain) && c.is_a?(String)
+      if resource.chain? && (c = provider.chainpem) && c.is_a?(String)
         yield c
       elsif actual_content.is_a?(String)
         yield actual_content
@@ -594,23 +594,22 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   def certobj
-    return content.certobj if content
-    nil
+    return nil unless content
+    content.certobj
   end
 
   def certchain
-    return content.chain if content
-    nil
+    provider.chain
   end
 
   def cacertobj
-    return @parameters[:cacert].certobj if @parameters[:cacert]
-    nil
+    return nil unless @parameters[:cacert]
+    @parameters[:cacert].certobj
   end
 
   def cachain
-    return @parameters[:cacert].certchain if @parameters[:cacert]
-    nil
+    return nil unless @parameters[:cacert]
+    @parameters[:cacert].certchain
   end
 
   private

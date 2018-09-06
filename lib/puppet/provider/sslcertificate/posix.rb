@@ -133,8 +133,8 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     # Add root certificates if exists
     store.add_file(cabundle) if cabundle and File.exists?(cabundle)
 
-    # Add intermediate CA certificate and its chain
-    resource.cachain.each {|c| store.add_cert(c)}
+    # Add intermediate CA certificate if provided
+    resource.cachain.each {|c| store.add_cert(c) }
 
     status = store.verify(resource.certobj)
 
@@ -146,13 +146,19 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     end
     fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) is not valid for certificate %{path} (issuer: %{issuer})') % { casubject: resource.cacertobj.subject.to_s,
       path: resource[:path], issuer: resource.certobj.issuer.to_s }
+    return false
   end
 
   def chain
     validate unless store
     return nil unless store && store.chain
 
-    store.chain.reject{|c| c.subject == c.issuer }.map{|c| c.to_pem}.join
+    store.chain.reject{|c| c.subject == c.issuer }
+  end
+
+  def chainpem
+    return nil unless chain
+    chain..map{|c| c.to_pem}.join
   end
 
 end
