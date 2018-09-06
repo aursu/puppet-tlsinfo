@@ -265,7 +265,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      Puppet.info _('method munge; value: %{value}') % { value: value}
+      Puppet.info _('method munge;')
 
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
