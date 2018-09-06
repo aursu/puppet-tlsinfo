@@ -140,6 +140,11 @@ Puppet::Type.newtype(:sslcertificate) do
       return sslcert.certobj if sslcert
       nil
     end
+
+    def certchain
+      return sslcert.chain if sslcert
+      nil
+    end
   end
 
   newparam(:replace, boolean: true, parent: Puppet::Parameter::Boolean) do
@@ -254,7 +259,7 @@ Puppet::Type.newtype(:sslcertificate) do
     validate do |value|
       if value.nil? || value.empty?
         fail Puppet::Error, 'Certificate must be not empty'
-      elsif value == :absent || (value.is_a?(String) && checksum?(value))
+      elsif value.is_a?(String) && checksum?(value)
         fail Puppet::Error, 'Certificate must be provided via :content property' unless actual_content
       else
         cert = read_x509_cert(value)
@@ -265,7 +270,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      if value == :absent || (value.is_a?(String) && checksum?(value))
+      if value.is_a?(String) && checksum?(value)
         value
       else
         @certobj = read_x509_cert(value)
@@ -276,19 +281,28 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def length
-      (actual_content and actual_content.length) || 0
+      (actual_content && actual_content.length) || 0
     end
 
     def insync?(current)
 
       # in sync if ensure is :absent
-      return true unless resource.should_be_file?
+      return true unless resource.should_be_present?
 
       # not in sync if ensure is :present but file not exist
       return false if current == :absent
 
       # in sync if parameter replace is false (we do not replace content)
       return true unless resource.replace?
+
+      # chain handling
+      if resource.chain?
+        return false if resource.cacertobj && chain.count == 1
+        return false if (c = resource.cachain) && chain.count < (1 + c.count)
+      else
+        # not in sync if should not be chain but it is
+        return false if chain.count > 1
+      end
 
       super(current)
     end
@@ -372,7 +386,9 @@ Puppet::Type.newtype(:sslcertificate) do
     # the content is munged so if it's a checksum source_or_content is nil
     # unless the checksum indirectly comes from source
     def each_chunk_from
-      if actual_content.is_a?(String)
+      if resource.chain? && (c = provider.chain) && c.is_a?(String)
+        yield c
+      elsif actual_content.is_a?(String)
         yield actual_content
       elsif actual_content.nil?
         yield ''
@@ -474,7 +490,7 @@ Puppet::Type.newtype(:sslcertificate) do
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(c.modulus)
     else
-      self.fail _(':content property is mandatory for certificate') if should_be_file? && self[:replace]
+      self.fail _(':content property is mandatory for certificate') if should_be_present? && self[:replace]
     end
 
     if certobj && (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
@@ -502,7 +518,7 @@ Puppet::Type.newtype(:sslcertificate) do
     stat ? true : false
   end
 
-  def should_be_file?
+  def should_be_present?
     self[:ensure] == :present
   end
 
@@ -530,7 +546,7 @@ Puppet::Type.newtype(:sslcertificate) do
     mode = should(:mode) # might be nil
     mode_int = mode ? symbolic_mode_to_int(mode, Puppet::Util::DEFAULT_POSIX_MODE) : nil
 
-    if (c = property(:content)) && c.length
+    if (c = property(:content)) && c.length > 0
       Puppet::Util.replace_file(self[:path], mode_int) do |file|
         file.binmode
 
@@ -549,11 +565,11 @@ Puppet::Type.newtype(:sslcertificate) do
           # that out.
         end
 
-        fail_if_checksum_is_wrong(file.path, content_checksum) if validate_checksum?
+        fail_if_checksum_is_wrong(file.path, content_checksum)
       end
     else
       umask = mode ? 000 : 022
-      Puppet::Util.withumask(umask) { ::File.open(self[:path], 'wb', mode_int) { |f| c.write(f) if c } }
+      Puppet::Util.withumask(umask) { File.open(self[:path], 'wb', mode_int) { |f| c.write(f) if c } }
     end
 
     # make sure all of the modes are actually correct
@@ -587,12 +603,12 @@ Puppet::Type.newtype(:sslcertificate) do
     nil
   end
 
-  private
-
-  # Should we validate the checksum of the file we're writing?
-  def validate_checksum?
-    self[:checksum] !~ %r{time}
+  def cachain
+    return @parameters[:cacert].certchain if @parameters[:cacert]
+    nil
   end
+
+  private
 
   # Make sure the file we wrote out is what we think it is.
   def fail_if_checksum_is_wrong(path, content_checksum)
