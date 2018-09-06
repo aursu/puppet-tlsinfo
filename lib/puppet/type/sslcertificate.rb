@@ -142,7 +142,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def certchain
-      return sslcert.chain if sslcert
+      return sslcert.certchain if sslcert
       nil
     end
   end
