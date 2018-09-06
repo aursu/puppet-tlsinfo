@@ -117,12 +117,9 @@ Puppet::Type.newtype(:sslcertificate) do
 
     validate do |value|
       value = [value] if value.is_a?(String)
-      value.each do |imca|
-        unless Puppet::Util.absolute_path?(imca)
-          fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: imca }
-        end
-        unless resource.lookupcatalog(imca)
-          fail Puppet::Error, _("You must define resource Sslcertificate[%{path}]") % {path: imca}
+      value.each do |certpath|
+        unless resource.lookupcatalog(certpath)
+          fail Puppet::Error, _("You must define resource Sslcertificate[%{name}]") % {name: certpath}
         end
       end
     end
@@ -130,18 +127,15 @@ Puppet::Type.newtype(:sslcertificate) do
     munge do |value|
       value = [value] if value.is_a?(String)
       @sslcert = []
-      value.map do |imca|
-        if imca.start_with?('//') && File.basename(imca) == '/'
-          # This is a UNC path pointing to a share, so don't add a trailing slash
-          certpath = File.expand_path(imca)
-        else
-          certpath = File.join(File.split(File.expand_path(imca)))
-        end
-        @sslcert += [resource.lookupcatalog(certpath)]
-        certpath
+      value.map do |certpath|
+        c = resource.lookupcatalog(certpath)
+        @sslcert += [c]
+        Puppet.info _('CA certificate specified %{spec} and translated %{trans}') % {spec: certpath, trans: c[:path]}
+        c[:path]
       end
     end
 
+    # 
     def certobj
       return nil unless sslcert
       sslcert.map {|c| c.certobj }
@@ -352,8 +346,8 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def modulus
-      return x509_cert_modulus(certobj) unless certobj.nil?
-      nil
+      return nil unless certobj
+      x509_cert_modulus(certobj)
     end
 
     private
