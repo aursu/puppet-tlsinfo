@@ -125,6 +125,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
       rescue OpenSSL::X509::StoreError
         # in case of duplicate certificate
         next
+      end
     end
     store
   end
