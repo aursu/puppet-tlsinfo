@@ -10,7 +10,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
 
   require 'etc'
 
-  attr_accessor :store
+  attr_reader :store
 
   defaultfor :osfamily => [:redhat, :debian]
 

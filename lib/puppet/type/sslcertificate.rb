@@ -589,30 +589,35 @@ Puppet::Type.newtype(:sslcertificate) do
     catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r.should(:path), r.title].include?(path) }
   end
 
-  def content
-    @parameters[:content]
-  end
-
+  # return OpenSSL::X509::Certificate representation of content property
   def certobj
     return nil unless content
     content.certobj
   end
 
+  # return Array[OpenSSL::X509::Certificate] - certificate chain for current resource
   def certchain
     provider.chain
   end
 
+  # return OpenSSL::X509::Certificate representation of Intermediate certificate
   def cacertobj
     return nil unless @parameters[:cacert]
     @parameters[:cacert].certobj
   end
 
+  # return Array[OpenSSL::X509::Certificate] - certificate chain of Intermediate certificate
   def cachain
     return nil unless @parameters[:cacert]
     @parameters[:cacert].certchain
   end
 
   private
+
+  # return :content property
+  def content
+    @parameters[:content]
+  end
 
   # Make sure the file we wrote out is what we think it is.
   def fail_if_checksum_is_wrong(path, content_checksum)
