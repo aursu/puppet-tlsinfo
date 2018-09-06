@@ -134,7 +134,11 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     store.add_file(cabundle) if cabundle and File.exists?(cabundle)
 
     # Add intermediate CA certificate if provided
-    resource.cachain.each {|c| store.add_cert(c) }
+    if resource.cachain
+      resource.cachain.each {|c| store.add_cert(c) }
+    else
+      store.add_cert(resource.cacertobj)
+    end
 
     status = store.verify(resource.certobj)
 
