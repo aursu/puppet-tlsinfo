@@ -128,25 +128,28 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      certpath = nil
-      if value.start_with?('//') && ::File.basename(value) == '/'
-        # This is a UNC path pointing to a share, so don't add a trailing slash
-        certpath = File.expand_path(value)
-      else
-        certpath = File.join(File.split(File.expand_path(value)))
+      value = [value] if value.is_a?(String)
+      @sslcert = []
+      value.map do |imca|
+        if imca.start_with?('//') && File.basename(imca) == '/'
+          # This is a UNC path pointing to a share, so don't add a trailing slash
+          certpath = File.expand_path(imca)
+        else
+          certpath = File.join(File.split(File.expand_path(imca)))
+        end
+        @sslcert += [resource.lookupcatalog(certpath)]
+        certpath
       end
-      @sslcert = resource.lookupcatalog(certpath)
-      certpath
     end
 
     def certobj
       return nil unless sslcert
-      sslcert.certobj
+      sslcert.map {|c| c.certobj }
     end
 
     def certchain
       return nil unless sslcert
-      sslcert.certchain
+      sslcert.map {|c| c.certchain }.flatten
     end
   end
 

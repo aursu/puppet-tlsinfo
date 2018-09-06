@@ -117,11 +117,23 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     raise error
   end
 
+  def make_x509_store(*chain)
+    store = OpenSSL::X509::Store.new
+    chain.flatten.each do |c|
+      begin
+        store.add_cert(c) if c.is_a?(OpenSSL::X509::Certificate)
+      rescue OpenSSL::X509::StoreError
+        # in case of duplicate certificate
+        next
+    end
+    store
+  end
+
   # validate certificate chain
   def validate
     return false unless resource.cacertobj
 
-    @store = OpenSSL::X509::Store.new if store.nil?
+    @store = make_x509_store(resource.cacertobj, resource.cachain) if store.nil?
 
     cabundle = nil
     if Facter.value(:osfamily).downcase == 'redhat'
@@ -132,13 +144,6 @@ Puppet::Type.type(:sslcertificate).provide :posix do
 
     # Add root certificates if exists
     store.add_file(cabundle) if cabundle and File.exists?(cabundle)
-
-    # Add intermediate CA certificate if provided
-    if resource.cachain
-      resource.cachain.each {|c| store.add_cert(c) }
-    else
-      store.add_cert(resource.cacertobj)
-    end
 
     status = store.verify(resource.certobj)
 
