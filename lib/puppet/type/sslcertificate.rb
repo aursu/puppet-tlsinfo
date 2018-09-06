@@ -265,7 +265,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-        Puppet.info _('munge? cacert: %{cacert}') % {cacert: @resource[:cacert]}
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
@@ -281,7 +280,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def insync?(current)
-      Puppet.info _('insync? cacert: %{cacert}') % {cacert: @resource[:cacert]}
 
       # in sync if ensure is :absent
       return true unless resource.should_be_file?
