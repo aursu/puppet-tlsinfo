@@ -265,7 +265,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      Puppet.info _('method munge; chain: %{chain}; capath: %{capath}; value: %{value}') % {chain: resource.chain?.to_s, capath: @resource[:capath], value: value}
+      Puppet.info _('method munge; value: %{value}') % { value: value}
 
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
@@ -282,7 +282,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def insync?(current)
-      Puppet.info _('method insync?; chain: %{chain}; capath: %{capath}; current: %{value}') % {chain: resource.chain?.to_s, capath: @resource[:capath], value: current}
+      Puppet.info _('method insync?; chain: %{chain}; resource: %{resource}; current: %{value}') % {chain: resource.chain?.to_s, resource: @resource, value: current}
 
       # in sync if ensure is :absent
       return true unless resource.should_be_file?
@@ -297,7 +297,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def retrieve
-      Puppet.info _('method retrieve; chain: %{chain}; capath: %{capath}') % {chain: resource.chain?.to_s, capath: @resource[:capath]}
+      Puppet.info _('method retrieve; resource: %{resource}; capath: %{capath}') % {resource: @resource, capath: @resource[:capath]}
 
       # Private key file must be not empty.
       return :absent unless (stat = resource.stat) && stat.size > 0
@@ -313,7 +313,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     # Make sure we're also managing the checksum property.
     def should=(value)
-      Puppet.info _('method should=; chain: %{chain}; capath: %{capath}; value: %{value}') % {chain: resource.chain?.to_s, capath: @resource[:capath], value: value}
+      Puppet.info _('method should=; value: %{value}') % {value: value}
 
       # treat the value as a bytestring
       value = value.b if value.is_a?(String)
@@ -323,7 +323,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     # Just write our content out to disk.
     def sync
-      Puppet.info _('method sync; chain: %{chain}; capath: %{capath}') % {chain: resource.chain?.to_s, capath: @resource[:capath]}
+      Puppet.info _('method sync;')
 
       return_event = resource.stat ? :file_changed : :file_created
       resource.write
