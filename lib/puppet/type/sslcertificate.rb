@@ -249,7 +249,7 @@ Puppet::Type.newtype(:sslcertificate) do
   newproperty(:content) do
     include Puppet::Util::Checksums
 
-    attr_reader :actual_content, :certobj
+    attr_reader :actual_content, :certobj, :chain
 
     validate do |value|
       if value.nil? || value.empty?
@@ -281,7 +281,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def insync?(current)
-      Puppet.info _('insync? cacert: %{cacert}') % {cacert: @resource[:cacert]}
 
       # in sync if ensure is :absent
       return true unless resource.should_be_file?
@@ -299,9 +298,10 @@ Puppet::Type.newtype(:sslcertificate) do
       # Private key file must be not empty.
       return :absent unless (stat = resource.stat) && stat.size > 0
       begin
-        raw = File.read(resource[:path])
-        cert = read_x509_cert(raw)
-        return :absent if cert.nil?
+        @chain = read_x509_chain(resource[:path])
+        return :absent if chain.nil?
+
+        cert = chain[0]
         resource.parameter(:checksum).sum(x509_cert_modulus(cert))
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
