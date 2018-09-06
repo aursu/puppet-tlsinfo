@@ -162,7 +162,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
 
   def chainpem
     return nil unless chain
-    chain..map{|c| c.to_pem}.join
+    chain.map{|c| c.to_pem}.join
   end
 
 end
