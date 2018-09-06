@@ -265,7 +265,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-        Puppet.info _('munge? cacert: %{cacert}') % {cacert: @resource[:cacert]}
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
