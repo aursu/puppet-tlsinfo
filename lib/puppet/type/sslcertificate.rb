@@ -598,6 +598,11 @@ Puppet::Type.newtype(:sslcertificate) do
     nil
   end
 
+  def certchain
+    return content.chain if content
+    nil
+  end
+
   def cacertobj
     return @parameters[:cacert].certobj if @parameters[:cacert]
     nil
