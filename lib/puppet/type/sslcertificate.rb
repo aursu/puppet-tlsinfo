@@ -265,8 +265,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      Puppet.info _('method munge;')
-
+        Puppet.info _('munge? cacert: %{cacert}') % {cacert: @resource[:cacert]}
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
@@ -282,7 +281,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def insync?(current)
-      Puppet.info _('method insync?; chain: %{chain}; resource: %{resource}; current: %{value}') % {chain: resource.chain?.to_s, resource: @resource, value: current}
+      Puppet.info _('insync? cacert: %{cacert}') % {cacert: @resource[:cacert]}
 
       # in sync if ensure is :absent
       return true unless resource.should_be_file?
@@ -297,8 +296,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def retrieve
-      Puppet.info _('method retrieve; resource: %{resource};') % {resource: @resource}
-
       # Private key file must be not empty.
       return :absent unless (stat = resource.stat) && stat.size > 0
       begin
@@ -313,8 +310,6 @@ Puppet::Type.newtype(:sslcertificate) do
 
     # Make sure we're also managing the checksum property.
     def should=(value)
-      Puppet.info _('method should=')
-
       # treat the value as a bytestring
       value = value.b if value.is_a?(String)
       @resource.newattr(:checksum) unless @resource.parameter(:checksum)
@@ -323,8 +318,6 @@ Puppet::Type.newtype(:sslcertificate) do
 
     # Just write our content out to disk.
     def sync
-      Puppet.info _('method sync;')
-
       return_event = resource.stat ? :file_changed : :file_created
       resource.write
       return_event
