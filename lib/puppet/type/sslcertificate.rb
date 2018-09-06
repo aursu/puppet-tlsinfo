@@ -313,7 +313,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     # Make sure we're also managing the checksum property.
     def should=(value)
-      Puppet.info _('method should=; value: %{value}') % {value: value}
+      Puppet.info _('method should=')
 
       # treat the value as a bytestring
       value = value.b if value.is_a?(String)
