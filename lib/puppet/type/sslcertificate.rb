@@ -144,7 +144,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   newparam(:replace, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc "Whether to replace a certificate file that already exists on the local
-      system but whose content doesn't match what the 'content' attribute
+      system but whose content doesn't match what the `content` attribute
       specifies. Setting this to false allows sslkey resources to initialize private
       key file without overwriting future changes.  Note that this only affects
       content; Puppet will still manage ownership and permissions. Defaults to
@@ -265,6 +265,8 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
+      Puppet.info _('method munge; chain: %{chain}; capath: %{capath}; value: %{value}') % {chain: resource.chain?.to_s, capath: @resource[:capath], value: value}
+
       if value == :absent || (value.is_a?(String) && checksum?(value))
         value
       else
@@ -280,10 +282,8 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def insync?(current)
+      Puppet.info _('method insync?; chain: %{chain}; capath: %{capath}; current: %{value}') % {chain: resource.chain?.to_s, capath: @resource[:capath], value: current}
 
-      if resource.chain?
-        Puppet.info _(':chain parameter is set; capath is %{capath}; current value is %{value}') % {capath: @resource[:capath], value: current}
-      end
       # in sync if ensure is :absent
       return true unless resource.should_be_file?
 
@@ -297,19 +297,15 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def retrieve
+      Puppet.info _('method retrieve; chain: %{chain}; capath: %{capath}') % {chain: resource.chain?.to_s, capath: @resource[:capath]}
+
       # Private key file must be not empty.
       return :absent unless (stat = resource.stat) && stat.size > 0
       begin
         raw = File.read(resource[:path])
-        chain = read_x509_chain(raw)
-        return :absent if chain.nil?
-
-        cert = chain[0]
-        if chain.count == 1
-          resource.parameter(:checksum).sum(x509_cert_modulus(cert))
-        else
-          raw
-        end
+        cert = read_x509_cert(raw)
+        return :absent if cert.nil?
+        resource.parameter(:checksum).sum(x509_cert_modulus(cert))
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
       end
@@ -317,6 +313,8 @@ Puppet::Type.newtype(:sslcertificate) do
 
     # Make sure we're also managing the checksum property.
     def should=(value)
+      Puppet.info _('method should=; chain: %{chain}; capath: %{capath}; value: %{value}') % {chain: resource.chain?.to_s, capath: @resource[:capath], value: value}
+
       # treat the value as a bytestring
       value = value.b if value.is_a?(String)
       @resource.newattr(:checksum) unless @resource.parameter(:checksum)
@@ -325,6 +323,8 @@ Puppet::Type.newtype(:sslcertificate) do
 
     # Just write our content out to disk.
     def sync
+      Puppet.info _('method sync; chain: %{chain}; capath: %{capath}') % {chain: resource.chain?.to_s, capath: @resource[:capath]}
+
       return_event = resource.stat ? :file_changed : :file_created
       resource.write
       return_event
@@ -356,7 +356,9 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def read_x509_chain(path)
+      return nil unless File.exist?(path)
       raw = File.read(path)
+
       cert = read_x509_cert(raw)
       return nil if cert.nil?
 
