@@ -5,10 +5,9 @@ require 'openssl'
 Puppet::Type.newtype(:sslcertificate) do
   include Puppet::Util::SymbolicFileMode
 
-  def self.title_patterns
-    # strip trailing slashes from path but allow the root directory, including
-    # for example "/" or "C:/"
-    [[%r{^(/|.+:/|.*[^/])/*\Z}m, [[:path]]]]
+  newparam(:name) do
+    desc "Certificate name (key value)"
+    isnamevar
   end
 
   ensurable do
@@ -57,10 +56,29 @@ Puppet::Type.newtype(:sslcertificate) do
     end
   end
 
+  newparam(:basepath) do
+    desc 'The path to which we store certificate by default'
+    defaultto '/etc/pki/tls/certs'
+
+    validate do |value|
+      unless Puppet::Util.absolute_path?(value)
+        fail Puppet::Error, _("basepath must be fully qualified, not '%{path}'") % { path: value }
+      end
+    end
+
+    munge do |value|
+      resource.fixpath(value)
+    end
+  end
+
+  newparam(:identity) do
+    desc "Identyti which certificate should represent (eg domain name). Certificate
+    Common Name or any of DNS name must match identity field"
+
+  end
+
   newparam(:path) do
     desc 'The path to the private key to manage.  Must be fully qualified.'
-
-    isnamevar
 
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
@@ -69,13 +87,10 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      if value.start_with?('//') && ::File.basename(value) == '/'
-        # This is a UNC path pointing to a share, so don't add a trailing slash
-        File.expand_path(value)
-      else
-        File.join(File.split(File.expand_path(value)))
-      end
+      resource.fixpath(value)
     end
+
+    defaultto(@resource[:basepath] + '/' + resource.certbasename)
   end
 
   newparam(:pkey) do
@@ -93,13 +108,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      keypath = nil
-      if value.start_with?('//') && ::File.basename(value) == '/'
-        # This is a UNC path pointing to a share, so don't add a trailing slash
-        keypath = File.expand_path(value)
-      else
-        keypath = File.join(File.split(File.expand_path(value)))
-      end
+      keypath = resource.fixpath(value)
       @sslkey =  @resource.catalog.resource(:sslkey, keypath)
       keypath
     end
@@ -128,14 +137,12 @@ Puppet::Type.newtype(:sslcertificate) do
       value = [value] if value.is_a?(String)
       @sslcert = []
       value.map do |certpath|
-        c = resource.lookupcatalog(certpath)
-        @sslcert += [c]
-        Puppet.info _('CA certificate specified %{spec} and translated %{trans}') % {spec: certpath, trans: c[:path]}
-        c[:path]
+        cert = resource.lookupcatalog(certpath)
+        @sslcert += [cert]
+        cert[:path]
       end
     end
 
-    # 
     def certobj
       return nil unless sslcert
       sslcert.map {|c| c.certobj }
@@ -143,7 +150,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def certchain
       return nil unless sslcert
-      sslcert.map {|c| c.certchain }.flatten
+      sslcert.map {|c| c.certchain }.flatten.uniq
     end
   end
 
@@ -490,7 +497,7 @@ Puppet::Type.newtype(:sslcertificate) do
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(c.modulus)
     else
-      self.fail _(':content property is mandatory for certificate') if should_be_present? && self[:replace]
+      self.fail _(':content property is mandatory for certificate') if should_be_present?
     end
 
     if certobj && (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
@@ -503,8 +510,6 @@ Puppet::Type.newtype(:sslcertificate) do
   def initialize(hash)
     super
 
-    # If they've specified a source, we get our 'should' values
-    # from it.
     if !self[:ensure] && self[:content]
       self[:ensure] = :present
     end
@@ -607,12 +612,50 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   # return Array[OpenSSL::X509::Certificate] - certificate chain of Intermediate certificate
+  # duplicate certificates are possible
   def cachain
     return nil unless @parameters[:cacert]
     @parameters[:cacert].certchain
   end
 
+  def certbasename(cert = nil)
+    cert = certobj if cert.nil?
+
+    basicConstraints, = cert.extensions.select {|e| e.oid == 'basicConstraints' }.map{|e| e.to_h}
+
+    if basicConstraints['value'].include?('CA:TRUE')
+      # basename is Certificate subject hash
+      base = cert.subject.hash.to_s(16)
+    else
+      cn,  = cert.subject.to_a.select{|name, _data, _type| name == 'CN' }
+      _name, data, _type = cn
+      base = data.sub('*', 'wildcard')
+    end
+    "#{base}.pem"
+  end
+
+  def certnames(cert)
+    cn,  = cert.subject.to_a.select{|name, _data, _type| name == 'CN' }
+    _name, dns1, _type = cn
+
+    subjectAltName, = cert.extensions.select {|e| e.oid == 'subjectAltName' }.map{|e| e.to_h}
+    return ([dns1] + subjectAltName['value'].split(',').
+      map{|san| san.strip.split(':') }.
+      select{|m, _san| m == 'DNS'}.
+      map{|_m, san| san}).uniq if subjectAltName
+    [dns1]
+  end
+
   private
+
+  def fixpath(value)
+    if value.start_with?('//') && File.basename(value) == '/'
+      # This is a UNC path pointing to a share, so don't add a trailing slash
+      File.expand_path(value)
+    else
+      File.join(File.split(File.expand_path(value)))
+    end
+  end
 
   # return :content property
   def content
