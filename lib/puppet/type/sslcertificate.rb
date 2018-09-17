@@ -67,7 +67,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      Puppet.info _("basepath is %{path}" % {path: value})
       resource.fixpath(value)
     end
   end
@@ -75,6 +74,26 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:identity) do
     desc "Identyti which certificate should represent (eg domain name). Certificate
     Common Name or any of DNS name must match identity field"
+  
+    validate do |value|
+      if value.is_a?(String)
+        fail Puppet::Error, 'Domain name must be non-empty string' if value.empty?
+      elsif value.is_a?(Array)
+        value.each do |entity|
+          fail Puppet::Error, 'Domain name must be non-empty string' unless entity.is_a?(String) and !entity.empty?
+        end
+      else
+        fail Puppet::Error, 'Parameter Sslcertificate[identity] must be string or array of strings'
+      end
+    end
+
+    munge do |value|
+      if value.is_a?(String)
+        [value]
+      else
+        value
+      end
+    end
   end
 
   newparam(:path) do
@@ -90,9 +109,7 @@ Puppet::Type.newtype(:sslcertificate) do
       resource.fixpath(value)
     end
 
-    defaultto { 
-      Puppet.info _("path is %{path}" % {path: @resource[:basepath] + '/' + resource.certbasename})
-      @resource[:basepath] + '/' + resource.certbasename }
+    defaultto { @resource[:basepath] + '/' + resource.certbasename }
   end
 
   newparam(:pkey) do
