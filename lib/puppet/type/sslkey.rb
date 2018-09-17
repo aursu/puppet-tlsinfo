@@ -17,7 +17,7 @@ Puppet::Type.newtype(:sslkey) do
     desc 'Encrypted private key password'
 
     validate do |value|
-      raise ArgumentError, _("Passwords cannot be empty") if value.is_a?(String) and value.empty?
+      fail ArgumentError, _('Passwords cannot be empty') if value.is_a?(String) && value.empty?
     end
 
     munge do |value|
@@ -26,12 +26,12 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     # password is always in sync (we do not handle it as real property)
-    def insync?(current)
+    def insync?(current) # rubocop:disable Lint/UnusedMethodArgument
       true
     end
 
     # we do not show desired value as it is sensitive data
-    def should_to_s(value)
+    def should_to_s(value) # rubocop:disable Lint/UnusedMethodArgument
       super('[redacted]')
     end
   end
@@ -208,9 +208,8 @@ Puppet::Type.newtype(:sslkey) do
     attr_reader :actual_content, :keyobj
 
     validate do |value|
-      if value.nil? || value.empty?
-        fail Puppet::Error, 'Private key must be not empty'
-      elsif value == :absent || (value.is_a?(String) && checksum?(value))
+      fail Puppet::Error, 'Private key must be not empty' if value.nil? || value.empty?
+      if value == :absent || (value.is_a?(String) && checksum?(value))
         fail Puppet::Error, 'Private key must be provided via :content property' unless actual_content
       else
         key = read_rsa_key(value)
@@ -252,7 +251,7 @@ Puppet::Type.newtype(:sslkey) do
 
     def retrieve
       # Private key file must be not empty.
-      return :absent unless (stat = resource.stat) && stat.size > 0
+      return :absent unless (stat = resource.stat) && !stat.zero?
       begin
         raw = File.read(resource[:path])
         key = read_rsa_key(raw)
@@ -300,7 +299,7 @@ Puppet::Type.newtype(:sslkey) do
       password = @resource[:password] || SecureRandom.urlsafe_base64(10)
       OpenSSL::PKey::RSA.new(raw, password)
     rescue OpenSSL::PKey::RSAError => e
-      warning _('Can not create RSA PKey object (%{message})') % {message: e.message}
+      warning _('Can not create RSA PKey object (%{message})') % { message: e.message }
       nil
     end
 
@@ -418,8 +417,8 @@ Puppet::Type.newtype(:sslkey) do
     if (c = @parameters[:content]) && c.keyobj
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(c.modulus)
-    else
-      self.fail _(':content property is mandatory for private key') if should_be_file? && self[:replace]
+    elsif should_be_file? && self[:replace]
+      self.fail _(':content property is mandatory for private key')
     end
 
     provider.validate if provider.respond_to?(:validate)
@@ -550,5 +549,4 @@ Puppet::Type.newtype(:sslkey) do
       thing.sync unless thing.safe_insync?(currentvalue)
     end
   end
-
 end

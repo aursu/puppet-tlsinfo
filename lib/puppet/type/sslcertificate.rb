@@ -6,7 +6,7 @@ Puppet::Type.newtype(:sslcertificate) do
   include Puppet::Util::SymbolicFileMode
 
   newparam(:name) do
-    desc "Certificate name (key value)"
+    desc 'Certificate name (key value)'
     isnamevar
   end
 
@@ -74,7 +74,6 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:identity) do
     desc "Identyti which certificate should represent (eg domain name). Certificate
     Common Name or any of DNS name must match identity field"
-
   end
 
   newparam(:path) do
@@ -103,13 +102,13 @@ Puppet::Type.newtype(:sslcertificate) do
         fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
       end
       unless @resource.catalog.resource(:sslkey, value)
-        fail Puppet::Error, _("You must define resource Sslkey[%{path}]") % {path: value}
+        fail Puppet::Error, _('You must define resource Sslkey[%{path}]') % { path: value }
       end
     end
 
     munge do |value|
       keypath = resource.fixpath(value)
-      @sslkey =  @resource.catalog.resource(:sslkey, keypath)
+      @sslkey = @resource.catalog.resource(:sslkey, keypath)
       keypath
     end
 
@@ -128,7 +127,7 @@ Puppet::Type.newtype(:sslcertificate) do
       value = [value] if value.is_a?(String)
       value.each do |certpath|
         unless resource.lookupcatalog(certpath)
-          fail Puppet::Error, _("You must define resource Sslcertificate[%{name}]") % {name: certpath}
+          fail Puppet::Error, _('You must define resource Sslcertificate[%{name}]') % { name: certpath }
         end
       end
     end
@@ -145,12 +144,12 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def certobj
       return nil unless sslcert
-      sslcert.map {|c| c.certobj }
+      sslcert.map { |c| c.certobj }
     end
 
     def certchain
       return nil unless sslcert
-      sslcert.map {|c| c.certchain }.flatten.uniq
+      sslcert.map { |c| c.certchain }.flatten.uniq
     end
   end
 
@@ -165,7 +164,7 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:chain, boolean: true, parent: Puppet::Parameter::Boolean) do
-    desc "Whether to place Intermediate certificate into certificate file or not"
+    desc 'Whether to place Intermediate certificate into certificate file or not'
     defaultto :true
   end
 
@@ -264,15 +263,14 @@ Puppet::Type.newtype(:sslcertificate) do
     attr_reader :actual_content, :certobj, :chain
 
     validate do |value|
-      if value.nil? || value.empty?
-        fail Puppet::Error, 'Certificate must be not empty'
-      elsif value.is_a?(String) && checksum?(value)
+      fail Puppet::Error, 'Certificate must be not empty' if value.nil? || value.empty?
+      if value.is_a?(String) && checksum?(value)
         fail Puppet::Error, 'Certificate must be provided via :content property' unless actual_content
       else
         cert = read_x509_cert(value)
         fail Puppet::Error, _('Can not read certificate content') if cert.nil?
-        fail Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % {time: cert.not_before.asctime} if cert.not_before > Time.now
-        fail Puppet::Error, _('Certificate has expired (Not After is %{time})') % {time: cert.not_after.asctime} if cert.not_after < Time.now
+        fail Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % { time: cert.not_before.asctime } if cert.not_before > Time.now
+        fail Puppet::Error, _('Certificate has expired (Not After is %{time})') % { time: cert.not_after.asctime } if cert.not_after < Time.now
       end
     end
 
@@ -292,7 +290,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def insync?(current)
-
       # in sync if ensure is :absent
       return true unless resource.should_be_present?
 
@@ -306,9 +303,9 @@ Puppet::Type.newtype(:sslcertificate) do
       if resource.chain?
         return false if resource.cacertobj && chain.count == 1
         return false if (c = resource.cachain) && chain.count < (1 + c.count)
-      else
+      elsif chain.count > 1
         # not in sync if should not be chain but it is
-        return false if chain.count > 1
+        return false
       end
 
       super(current)
@@ -316,7 +313,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def retrieve
       # Private key file must be not empty.
-      return :absent unless (stat = resource.stat) && stat.size > 0
+      return :absent unless (stat = resource.stat) && !stat.zero?
       begin
         @chain = read_x509_chain(resource[:path])
         return :absent if chain.nil?
@@ -364,7 +361,7 @@ Puppet::Type.newtype(:sslcertificate) do
       # get :password property (if provided) or define it as random password
       OpenSSL::X509::Certificate.new(raw)
     rescue OpenSSL::X509::CertificateError => e
-      warning _('Can not create X509 Certificate object (%{message})') % {message: e.message}
+      warning _('Can not create X509 Certificate object (%{message})') % { message: e.message }
       nil
     end
 
@@ -379,11 +376,11 @@ Puppet::Type.newtype(:sslcertificate) do
       store.add_file(path)
       store.verify(cert)
 
-      return store.chain
+      store.chain
     end
 
     def cert_to_pem(cert)
-        cert.to_pem
+      cert.to_pem
     end
 
     def x509_cert_modulus(cert)
@@ -496,12 +493,12 @@ Puppet::Type.newtype(:sslcertificate) do
     if (c = @parameters[:content]) && c.certobj
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(c.modulus)
-    else
-      self.fail _(':content property is mandatory for certificate') if should_be_present?
+    elsif should_be_present?
+      self.fail _(':content property is mandatory for certificate')
     end
 
     if certobj && (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
-      self.fail _('Certificate public key does not match private key %{path}') % {path: self[:pkey]}
+      self.fail _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
     end
 
     provider.validate if provider.respond_to?(:validate)
@@ -551,7 +548,7 @@ Puppet::Type.newtype(:sslcertificate) do
     mode = should(:mode) # might be nil
     mode_int = mode ? symbolic_mode_to_int(mode, Puppet::Util::DEFAULT_POSIX_MODE) : nil
 
-    if (c = property(:content)) && c.length > 0
+    if (c = property(:content)) && !c.empty?
       Puppet::Util.replace_file(self[:path], mode_int) do |file|
         file.binmode
 
@@ -621,29 +618,29 @@ Puppet::Type.newtype(:sslcertificate) do
   def certbasename(cert = nil)
     cert = certobj if cert.nil?
 
-    basicConstraints, = cert.extensions.select {|e| e.oid == 'basicConstraints' }.map{|e| e.to_h}
+    basicconstraints, = cert.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
 
-    if basicConstraints['value'].include?('CA:TRUE')
-      # basename is Certificate subject hash
-      base = cert.subject.hash.to_s(16)
-    else
-      cn,  = cert.subject.to_a.select{|name, _data, _type| name == 'CN' }
-      _name, data, _type = cn
-      base = data.sub('*', 'wildcard')
-    end
+    base = if basicconstraints['value'].include?('CA:TRUE')
+             # basename is Certificate subject hash
+             cert.subject.hash.to_s(16)
+           else
+             cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
+             _name, data, _type = cn
+             data.sub('*', 'wildcard')
+           end
     "#{base}.pem"
   end
 
   def certnames(cert)
-    cn,  = cert.subject.to_a.select{|name, _data, _type| name == 'CN' }
+    cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
     _name, dns1, _type = cn
 
-    subjectAltName, = cert.extensions.select {|e| e.oid == 'subjectAltName' }.map{|e| e.to_h}
-    return ([dns1] + subjectAltName['value'].split(',').
-      map{|san| san.strip.split(':') }.
-      select{|m, _san| m == 'DNS'}.
-      map{|_m, san| san}).uniq if subjectAltName
-    [dns1]
+    altname, = cert.extensions.select { |e| e.oid == 'subjectAltName' }.map { |e| e.to_h }
+    return [dns1] unless altname
+    ([dns1] + altname['value'].split(',')
+      .map { |san| san.strip.split(':') }
+      .select { |m, _san| m == 'DNS' }
+      .map { |_m, san| san }).uniq
   end
 
   private
@@ -687,5 +684,4 @@ Puppet::Type.newtype(:sslcertificate) do
       thing.sync unless thing.safe_insync?(currentvalue)
     end
   end
-
 end

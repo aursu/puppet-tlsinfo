@@ -12,7 +12,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
 
   attr_reader :store
 
-  defaultfor :osfamily => [:redhat, :debian]
+  defaultfor :osfamily => [:redhat, :debian] # rubocop:disable Style/HashSyntax
 
   def uid2name(id)
     return id.to_s if id.is_a?(Symbol) || id.is_a?(String)
@@ -137,14 +137,14 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     @store = make_x509_store(resource.cacertobj, resource.cachain) if store.nil?
 
     cabundle = nil
-    if Facter.value(:osfamily).downcase == 'redhat'
+    if Facter.value(:osfamily).casecmp('redhat')
       cabundle = '/etc/pki/tls/certs/ca-bundle.crt'
-    elsif Facter.value(:osfamily).downcase == 'debian'
+    elsif Facter.value(:osfamily).casecmp('debian')
       cabundle = '/etc/ssl/certs/ca-certificates.crt'
     end
 
     # Add root certificates if exists
-    store.add_file(cabundle) if cabundle and File.exists?(cabundle)
+    store.add_file(cabundle) if cabundle && File.exist?(cabundle)
 
     status = store.verify(resource.certobj)
 
@@ -154,21 +154,23 @@ Puppet::Type.type(:sslcertificate).provide :posix do
       # therefore verification passed if chain has both certificate itself and IM CA
       return true if store.chain.count > 1
     end
-    fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) is not valid for certificate %{path} (issuer: %{issuer})') % { casubject: resource.cacertobj.subject.to_s,
-      path: resource[:path], issuer: resource.certobj.issuer.to_s }
-    return false
+    fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) is not valid for certificate %{path} (issuer: %{issuer})') %
+                        {
+                          casubject: resource.cacertobj.subject.to_s,
+                          path: resource[:path],
+                          issuer: resource.certobj.issuer.to_s
+                        }
   end
 
   def chain
     validate unless store
     return nil unless store && store.chain
 
-    store.chain.reject{|c| c.subject == c.issuer }
+    store.chain.reject { |c| c.subject == c.issuer }
   end
 
   def chainpem
     return nil unless chain
-    chain.map{|c| c.to_pem}.join
+    chain.map { |c| c.to_pem }.join
   end
-
 end

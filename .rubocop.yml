@@ -130,3 +130,5 @@ Lint/BooleanSymbol:
   Enabled: false
 Naming/PredicateName:
   Enabled: false
+Style/SafeNavigation:
+  Enabled: false
