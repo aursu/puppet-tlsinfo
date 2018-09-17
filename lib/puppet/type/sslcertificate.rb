@@ -643,8 +643,6 @@ Puppet::Type.newtype(:sslcertificate) do
       .map { |_m, san| san }).uniq
   end
 
-  private
-
   def fixpath(value)
     if value.start_with?('//') && File.basename(value) == '/'
       # This is a UNC path pointing to a share, so don't add a trailing slash
@@ -653,6 +651,8 @@ Puppet::Type.newtype(:sslcertificate) do
       File.join(File.split(File.expand_path(value)))
     end
   end
+
+  private
 
   # return :content property
   def content
