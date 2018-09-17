@@ -89,7 +89,7 @@ Puppet::Type.newtype(:sslcertificate) do
       resource.fixpath(value)
     end
 
-    defaultto(@resource[:basepath] + '/' + resource.certbasename)
+    defaultto { @resource[:basepath] + '/' + resource.certbasename }
   end
 
   newparam(:pkey) do
