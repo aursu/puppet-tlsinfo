@@ -619,13 +619,13 @@ Puppet::Type.newtype(:sslcertificate) do
     cert = certobj if cert.nil?
 
     basicconstraints, = cert.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
+    cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
+    _name, data, _type = cn
 
-    base = if basicconstraints['value'].include?('CA:TRUE')
+    base = if basicconstraints && basicconstraints['value'].include?('CA:TRUE')
              # basename is Certificate subject hash
              cert.subject.hash.to_s(16)
            else
-             cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
-             _name, data, _type = cn
              data.sub('*', 'wildcard')
            end
     "#{base}.pem"
