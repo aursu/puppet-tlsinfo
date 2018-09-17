@@ -67,6 +67,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
+      Puppet.info _("basepath is %{path}" % {path: value})
       resource.fixpath(value)
     end
   end
@@ -89,7 +90,9 @@ Puppet::Type.newtype(:sslcertificate) do
       resource.fixpath(value)
     end
 
-    defaultto { @resource[:basepath] + '/' + resource.certbasename }
+    defaultto { 
+      Puppet.info _("path is %{path}" % {path: @resource[:basepath] + '/' + resource.certbasename})
+      @resource[:basepath] + '/' + resource.certbasename }
   end
 
   newparam(:pkey) do
