@@ -289,7 +289,13 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def length
-      (actual_content && actual_content.length) || 0
+      return 0 unless actual_content
+      actual_content.length
+    end
+
+    def empty?
+      return true unless actual_content
+      actual_content.empty?
     end
 
     def insync?(current)
