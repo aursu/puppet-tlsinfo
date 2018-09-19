@@ -58,6 +58,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   newparam(:basepath) do
     desc 'The path to which we store certificate by default'
+
     defaultto '/etc/pki/tls/certs'
 
     validate do |value|
@@ -68,31 +69,6 @@ Puppet::Type.newtype(:sslcertificate) do
 
     munge do |value|
       resource.fixpath(value)
-    end
-  end
-
-  newparam(:identity) do
-    desc "Identyti which certificate should represent (eg domain name). Certificate
-    Common Name or any of DNS name must match identity field"
-
-    validate do |value|
-      if value.is_a?(String)
-        fail Puppet::Error, 'Domain name must be non-empty string' if value.empty?
-      elsif value.is_a?(Array)
-        value.each do |entity|
-          fail Puppet::Error, 'Domain name must be non-empty string' unless entity.is_a?(String) and !entity.empty?
-        end
-      else
-        fail Puppet::Error, 'Parameter Sslcertificate[identity] must be string or array of strings'
-      end
-    end
-
-    munge do |value|
-      if value.is_a?(String)
-        [value]
-      else
-        value
-      end
     end
   end
 
@@ -186,6 +162,31 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:chain, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc 'Whether to place Intermediate certificate into certificate file or not'
     defaultto :true
+  end
+
+  newparam(:identity) do
+    desc "Identyti which certificate should represent (eg domain name). Certificate
+    Common Name or any of DNS name must match identity field"
+
+    validate do |value|
+      if value.is_a?(String)
+        fail Puppet::Error, _('Domain name must be non-empty string') if value.empty?
+      elsif value.is_a?(Array)
+        value.each do |entity|
+          fail Puppet::Error, _('Domain name must be non-empty string') unless entity.is_a?(String) and !entity.empty?
+        end
+      else
+        fail Puppet::Error, _('Parameter Sslcertificate[identity] must be string or array of strings')
+      end
+    end
+
+    munge do |value|
+      if value.is_a?(String)
+        [value]
+      else
+        value
+      end
+    end
   end
 
   # copied from https://github.com/puppetlabs/puppet/blob/master/lib/puppet/type/file/mode.rb
