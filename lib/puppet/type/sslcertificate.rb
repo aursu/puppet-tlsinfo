@@ -74,7 +74,7 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:identity) do
     desc "Identyti which certificate should represent (eg domain name). Certificate
     Common Name or any of DNS name must match identity field"
-  
+
     validate do |value|
       if value.is_a?(String)
         fail Puppet::Error, 'Domain name must be non-empty string' if value.empty?
@@ -516,7 +516,7 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   validate do
-    if (c = @parameters[:content]) && c.certobj
+    if certobj
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(c.modulus)
     elsif should_be_present?
@@ -525,6 +525,14 @@ Puppet::Type.newtype(:sslcertificate) do
 
     if certobj && (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
       self.fail _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
+    end
+
+    if self[:identity]
+      self.fail _('Sslcertificate[identity] is not Array but %{istype} (%{value})') %
+                {
+                  istype: self[:identity].class
+                  value: self[:identity]
+                }
     end
 
     provider.validate if provider.respond_to?(:validate)
