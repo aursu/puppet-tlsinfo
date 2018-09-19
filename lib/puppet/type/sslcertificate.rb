@@ -165,7 +165,7 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:identity) do
-    desc "Identyti which certificate should represent (eg domain name). Certificate
+    desc "Identtity which certificate should represent (eg domain name). Certificate
     Common Name or any of DNS name must match identity field"
 
     validate do |value|
@@ -528,12 +528,14 @@ Puppet::Type.newtype(:sslcertificate) do
       self.fail _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
     end
 
-    if @parameters[:identity] && !self[:identity].is_a?(Array)
-      self.fail _('Sslcertificate[identity] is not Array but %{istype} (%{value})') %
-                {
-                  istype: self[:identity].class,
-                  value: self[:identity]
-                }
+    if self[:identity].is_a?(Array)
+      unless (certnames & self[:identity]) == certnames
+        self.fail _('Certificate names (%{names}) do not match provided identity (%{identity})') %
+                  {
+                    names: certnames,
+                    identity: self[:identity]
+                  }
+      end
     end
 
     provider.validate if provider.respond_to?(:validate)
