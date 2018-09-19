@@ -520,25 +520,26 @@ Puppet::Type.newtype(:sslcertificate) do
     if certobj
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(content.modulus)
-    elsif should_be_present?
-      self.fail _(':content property is mandatory for certificate')
-    end
 
-    if certobj && (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
-      self.fail _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
-    end
-
-    if self[:identity].is_a?(Array)
-      unless (certnames & self[:identity]) == certnames
-        self.fail _('Certificate names (%{names}) do not match provided identity (%{identity})') %
-                  {
-                    names: certnames,
-                    identity: self[:identity]
-                  }
+      if (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
+        self.fail _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
       end
-    end
 
-    provider.validate if provider.respond_to?(:validate)
+      if self[:identity]
+        names = certnames
+        unless (names & self[:identity]) == names
+          self.fail _('Certificate names (%{names}) do not match provided identity (%{identity})') %
+                    {
+                      names: names,
+                      identity: self[:identity]
+                    }
+        end
+      end
+
+      provider.validate if provider.respond_to?(:validate)
+    elsif should_be_present?
+      self.fail _('Sslcertificate[content] property is mandatory for certificate')
+    end
   end
 
   def initialize(hash)
@@ -668,7 +669,9 @@ Puppet::Type.newtype(:sslcertificate) do
     "#{base}.pem"
   end
 
-  def certnames(cert)
+  def certnames(cert = nil)
+    cert = certobj if cert.nil?
+
     cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
     _name, dns1, _type = cn
 
