@@ -79,7 +79,7 @@ Puppet::Type.newtype(:sslcertificate) do
       resource.cert_hash
     end
 
-    defaultto resource.cert_hash
+    defaultto { resource.cert_hash }
   end
 
   newparam(:path) do
@@ -570,7 +570,7 @@ Puppet::Type.newtype(:sslcertificate) do
                     }
         end
       end
-      
+
       # provider validates CA issuer(s)
       provider.validate if provider.respond_to?(:validate)
     elsif should_be_present?
