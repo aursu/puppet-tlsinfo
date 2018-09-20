@@ -76,6 +76,7 @@ Puppet::Type.newtype(:sslcertificate) do
     desc 'Certificate subject hash (read only)'
 
     munge do |value|
+      # no mater what is set - discard in favor of certificate subject hash
       resource.cert_hash
     end
 
@@ -83,7 +84,7 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:path) do
-    desc 'The path to the private key to manage.  Must be fully qualified.'
+    desc 'The path to the private key to manage. Must be fully qualified.'
 
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
@@ -95,7 +96,7 @@ Puppet::Type.newtype(:sslcertificate) do
       resource.fixpath(value)
     end
 
-    defaultto { @resource[:basepath] + '/' + resource.certbasename }
+    defaultto { @resource[:basepath] + '/' + resource.cert_basename }
   end
 
   newparam(:pkey) do
@@ -153,10 +154,14 @@ Puppet::Type.newtype(:sslcertificate) do
 
     munge do |value|
       @sslcert = []
+      # check if value is Boolean
       if !!value == value
+        # if it is true
         if value
+          # resolve certificate resource in catalog using Issuer hash
           cert = resource.lookupcatalog(resource.cert_issuer_hash)
           @sslcert += [cert]
+          # return array of certificate paths
           [ cert[:path] ]
         else
           nil
@@ -561,7 +566,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
       # check if specified identitiesand certificate subject names are match
       if self[:identity]
-        names = certnames
+        names = cert_names
         unless (names & self[:identity]) == names
           self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
                     {
@@ -596,6 +601,15 @@ Puppet::Type.newtype(:sslcertificate) do
 
   def should_be_present?
     self[:ensure] == :present
+  end
+
+  def fixpath(value)
+    if value.start_with?('//') && File.basename(value) == '/'
+      # This is a UNC path pointing to a share, so don't add a trailing slash
+      File.expand_path(value)
+    else
+      File.join(File.split(File.expand_path(value)))
+    end
   end
 
   def stat
@@ -690,7 +704,7 @@ Puppet::Type.newtype(:sslcertificate) do
     @parameters[:cacert].certchain
   end
 
-  def certbasename(cert = nil)
+  def cert_basename(cert = nil)
     cert = certobj if cert.nil?
 
     basicconstraints, = cert.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
@@ -706,7 +720,7 @@ Puppet::Type.newtype(:sslcertificate) do
     "#{base}.pem"
   end
 
-  def certnames(cert = nil)
+  def cert_names(cert = nil)
     cert = certobj if cert.nil?
 
     cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
@@ -733,15 +747,6 @@ Puppet::Type.newtype(:sslcertificate) do
   def cert_hash(cert = nil)
     cert = certobj if cert.nil?
     cert.subject.hash.to_s(16)
-  end
-
-  def fixpath(value)
-    if value.start_with?('//') && File.basename(value) == '/'
-      # This is a UNC path pointing to a share, so don't add a trailing slash
-      File.expand_path(value)
-    else
-      File.join(File.split(File.expand_path(value)))
-    end
   end
 
   private
