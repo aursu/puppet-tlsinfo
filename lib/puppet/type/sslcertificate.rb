@@ -130,7 +130,7 @@ Puppet::Type.newtype(:sslcertificate) do
     attr_reader :sslcert
 
     validate do |value|
-      if value.is_a?(Boolean)
+      if !!value == value
         # cacert => true means CA Intermediate certificate already MUST be defined in caralog
         # cacert => false means we do not manage CA Intermediate certificate (therefore validation passed)
         if value && !!resource.lookupcatalog(resource.cert_issuer_hash)
@@ -153,7 +153,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     munge do |value|
       @sslcert = []
-      if value.is_a?(Boolean)
+      if !!value == value
         if value
           cert = resource.lookupcatalog(resource.cert_issuer_hash)
           @sslcert += [cert]
