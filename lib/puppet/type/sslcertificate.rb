@@ -72,6 +72,16 @@ Puppet::Type.newtype(:sslcertificate) do
     end
   end
 
+  newparam(:subject_hash) do
+    desc 'Certificate subject hash (read only)'
+
+    munge do |value|
+      resource.cert_hash
+    end
+
+    defaultto resource.cert_hash
+  end
+
   newparam(:path) do
     desc 'The path to the private key to manage.  Must be fully qualified.'
 
@@ -120,21 +130,44 @@ Puppet::Type.newtype(:sslcertificate) do
     attr_reader :sslcert
 
     validate do |value|
-      value = [value] if value.is_a?(String)
-      value.each do |certpath|
-        unless resource.lookupcatalog(certpath)
-          fail Puppet::Error, _('You must define resource Sslcertificate[%{name}]') % { name: certpath }
+      if value.is_a?(Boolean)
+        # cacert => true means CA Intermediate certificate already MUST be defined in caralog
+        # cacert => false means we do not manage CA Intermediate certificate (therefore validation passed)
+        if value && !!resource.lookupcatalog(resource.cert_issuer_hash)
+            fail Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') % { subject: resource.cert_issuer }
+        end
+      else
+        # cacert => String is reference to Sslcertificate resource title or system path
+        value = [value] if value.is_a?(String)
+        if value.is_a?(Array)
+          value.each do |cert|
+            unless resource.lookupcatalog(cert)
+              fail Puppet::Error, _('You must define resource Sslcertificate with title or path %{name}') % { name: cert }
+            end
+          end
+        else
+          fail Puppet::Error, _('Sslcertificate[cacert] must be either Boolean or String or Array of strings')
         end
       end
     end
 
     munge do |value|
-      value = [value] if value.is_a?(String)
       @sslcert = []
-      value.map do |certpath|
-        cert = resource.lookupcatalog(certpath)
-        @sslcert += [cert]
-        cert[:path]
+      if value.is_a?(Boolean)
+        if value
+          cert = resource.lookupcatalog(resource.cert_issuer_hash)
+          @sslcert += [cert]
+          [ cert[:path] ]
+        else
+          nil
+        end
+      else
+        value = [value] if value.is_a?(String)
+        value.map do |certpath|
+          cert = resource.lookupcatalog(certpath)
+          @sslcert += [cert]
+          cert[:path]
+        end
       end
     end
 
@@ -624,9 +657,10 @@ Puppet::Type.newtype(:sslcertificate) do
     true
   end
 
-  def lookupcatalog(path)
+  def lookupcatalog(key)
     return nil unless catalog
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r.should(:path), r.title].include?(path) }
+    # path, subject_hash and title are all key values
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
   end
 
   # return OpenSSL::X509::Certificate representation of content property
@@ -681,6 +715,21 @@ Puppet::Type.newtype(:sslcertificate) do
       .map { |san| san.strip.split(':') }
       .select { |m, _san| m == 'DNS' }
       .map { |_m, san| san }).uniq
+  end
+
+  def cert_issuer(cert = nil)
+    cert = certobj if cert.nil?
+    cert.issuer.to_s
+  end
+
+  def cert_issuer_hash(cert = nil)
+    cert = certobj if cert.nil?
+    cert.issuer.hash.to_s(16)
+  end
+
+  def cert_hash(cert = nil)
+    cert = certobj if cert.nil?
+    cert.subject.hash.to_s(16)
   end
 
   def fixpath(value)
