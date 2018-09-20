@@ -554,21 +554,24 @@ Puppet::Type.newtype(:sslcertificate) do
       # Now that we know the checksum, update content (in case it was created before checksum was known).
       @parameters[:content].value = @parameters[:checksum].sum(content.modulus)
 
+      # check if certificate and private key match
       if (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
         self.fail _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
       end
 
+      # check if specified identitiesand certificate subject names are match
       if self[:identity]
         names = certnames
         unless (names & self[:identity]) == names
-          self.fail _('Certificate names (%{names}) do not match provided identity (%{identity})') %
+          self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
                     {
                       names: names,
                       identity: self[:identity]
                     }
         end
       end
-
+      
+      # provider validates CA issuer(s)
       provider.validate if provider.respond_to?(:validate)
     elsif should_be_present?
       self.fail _('Sslcertificate[content] property is mandatory for certificate')
