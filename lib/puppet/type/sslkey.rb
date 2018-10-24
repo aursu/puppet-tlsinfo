@@ -489,7 +489,7 @@ Puppet::Type.newtype(:sslkey) do
           # that out.
         end
 
-        fail_if_checksum_is_wrong(file.path, content_checksum) if validate_checksum?
+        fail_if_checksum_is_wrong(file.path, content_checksum)
       end
     else
       umask = mode ? 000 : 022
@@ -518,11 +518,6 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   private
-
-  # Should we validate the checksum of the file we're writing?
-  def validate_checksum?
-    self[:checksum] !~ %r{time}
-  end
 
   # Make sure the file we wrote out is what we think it is.
   def fail_if_checksum_is_wrong(path, content_checksum)
