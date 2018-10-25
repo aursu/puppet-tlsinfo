@@ -5,7 +5,7 @@ Puppet::Functions.create_function(:'tlsinfo::certpath') do
     end
 
     def certpath(scope, cert)
-        found = catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(cert) }
+        found = scope.catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(cert) }
         return found[:path] if found
         nil
     end
