@@ -1,4 +1,4 @@
-Puppet::Functions.create_function(:'tlsinfo::certpath') do
+Puppet::Functions.create_function(:'tlsinfo::certpath', Puppet::Functions::InternalFunction) do
     dispatch :certpath do
         scope_param
         param 'String', :cert
