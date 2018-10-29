@@ -5,7 +5,7 @@
 # @example
 #   include tlsinfo
 class tlsinfo (
-    Otpional[Stdlib::Unixpath]
+    Optional[Stdlib::Unixpath]
         $basepath,
 ){
 }
