@@ -1,0 +1,3 @@
+---
+tlsinfo::basepath: /etc/ssl/certs
+tlsinfo::privatepath: /etc/ssl/private

@@ -1,0 +1,3 @@
+---
+tlsinfo::basepath: /etc/pki/tls/certs
+tlsinfo::privatepath: /etc/pki/tls/private
