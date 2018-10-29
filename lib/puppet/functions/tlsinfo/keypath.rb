@@ -1,7 +1,7 @@
 require 'openssl'
 
-Puppet::Functions.create_function(:'tlsinfo::certpath') do
-    dispatch :certpath do
+Puppet::Functions.create_function(:'tlsinfo::keypath') do
+    dispatch :keypath do
         param 'String', :cert
         optional_param 'Stdlib::Unixpath', :basepath
     end
@@ -29,8 +29,8 @@ Puppet::Functions.create_function(:'tlsinfo::certpath') do
         end
     end
 
-    def certpath(cert, basepath = '/etc/pki/tls/certs')
+    def keypath(cert, keypath, basepath = '/etc/pki/tls/private')
         base = basename(cert)
-        "#{basepath}/#{base}.pem"
+        "#{basepath}/#{base}.key"
     end
   end
