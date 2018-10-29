@@ -72,6 +72,4 @@ define tlsinfo::certpair (
     unless $pkeydata {
         fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${name}_private\"")
     }
-
-    
 }
