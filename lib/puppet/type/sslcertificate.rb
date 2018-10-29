@@ -678,15 +678,15 @@ Puppet::Type.newtype(:sslcertificate) do
 
   # return OpenSSL::X509::Certificate representation of Intermediate certificate
   def cacertobj
-    return nil unless @parameters[:cacert]
-    @parameters[:cacert].certobj
+    return nil unless cacert
+    cacert.certobj
   end
 
   # return Array[OpenSSL::X509::Certificate] - certificate chain of Intermediate certificate
   # duplicate certificates are possible
   def cachain
-    return nil unless @parameters[:cacert]
-    @parameters[:cacert].certchain
+    return nil unless cacert
+    cacert.certchain
   end
 
   def cert_names(cert = nil)
@@ -723,6 +723,11 @@ Puppet::Type.newtype(:sslcertificate) do
   # return :content property
   def content
     @parameters[:content]
+  end
+
+  # return :cacert property
+  def cacert
+    @parameters[:cacert]
   end
 
   # Make sure the file we wrote out is what we think it is.
