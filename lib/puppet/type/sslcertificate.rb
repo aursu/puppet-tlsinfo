@@ -5,9 +5,10 @@ require 'openssl'
 Puppet::Type.newtype(:sslcertificate) do
   include Puppet::Util::SymbolicFileMode
 
-  newparam(:name) do
-    desc 'Certificate name (key value)'
-    isnamevar
+  def self.title_patterns
+    # strip trailing slashes from path but allow the root directory, including
+    # for example "/" or "C:/"
+    [[%r{^(/|.+:/|.*[^/])/*\Z}m, [[:path]]]]
   end
 
   ensurable do
@@ -84,7 +85,9 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:path) do
-    desc 'The path to the private key to manage. Must be fully qualified.'
+    desc 'The path to the private key to manage.  Must be fully qualified.'
+
+    isnamevar
 
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
@@ -95,8 +98,6 @@ Puppet::Type.newtype(:sslcertificate) do
     munge do |value|
       resource.fixpath(value)
     end
-
-    defaultto { @resource[:basepath] + '/' + resource.cert_basename }
   end
 
   newparam(:pkey) do
@@ -677,7 +678,7 @@ Puppet::Type.newtype(:sslcertificate) do
   def lookupcatalog(key)
     return nil unless catalog
     # path, subject_hash and title are all key values
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path]].include?(key) }
   end
 
   # return OpenSSL::X509::Certificate representation of content property
