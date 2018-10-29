@@ -57,22 +57,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
   end
 
-  newparam(:basepath) do
-    desc 'The path to which we store certificate by default'
-
-    defaultto '/etc/pki/tls/certs'
-
-    validate do |value|
-      unless Puppet::Util.absolute_path?(value)
-        fail Puppet::Error, _("basepath must be fully qualified, not '%{path}'") % { path: value }
-      end
-    end
-
-    munge do |value|
-      resource.fixpath(value)
-    end
-  end
-
   newparam(:subject_hash) do
     desc 'Certificate subject hash (read only)'
 
