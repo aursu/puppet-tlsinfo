@@ -45,8 +45,8 @@ define tlsinfo::certpair (
     Optional[
         Enum[
             Boolean,
-            String,
-            Array[String]
+            Stdlib::Unixpath,
+            Array[Stdlib::Unixpath]
         ]
     ]       $cacert = undef,
 )
