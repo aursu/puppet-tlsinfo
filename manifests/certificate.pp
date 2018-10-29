@@ -22,7 +22,8 @@ define tlsinfo::certificate (
     }
 
     $certpath = tlsinfo::certpath($certdata, $basepath)
+
     sslcertificate { $certpath:
-      content => $certdata,
+        content => $certdata,
     }
 }
