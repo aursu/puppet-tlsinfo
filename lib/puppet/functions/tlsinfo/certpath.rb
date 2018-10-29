@@ -10,7 +10,7 @@ Puppet::Functions.create_function(:'tlsinfo::certpath') do
         raw = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
         OpenSSL::X509::Certificate.new(raw)
     rescue OpenSSL::X509::CertificateError => e
-        Puppet.warn_once(_('Can not create X509 Certificate object (%{message})') % { message: e.message })
+        Puppet.warning(_('Can not create X509 Certificate object (%{message})') % { message: e.message })
         nil
     end
 
