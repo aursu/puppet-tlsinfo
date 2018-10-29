@@ -10,7 +10,7 @@ Puppet::Functions.create_function(:'tlsinfo::keypath') do
         raw = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
         OpenSSL::X509::Certificate.new(raw)
     rescue OpenSSL::X509::CertificateError => e
-        warning _('Can not create X509 Certificate object (%{message})') % { message: e.message }
+        Puppet.warn_once(_('Can not create X509 Certificate object (%{message})') % { message: e.message })
         nil
     end
 
@@ -29,7 +29,7 @@ Puppet::Functions.create_function(:'tlsinfo::keypath') do
         end
     end
 
-    def keypath(cert, keypath, basepath = '/etc/pki/tls/private')
+    def keypath(cert, basepath = '/etc/pki/tls/private')
         base = basename(cert)
         "#{basepath}/#{base}.key"
     end
