@@ -705,22 +705,6 @@ Puppet::Type.newtype(:sslcertificate) do
     @parameters[:cacert].certchain
   end
 
-  def cert_basename(cert = nil)
-    cert = certobj if cert.nil?
-
-    basicconstraints, = cert.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
-    cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
-    _name, data, _type = cn
-
-    base = if basicconstraints && basicconstraints['value'].include?('CA:TRUE')
-             # basename is Certificate subject hash
-             cert.subject.hash.to_s(16)
-           else
-             data.sub('*', 'wildcard')
-           end
-    "#{base}.pem"
-  end
-
   def cert_names(cert = nil)
     cert = certobj if cert.nil?
 
