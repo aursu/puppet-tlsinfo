@@ -43,7 +43,7 @@ define tlsinfo::certpair (
     Optional[String]
             $pkey     = undef,
     Optional[
-        Enum[
+        Variant[
             Boolean,
             Stdlib::Unixpath,
             Array[Stdlib::Unixpath]

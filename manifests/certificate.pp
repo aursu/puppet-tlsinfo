@@ -8,9 +8,9 @@ define tlsinfo::certificate (
     Optional[String]
             $cert     = undef,
     Optional[Stdlib::Unixpath]
-            $basepath = $tlsinfo::basepath,
+            $basepath = $tlsinfo::certbase,
     Optional[
-        Enum[
+        Variant[
             Boolean,
             Stdlib::Unixpath,
             Array[Stdlib::Unixpath]
