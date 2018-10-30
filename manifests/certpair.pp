@@ -59,7 +59,9 @@ define tlsinfo::certpair (
         $certdata = $cert
     }
     else {
+        notify { "looking for ${name}_certificate": }
         $certdata = lookup("${name}_certificate", Optional[String], 'first', undef)
+        notify { "found certificate for ${name}_certificate: ${certdata}": }
     }
 
     unless $certdata {
