@@ -17,11 +17,12 @@ define tlsinfo::certificate (
         ]
     ]       $cacert = undef,
 ) {
+    $lookupkey = tlsinfo::normalize($name)
     if $cert {
         $certdata = $cert
     }
     else {
-        $certdata = lookup("${name}_certificate", Optional[String], 'first', undef)
+        $certdata = lookup("${lookupkey}_certificate", Optional[String], 'first', undef)
     }
 
     unless $certdata {
