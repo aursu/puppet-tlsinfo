@@ -663,7 +663,7 @@ Puppet::Type.newtype(:sslcertificate) do
     return nil unless catalog
     # path, subject_hash and title are all key values
     catalog.resources.find { |r| 
-    warning _("Looking for #{key} Cert in catalog: h:%{sh}; p:%{p}; t:%{t};" % {h: r[:subject_hash], p: r[:path], t: r.title })
+    r.is_a?(Puppet::Type.type(:sslcertificate)) && warning _("Looking for #{key} Cert in catalog: h:%{sh}; p:%{p}; t:%{t};" % {h: r[:subject_hash], p: r[:path], t: r.title })
     r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
   end
 
