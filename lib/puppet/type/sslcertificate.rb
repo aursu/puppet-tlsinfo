@@ -145,6 +145,7 @@ Puppet::Type.newtype(:sslcertificate) do
         if value
           # resolve certificate resource in catalog using Issuer hash
           cert = resource.lookupcatalog(resource.cert_issuer_hash)
+          Puppet.warning("resource found #{cert}")
           @sslcert += [cert]
           # return array of certificate paths
           [ cert[:path] ]
@@ -662,9 +663,7 @@ Puppet::Type.newtype(:sslcertificate) do
   def lookupcatalog(key)
     return nil unless catalog
     # path, subject_hash and title are all key values
-    catalog.resources.find { |r| 
-    r.is_a?(Puppet::Type.type(:sslcertificate)) && warning _("Looking for #{key} Cert in catalog: h:%{sh}; p:%{p}; t:%{t};") % {h: r[:subject_hash], p: r[:path], t: r.title })
-    r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
   end
 
   # return OpenSSL::X509::Certificate representation of content property
