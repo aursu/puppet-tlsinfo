@@ -9,6 +9,13 @@ define tlsinfo::certificate (
             $cert     = undef,
     Optional[Stdlib::Unixpath]
             $basepath = $tlsinfo::basepath,
+    Optional[
+        Enum[
+            Boolean,
+            Stdlib::Unixpath,
+            Array[Stdlib::Unixpath]
+        ]
+    ]       $cacert = undef,
 ) {
     if $cert {
         $certdata = $cert
@@ -25,5 +32,6 @@ define tlsinfo::certificate (
 
     sslcertificate { $certpath:
         content => $certdata,
+        cacert  => $cacert,
     }
 }

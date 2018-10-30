@@ -39,16 +39,20 @@
 #   tlsinfo::certpair { 'namevar': }
 define tlsinfo::certpair (
     Optional[String]
-            $cert   = undef,
+            $cert     = undef,
     Optional[String]
-            $pkey   = undef,
+            $pkey     = undef,
     Optional[
         Enum[
             Boolean,
             Stdlib::Unixpath,
             Array[Stdlib::Unixpath]
         ]
-    ]       $cacert = undef,
+    ]       $cacert   = true,
+    Optional[Stdlib::Unixpath]
+            $certbase = $tlsinfo::certbase,
+    Optional[Stdlib::Unixpath]
+            $keybase  = $tlsinfo::keybase,
 )
 {
     if $cert {
@@ -71,5 +75,17 @@ define tlsinfo::certpair (
 
     unless $pkeydata {
         fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${name}_private\"")
+    }
+
+    $keypath = tlsinfo::keypath($certdata, $keybase)
+    sslkey { $keypath:
+        content => $pkeydata,
+    }
+
+    $certpath = tlsinfo::certpath($certdata, $certbase)
+    sslcertificate { $certpath:
+        content => $certdata,
+        pkey    => $keypath,
+        cacert  => $cacert,
     }
 }
