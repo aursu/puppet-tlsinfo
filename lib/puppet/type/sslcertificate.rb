@@ -119,8 +119,9 @@ Puppet::Type.newtype(:sslcertificate) do
       if !!value == value
         # cacert => true means CA Intermediate certificate already MUST be defined in caralog
         # cacert => false means we do not manage CA Intermediate certificate (therefore validation passed)
-        if value && !!resource.lookupcatalog(resource.cert_issuer_hash)
-            fail Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') % { subject: resource.cert_issuer }
+        if value
+            fail Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') % 
+                                { subject: resource.cert_issuer } unless !!resource.lookupcatalog(resource.cert_issuer_hash)
         end
       else
         # cacert => String is reference to Sslcertificate resource title or system path
@@ -662,9 +663,8 @@ Puppet::Type.newtype(:sslcertificate) do
   def lookupcatalog(key)
     return nil unless catalog
     # path, subject_hash and title are all key values
-    r = catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
-    warning _("looking for: #{key}; resource: #{r}; h:%{h}; p:%{p}; t:%{t}" % {h: r[:subject_hash], p: r[:path], t: r.title})
-    r
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) &&
+                                 [r[:subject_hash], r[:path], r.title].include? (key) }
   end
 
   # return OpenSSL::X509::Certificate representation of content property
