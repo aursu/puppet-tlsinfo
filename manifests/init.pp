@@ -6,6 +6,8 @@
 #   include tlsinfo
 class tlsinfo (
     Optional[Stdlib::Unixpath]
-        $basepath,
+        $certbase,
+    Optional[Stdlib::Unixpath]
+        $keybase,
 ){
 }
