@@ -55,13 +55,12 @@ define tlsinfo::certpair (
             $keybase  = $tlsinfo::keybase,
 )
 {
+    $lookupkey = tlsinfo::normalize($name)
     if $cert {
         $certdata = $cert
     }
     else {
-        notify { "looking for ${name}_certificate": }
-        $certdata = lookup("${name}_certificate", Optional[String], 'first', undef)
-        notify { "found certificate for ${name}_certificate: ${certdata}": }
+        $certdata = lookup("${lookupkey}_certificate", Optional[String], 'first', undef)
     }
 
     unless $certdata {
@@ -72,7 +71,7 @@ define tlsinfo::certpair (
         $pkeydata = $pkey
     }
     else {
-        $pkeytdata = lookup("${name}_private", Optional[String], 'first', undef)
+        $pkeytdata = lookup("${lookupkey}_private", Optional[String], 'first', undef)
     }
 
     unless $pkeydata {
