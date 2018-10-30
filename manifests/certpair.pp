@@ -64,7 +64,7 @@ define tlsinfo::certpair (
     }
 
     unless $certdata {
-        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${name}_certificate\"")
+        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${lookupkey}_certificate\"")
     }
 
     if $pkey {
@@ -75,7 +75,7 @@ define tlsinfo::certpair (
     }
 
     unless $pkeydata {
-        fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${name}_private\"")
+        fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${lookupkey}_private\"")
     }
 
     $keypath = tlsinfo::keypath($certdata, $keybase)
