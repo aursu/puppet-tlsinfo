@@ -1,5 +1,5 @@
 require 'openssl'
-require 'puppet/functions/tlsinfo'
+require 'tlsinfo'
 
 Puppet::Functions.create_function(:'tlsinfo::certpath', TLSInfoFunction) do
     dispatch :certpath do
