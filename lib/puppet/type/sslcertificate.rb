@@ -536,7 +536,6 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   autorequire(:sslcertificate) do
-    warning _('CA certs (%{cacert})') % { cacert: self[:cacert] }
     self[:cacert]
   end
 
