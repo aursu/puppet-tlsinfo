@@ -88,6 +88,6 @@ define tlsinfo::certpair (
         content => $certdata,
         pkey    => $keypath,
         # cacert  => $cacert,
-        cacert  => '4a0a35c0',
+        cacert  => '/etc/pki/tls/certs/4a0a35c0.pem',
     }
 }
