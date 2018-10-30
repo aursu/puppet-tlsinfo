@@ -145,7 +145,6 @@ Puppet::Type.newtype(:sslcertificate) do
         if value
           # resolve certificate resource in catalog using Issuer hash
           cert = resource.lookupcatalog(resource.cert_issuer_hash)
-          Puppet.warning("resource found #{cert}")
           @sslcert += [cert]
           # return array of certificate paths
           [ cert[:path] ]

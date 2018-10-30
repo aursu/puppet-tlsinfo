@@ -87,6 +87,7 @@ define tlsinfo::certpair (
     sslcertificate { $certpath:
         content => $certdata,
         pkey    => $keypath,
-        cacert  => $cacert,
+        # cacert  => $cacert,
+        cacert  => 'LetsEncryptAuthorityX3',
     }
 }
