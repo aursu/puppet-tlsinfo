@@ -662,9 +662,9 @@ Puppet::Type.newtype(:sslcertificate) do
   def lookupcatalog(key)
     return nil unless catalog
     # path, subject_hash and title are all key values
-    resources = catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
-    resources.each {|r| warning _("resource: #{r}; h:%{h}; p:%{p}; t:%{t}" % {h: r[:subject_hash], p: r[:path], t: r.title}) }
-    resources
+    r = catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
+    warning _("resource: #{r}; h:%{h}; p:%{p}; t:%{t}" % {h: r[:subject_hash], p: r[:path], t: r.title})
+    r
   end
 
   # return OpenSSL::X509::Certificate representation of content property
