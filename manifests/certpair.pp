@@ -53,6 +53,13 @@ define tlsinfo::certpair (
             $certbase = $tlsinfo::certbase,
     Optional[Stdlib::Unixpath]
             $keybase  = $tlsinfo::keybase,
+    Optional[
+        Variant[
+            Boolean,
+            String,
+            Array[String, 1]
+        ]
+    ]       $identity  = undef,
 )
 {
     $lookupkey = tlsinfo::normalize($name)
@@ -78,6 +85,18 @@ define tlsinfo::certpair (
         fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${lookupkey}_private\"")
     }
 
+    if $identity =~ Boolean {
+        if $identity {
+            $identityinfo = $name
+        }
+        else {
+            $identityinfo = undef
+        }
+    }
+    else {
+        $identityinfo = $identity
+    }
+
     $keypath = tlsinfo::keypath($certdata, $keybase)
     sslkey { $keypath:
         content => $pkeydata,
@@ -85,8 +104,9 @@ define tlsinfo::certpair (
 
     $certpath = tlsinfo::certpath($certdata, $certbase)
     sslcertificate { $certpath:
-        content => $certdata,
-        pkey    => $keypath,
-        cacert  => $cacert,
+        content  => $certdata,
+        pkey     => $keypath,
+        cacert   => $cacert,
+        identity => $identityinfo,
     }
 }
