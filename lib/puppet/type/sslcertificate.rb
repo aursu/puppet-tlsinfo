@@ -128,7 +128,7 @@ Puppet::Type.newtype(:sslcertificate) do
         value = [value] if value.is_a?(String)
         if value.is_a?(Array)
           value.each do |cert|
-            unless resource.lookupcatalog(cert)
+            unless !!resource.lookupcatalog(cert)
               fail Puppet::Error, _('You must define resource Sslcertificate with title or path %{name}') % { name: cert }
             end
           end
