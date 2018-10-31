@@ -68,6 +68,17 @@ Puppet::Type.newtype(:sslcertificate) do
     defaultto { resource.cert_hash }
   end
 
+  newparam(:subject_hash_old) do
+    desc 'Certificate subject hash (read only)'
+
+    munge do |value|
+      # no mater what is set - discard in favor of certificate subject hash
+      resource.cert_hash_old
+    end
+
+    defaultto { resource.cert_hash_old }
+  end
+
   newparam(:path) do
     desc 'The path to the private key to manage.  Must be fully qualified.'
 
@@ -665,7 +676,7 @@ Puppet::Type.newtype(:sslcertificate) do
   def lookupcatalog(key)
     return nil unless catalog
     # path, subject_hash and title are all key values
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:path], r.title].include?(key) }
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:sslcertificate)) && [r[:subject_hash], r[:subject_hash_old], r[:path], r.title].include?(key) }
   end
 
   # return OpenSSL::X509::Certificate representation of content property
@@ -719,6 +730,11 @@ Puppet::Type.newtype(:sslcertificate) do
   def cert_hash(cert = nil)
     cert = certobj if cert.nil?
     cert.subject.hash.to_s(16)
+  end
+
+  def cert_hash_old(cert = nil)
+    cert = certobj if cert.nil?
+    cert.subject.hash_old.to_s(16)
   end
 
   private
