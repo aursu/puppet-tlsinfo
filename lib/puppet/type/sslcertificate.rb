@@ -317,6 +317,8 @@ Puppet::Type.newtype(:sslcertificate) do
         fail Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % { time: cert.not_before.asctime } if cert.not_before > Time.now
         fail Puppet::Error, _('Certificate has expired (Not After is %{time})') % { time: cert.not_after.asctime } if cert.not_after < Time.now
       end
+
+      # TODO: add notification and tagging for tagmail
     end
 
     munge do |value|
