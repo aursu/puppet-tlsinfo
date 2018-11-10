@@ -1,3 +1,5 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+
 require 'puppet/util/tlsinfo'
 
 Puppet::Functions.create_function(:'tlsinfo::certpath') do
