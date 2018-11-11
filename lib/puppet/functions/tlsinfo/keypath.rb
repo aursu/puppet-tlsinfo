@@ -3,7 +3,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 require 'puppet/util/tlsinfo'
 
 Puppet::Functions.create_function(:'tlsinfo::keypath') do
-    include Puppet::Util::TlsInfo
+    extend Puppet::Util::TlsInfo
 
     dispatch :keypath do
         param 'String', :cert
