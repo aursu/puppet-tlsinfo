@@ -78,7 +78,7 @@ define tlsinfo::certpair (
         $pkeydata = $pkey
     }
     else {
-        $pkeydata = tlsinfo::lookup($name, private = true)
+        $pkeydata = tlsinfo::lookup($name, true)
     }
 
     unless $pkeydata {
