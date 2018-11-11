@@ -1,6 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-require 'puppet/util/tlsinfo'
+require 'puppet_x/tlsinfo/x509_tools'
 
 Puppet::Functions.create_function(:'tlsinfo::keypath') do
 
@@ -10,7 +10,7 @@ Puppet::Functions.create_function(:'tlsinfo::keypath') do
     end
 
     def keypath(cert, basepath = '/etc/pki/tls/private')
-        base = Puppet::Util::TlsInfo.basename(cert)
+        base = Puppet_X::TlsInfo.basename(cert)
         "#{basepath}/#{base}.key"
     end
   end

@@ -1,6 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..', '..'))
 
-require 'puppet/util/tlsinfo'
+require 'puppet_x/tlsinfo/tlsinfo'
 
 Puppet::Functions.create_function(:'tlsinfo::certpath') do
 
@@ -10,7 +10,7 @@ Puppet::Functions.create_function(:'tlsinfo::certpath') do
     end
 
     def certpath(cert, basepath = '/etc/pki/tls/certs')
-        base = Puppet::Util::TlsInfo.basename(cert)
+        base = Puppet_X::TlsInfo.basename(cert)
         "#{basepath}/#{base}.pem"
     end
   end
