@@ -67,7 +67,7 @@ define tlsinfo::certpair (
         $certdata = $cert
     }
     else {
-        $certdata = lookup("${lookupkey}_certificate", Optional[String], 'first', undef)
+        $certdata = tlsinfo::lookup($name)
     }
 
     unless $certdata {
@@ -78,7 +78,7 @@ define tlsinfo::certpair (
         $pkeydata = $pkey
     }
     else {
-        $pkeydata = lookup("${lookupkey}_private", Optional[String], 'first', undef)
+        $pkeydata = tlsinfo::lookup($name, private = true)
     }
 
     unless $pkeydata {
