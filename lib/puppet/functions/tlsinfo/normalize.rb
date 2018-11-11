@@ -7,6 +7,6 @@ Puppet::Functions.create_function(:'tlsinfo::normalize') do
     end
 
     def normalize(name)
-        Puppet_X::TlsInfo.normalize(commonname)
+        Puppet_X::TlsInfo.normalize(name)
     end
 end
