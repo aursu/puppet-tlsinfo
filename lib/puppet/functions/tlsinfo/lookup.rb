@@ -10,9 +10,9 @@ Puppet::Functions.create_function(:'tlsinfo::lookup') do
     def lookup(key, private = false)
         lookupkey = Puppet_X::TlsInfo.normalize(key)
         if private
-            call_function('lookup', "#{lookupkey}_private", String, 'first', nil)
+            call_function('lookup', "#{lookupkey}_private", Puppet::Pops::Types::PStringType::NON_EMPTY, 'first', nil)
         else
-            call_function('lookup', "#{lookupkey}_certificate", String, 'first', nil)
+            call_function('lookup', "#{lookupkey}_certificate", Puppet::Pops::Types::PStringType::NON_EMPTY, 'first', nil)
         end
     end
   end
