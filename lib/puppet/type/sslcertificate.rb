@@ -1,3 +1,6 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/tlsinfo/x509_tools'
+
 require 'puppet/util/symbolic_file_mode'
 require 'puppet/util/checksums'
 require 'openssl'
@@ -705,16 +708,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   def cert_names(cert = nil)
     cert = certobj if cert.nil?
-
-    cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
-    _name, dns1, _type = cn
-
-    altname, = cert.extensions.select { |e| e.oid == 'subjectAltName' }.map { |e| e.to_h }
-    return [dns1] unless altname
-    ([dns1] + altname['value'].split(',')
-      .map { |san| san.strip.split(':') }
-      .select { |m, _san| m == 'DNS' }
-      .map { |_m, san| san }).uniq
+    Puppet_X::TlsInfo.cert_names(cert)
   end
 
   def cert_issuer(cert = nil)
