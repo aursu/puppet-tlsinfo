@@ -222,7 +222,7 @@ Puppet::Type.newtype(:sslcertificate) do
       if value.is_a?(String)
         [value]
       else
-        value
+        value.uniq
       end
     end
   end
