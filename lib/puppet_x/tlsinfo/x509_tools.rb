@@ -28,5 +28,17 @@ module Puppet_X
         def self.normalize(name)
             name.sub('*', 'wildcard').gsub('.', '_').gsub("'", '_').gsub(' ', '_')
         end
+
+        def self.cert_names(cert)
+            cn, = cert.subject.to_a.select { |name, _data, _type| name == 'CN' }
+            _name, dns1, _type = cn
+        
+            altname, = cert.extensions.select { |e| e.oid == 'subjectAltName' }.map { |e| e.to_h }
+            return [dns1] unless altname
+            ([dns1] + altname['value'].split(',')
+              .map { |san| san.strip.split(':') }
+              .select { |m, _san| m == 'DNS' }
+              .map { |_m, san| san }).uniq
+        end
     end
 end
