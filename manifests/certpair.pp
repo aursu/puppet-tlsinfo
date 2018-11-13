@@ -97,12 +97,12 @@ define tlsinfo::certpair (
         $identityinfo = $identity
     }
 
-    $keypath = tlsinfo::keypath($certdata, $keybase)
+    $keypath = tlsinfo::keypath($certdata)
     sslkey { $keypath:
         content => $pkeydata,
     }
 
-    $certpath = tlsinfo::certpath($certdata, $certbase)
+    $certpath = tlsinfo::certpath($certdata)
     sslcertificate { $certpath:
         content  => $certdata,
         pkey     => $keypath,
