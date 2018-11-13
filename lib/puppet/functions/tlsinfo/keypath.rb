@@ -8,7 +8,10 @@ Puppet::Functions.create_function(:'tlsinfo::keypath') do
         optional_param 'Stdlib::Unixpath', :basepath
     end
 
-    def keypath(cert, basepath = '/etc/pki/tls/private')
+    def keypath(cert, basepath = nil)
+        unless basepath
+            basepath = closure_scope['tlsinfo::params::keybase']
+        end
         base = Puppet_X::TlsInfo.basename(cert)
         "#{basepath}/#{base}.key"
     end

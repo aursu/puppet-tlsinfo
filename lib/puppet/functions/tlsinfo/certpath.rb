@@ -8,7 +8,10 @@ Puppet::Functions.create_function(:'tlsinfo::certpath') do
         optional_param 'Stdlib::Unixpath', :basepath
     end
 
-    def certpath(cert, basepath = '/etc/pki/tls/certs')
+    def certpath(cert, basepath = nil)
+        unless basepath
+            basepath = closure_scope['tlsinfo::params::certbase']
+        end
         base = Puppet_X::TlsInfo.basename(cert)
         "#{basepath}/#{base}.pem"
     end
