@@ -94,7 +94,13 @@ define tlsinfo::certpair (
         }
     }
     else {
-        $identityinfo = $identity
+        # tlsinfo::certpair name (title) must match one of ceritficate names
+        if $identity =~ Array {
+            $identityinfo = $identity + [ $name ]
+        }
+        else {
+            $identityinfo = [ $identity, $name ]
+        }
     }
 
     $keypath = tlsinfo::keypath($certdata, $keybase)
