@@ -134,7 +134,7 @@ Puppet::Type.newtype(:sslcertificate) do
         # cacert => true means CA Intermediate certificate already MUST be defined in caralog
         # cacert => false means we do not manage CA Intermediate certificate (therefore validation passed)
         if value
-            fail Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') % 
+            fail Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') %
                                 { subject: resource.cert_issuer } unless !!resource.lookupcatalog(resource.cert_issuer_hash)
         end
       else
@@ -219,11 +219,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     munge do |value|
-      if value.is_a?(String)
-        [value]
-      else
-        value.uniq
-      end
+      Array(value).uniq
     end
   end
 
@@ -242,11 +238,6 @@ Puppet::Type.newtype(:sslcertificate) do
 
     munge do |value|
       return nil if value.nil?
-
-      unless valid_symbolic_mode?(value)
-        fail Puppet::Error, "The file mode specification is invalid: #{value.inspect}"
-      end
-
       normalize_symbolic_mode(value)
     end
 
@@ -606,11 +597,15 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   def fixpath(value)
-    if value.start_with?('//') && File.basename(value) == '/'
-      # This is a UNC path pointing to a share, so don't add a trailing slash
-      File.expand_path(value)
+    if value.include?('/')
+      path = File.join(File.split(value))
     else
-      File.join(File.split(File.expand_path(value)))
+      path = value
+    end
+    if Puppet::Util.absolute_path?(path, :posix)
+      File.expand_path(path)
+    else
+      path
     end
   end
 
