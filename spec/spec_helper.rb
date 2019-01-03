@@ -25,6 +25,10 @@ if File.exist?(default_module_facts_path) && File.readable?(default_module_facts
   default_facts.merge!(YAML.safe_load(File.read(default_module_facts_path)))
 end
 
+def fixture_path
+  File.expand_path(File.join(__FILE__, '..', 'fixtures'))
+end
+
 RSpec.configure do |c|
   c.default_facts = default_facts
   c.before :each do
@@ -32,6 +36,8 @@ RSpec.configure do |c|
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = :warning
   end
+  c.add_setting :fixture_path, default: fixture_path
+  c.hiera_config = File.join(fixture_path, '/hiera/hiera.yaml')
 end
 
 def ensure_module_defined(module_name)
