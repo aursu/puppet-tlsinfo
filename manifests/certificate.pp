@@ -26,7 +26,7 @@ define tlsinfo::certificate (
     }
 
     unless $certdata {
-        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${name}_certificate\"")
+        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${lookupkey}_certificate\"")
     }
 
     $certpath = tlsinfo::certpath($certdata, $basepath)
