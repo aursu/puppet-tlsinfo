@@ -1,3 +1,4 @@
+#
 class tlsinfo::params {
   if $facts['os']['name'] in ['Ubuntu', 'Debian'] {
     $certbase = '/etc/ssl/certs'
