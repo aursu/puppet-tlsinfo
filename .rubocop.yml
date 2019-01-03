@@ -31,9 +31,6 @@ Style/BlockDelimiters:
   Description: Prefer braces for chaining. Mostly an aesthetical choice. Better to
     be consistent then.
   EnforcedStyle: braces_for_chaining
-Style/ClassAndModuleChildren:
-  Description: Compact style reduces the required amount of indentation.
-  EnforcedStyle: compact
 Style/EmptyElse:
   Description: Enforce against empty else clauses, but allow `nil` for clarity.
   EnforcedStyle: empty
@@ -67,6 +64,7 @@ RSpec/MessageSpies:
 Style/Documentation:
   Exclude:
   - lib/puppet/parser/functions/**/*
+  - lib/puppet_x/**/*
   - spec/**/*
 Style/WordArray:
   EnforcedStyle: brackets
@@ -76,6 +74,8 @@ Style/MethodCalledOnDoEndBlock:
   Enabled: true
 Style/StringMethods:
   Enabled: true
+Style/ClassAndModuleCamelCase:
+  Enabled: false
 Layout/EndOfLine:
   Enabled: false
 Layout/IndentHeredoc:
@@ -127,6 +127,8 @@ Style/RedundantSelf:
 Style/NumericLiteralPrefix:
   Enabled: false
 Lint/BooleanSymbol:
+  Enabled: false
+Lint/ScriptPermission:
   Enabled: false
 Naming/PredicateName:
   Enabled: false
