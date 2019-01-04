@@ -93,8 +93,8 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     munge do |value|
-      @keyobj = Puppet_X::TlsInfo.read_rsa_key(value)
-      @actual_content = rsa_to_pem(keyobj, @resource[:password])
+      @keyobj = Puppet_X::TlsInfo.read_rsa_key(value, @resource[:password])
+      @actual_content = Puppet_X::TlsInfo.rsa_to_pem(keyobj, @resource[:password])
       '{sha256}' + sha256(modulus)
     end
 
@@ -104,7 +104,7 @@ Puppet::Type.newtype(:sslkey) do
       return nil if stat.zero?
       begin
         raw = File.read(resource[:path])
-        key = Puppet_X::TlsInfo.read_rsa_key(raw)
+        key = Puppet_X::TlsInfo.read_rsa_key(raw, @resource[:password])
         return nil if key.nil?
         '{sha256}' + sha256(Puppet_X::TlsInfo.rsa_key_modulus(key))
       rescue => detail
@@ -156,7 +156,9 @@ Puppet::Type.newtype(:sslkey) do
   end
 
   validate do
-    fail Puppet::Error, _(':content property is mandatory for private key') unless keyobj
+    if should_be_present?
+      fail Puppet::Error, _(':content property is mandatory for Sslkey resource') unless keyobj
+    end
     provider.validate if provider.respond_to?(:validate)
   end
 
