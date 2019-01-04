@@ -304,7 +304,7 @@ Puppet::Type.newtype(:sslcertificate) do
       # provider validates CA issuer(s)
       provider.validate if provider.respond_to?(:validate)
     elsif should_be_present?
-      self.fail _('Sslcertificate[content] property is mandatory for certificate')
+      self.fail _(':content property is mandatory for Sslcertificate resource')
     end
   end
 
