@@ -8,7 +8,7 @@ module Puppet_X
       password = SecureRandom.urlsafe_base64(10) unless password
       OpenSSL::PKey::RSA.new(raw, password)
     rescue OpenSSL::PKey::RSAError => e
-      warning _('Can not create RSA PKey object (%{message})') % { message: e.message }
+      Puppet.warning _('Can not create RSA PKey object (%{message})') % { message: e.message }
       nil
     end
 
