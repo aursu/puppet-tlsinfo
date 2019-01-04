@@ -369,22 +369,27 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   def cert_names
+    return nil unless certobj
     Puppet_X::TlsInfo.cert_names(certobj)
   end
 
   def cert_issuer
+    return nil unless certobj
     Puppet_X::TlsInfo.cert_issuer(certobj)
   end
 
   def cert_issuer_hash
+    return nil unless certobj
     Puppet_X::TlsInfo.cert_issuer_hash(certobj)
   end
 
   def cert_hash
+    return nil unless certobj
     Puppet_X::TlsInfo.cert_hash(certobj)
   end
 
   def cert_hash_old
+    return nil unless certobj
     Puppet_X::TlsInfo.cert_hash_old(certobj)
   end
 
