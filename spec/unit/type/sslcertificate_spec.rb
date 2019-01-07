@@ -386,6 +386,7 @@ CERTIFICATE
             catalog: catalog
           }
         end
+        let(:cert) { described_class.new(params) }
         let(:cacert) { described_class.new(cacert_params) }
 
         before(:each) do
@@ -405,7 +406,6 @@ CERTIFICATE
         end
 
         it 'check cacert certchain should consist all CA certificates' do
-          cert = described_class.new(params)
           certchain = cert.parameters[:cacert].certchain
 
           check_cacerts(certchain, 2)
@@ -419,7 +419,6 @@ CERTIFICATE
         end
 
         it 'check certchain value' do
-          cert = described_class.new(params)
           content = cert.certchain.map { |c| c.to_pem }.join
 
           expect(content).to eq([

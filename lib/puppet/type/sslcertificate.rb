@@ -230,6 +230,11 @@ Puppet::Type.newtype(:sslcertificate) do
       return false if is.nil?
       return true unless resource.replace?
 
+      # modulus are usually same when private key is the same
+      # check serial number for certificate
+      cert = chain[0]
+      return false unless Puppet_X::TlsInfo.cert_serial(certobj) == Puppet_X::TlsInfo.cert_serial(cert)
+
       # chain handling
       if resource.chain?
         return false if resource.cacertobj && chain.count == 1

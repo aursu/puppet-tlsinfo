@@ -86,6 +86,10 @@ module Puppet_X
       cert.public_key.params['n'].to_s(16)
     end
 
+    def self.cert_serial(cert)
+      cert.serial.to_s(16)
+    end
+
     def self.read_x509_chain(path)
       return nil unless File.exist?(path)
       cert = File.read(path)
