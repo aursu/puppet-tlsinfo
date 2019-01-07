@@ -7,105 +7,176 @@ describe Puppet::Type.type(:sslcertificate) do
   let(:www_domain_com_private) do
     <<-RSAKEYDATA
 -----BEGIN RSA PRIVATE KEY-----
-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
+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
 -----END RSA PRIVATE KEY-----
 RSAKEYDATA
   end
+  let(:keypath) { '/etc/pki/tls/private/www.domain.com.key' }
+  let(:wildcard_domain_com_private) do
+    <<-RSAKEYDATA
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAwk2hrEE0Cd7Lqb7RwZXh5D28eU1QVm+l3G5ZwM9UwxOjkWe6
+LNkKarbcV5OC4nJ0TymNRAjNxjisTN0Y/SCYULZrZzFpLBq9JFiB8XRtcLuDoXzQ
+nSmlr9hBYu0a5dcyYtSHaMRX+70tluzesm2luFEGMFd5EiddohVNwiWBhJgEeOzA
+7QAJZuB+w/+GJjEJw/smTMoZXQiYA+oCkjy8Hqna6yrKdsdb34l9Sv3qG6QPRZIp
+PmI1EZPnMqSL7FOdUA3ltzK0EBguJxqwzUGnX8qdSbcOlD02+Id1Yo8JpDOhbZIn
+GFlSAl93N3eiVTq2IFTOxcCxdM/mxISWgzM/KQIDAQABAoIBACwQCs/TYYezfKAb
+49lwse9eiLVBcSyI2SYp6DSvT9uFQpyg1zmAZrpYiZNaol3T8shY9e4tyOxgwcIU
+iawtjh0PoT+flugnkCkD4UPuUTs1at5ePbjGTwqXkgxrFKR2rrh21dZOYF14QzRs
+tvvjnac0yKCB1bTmNHejOSUD+GEm6sx60HVaoEDU7dLE6+YNUyHuCBOb8LaqvWoU
+ZRI54v9vhfoNYzSDjrV5YUswMmbNmb6AXQbGoFzjXVN2MehhqmaLxQgLSi1Kkdm+
+502PM3RjDrpBB/6YGULum9Bs4gy/BK0rGpUnIm0I+6ABJjfyni6Th2MyNWvNk0sO
+IQ1PwZkCgYEA7kPS5H+rfxG3tiy5R1rK/kPU+HrxrV1QD2twNG5JY/7DQFHvu+f2
+8uey6lGI+V1HBt9kXWeNc0Wz3g0KuI3Z7kAq4gmo7WwbvuPs++vPWbJikTx5jXh/
+8KqlX+DpT38DlVOWWRkQVd9aSTdYFwQOCETjH7mNsKznDGeXNOrW2Q8CgYEA0MQc
+XBjOFnOGKr61Bp+x0KwfQR44q548aGepvX2BOU2kTBf79O22I0q5WNjXVmOfEIcT
+ubuws9FkUjOhYZHh6rnuLvwuwSco7LmSNuNVJBpdJD9nbRCTa4b4MDAFzP72xDNX
+wbp+JiD2oVuBp53HDG/lMjjI64ZeNMi7bS4aNEcCgYBxmdbgaVrMQBdWfaZtNgXZ
+C2BshLncDcSRRYl/BiJp0dsoPKjP775XfE9a1zs2odmuli5VNn1Du7URpyg4bDG/
+HcsUcMShRs1Hy4Z/aqQ3QQ0r8CiIYi6mAcbNmv/Cjm2X8f2aR4/5UX/Lrt6KQr2q
+BaZAxwiedyHGUVHPwjRj0wKBgFTlW08Me0pgAlCBqyYdbPcZ97/IZW1M9O3UMg+v
+6Qv/ie+z1S8+N9JUQdlinPcxne7fr2LZc7s8TJqtClSeOYv1vml2/iBoJ1lVAaO2
+gNokqnniGtIcaobQpT8bWFCL4pfY9Tf/+erRftoRV0FthROGsWLh+rrksoyukKGO
+nPNjAoGBAOH5u3M4sS2UlPkqwVtQ3XPPTXVT9m0xp6cfyNsPQCpwAOHqpUgaCrsx
+mOI9qJG1PiwVgbOhW3Q3mYHEh/7NDywAlieE9kPO03HExCfDIwhEOPQeZ7uXxOKR
+UJB6MzKFZqSp3kQGh0PaO4YaEDPuGy5+HjXB9N0pwcKD6Ep/PF5l
+-----END RSA PRIVATE KEY-----
+RSAKEYDATA
+  end
+  let(:keypath_wildcard) { '/etc/pki/tls/private/wildcard.domain.com.key' }
   let(:www_domain_com_certificate) do
     <<-CERTIFICATE
 -----BEGIN CERTIFICATE-----
-MIIEoTCCA4mgAwIBAgIBAjANBgkqhkiG9w0BAQsFADByMQswCQYDVQQGEwJERTEX
-MBUGA1UECgwORG9tYWluLmNvbSBJbmMxFzAVBgNVBAsMDnd3dy5kb21haW4uY29t
-MTEwLwYDVQQDDChEb21haW4uY29tIFNIQTIgSGlnaCBBc3N1cmFuY2UgU2VydmVy
-IENBMB4XDTE5MDEwNDExMTIxOFoXDTIwMDEwNDExMTIxOFowYzELMAkGA1UEBhMC
-VVMxCzAJBgNVBAgMAkNBMRMwEQYDVQQHDApNZW5sbyBQYXJrMRkwFwYDVQQKDBBE
-b21haW4uY29tLCBJbmMuMRcwFQYDVQQDDA53d3cuZG9tYWluLmNvbTCCASIwDQYJ
-KoZIhvcNAQEBBQADggEPADCCAQoCggEBANoqMhzq9Dvv4+87WqXW/aiZdpZjhDgv
-LvwMGowCYYWeTWfXBXreeFshsfqLufXSkA4BkQehJecDczIcFaFYWOlcCa3pv3t1
-Aw4SPba69hIvtMGZBSyv8JkzXWfUZp2X0S9uIP9hf+8KYav2pERj40I0AuxL+o18
-ndzvqNKqgu3YjBHfn1qWUveE72nH/+wtauqbwaMU7/m39+w/IWA4uBTPhOxnMpCX
-DA2ngHbt+qAmjPQx42bHnThhOfoILdCpvmOa0ZqYUy7YMH8DRpx1d/JTpEHOZ1zR
-F5Mo9AMEFtHjLq5iOXj9tBS54IoOMv7PF+TomJ9S6zlu4tCjI9CtMssCAwEAAaOC
-AU8wggFLMCwGCWCGSAGG+EIBDQQfFh1PcGVuU1NMIEdlbmVyYXRlZCBDZXJ0aWZp
-Y2F0ZTAdBgNVHQ4EFgQUEmfAodxrRPxW7pK6M8T4UJvAI/EwHwYDVR0jBBgwFoAU
-yDHsYobfbcXMjWRlThhnL75IODswDgYDVR0PAQH/BAQDAgSwMB0GA1UdJQQWMBQG
-CCsGAQUFBwMBBggrBgEFBQcDAjA3BgNVHR8EMDAuMCygKqAohiZodHRwOi8vc3Ns
-LWNybC5kb21haW4uY29tL2NybHMvc3NsLmNybDAMBgNVHRMBAf8EAjAAMGUGCCsG
-AQUFBwEBBFkwVzAmBggrBgEFBQcwAYYaaHR0cDovL3NzbC1vY3NwLmRvbWFpbi5j
-b20wLQYIKwYBBQUHMAKGIWh0dHA6Ly9zc2wtYWlhLmRvbWFpbi5jb20vc3NsLmNy
-dDANBgkqhkiG9w0BAQsFAAOCAQEAMB8GDJ8A/s9MdBJiDYu2iq6a1KBjT+Qsvz96
-IDu4VQzGH+71SqR+gj3as5Qn8pimFngU860R/UObO200MyPxC8tv0h1X7RglsXQ3
-qbKD0Fv99azQzto910AC3tf4cYqB+CPjzVgFspFpDh5vXRZ2B0SFznfSbCWEVH88
-IulbIAXDU7PINpA8sZrOThYC6srXxZ3UUFdSZNLQQN68F+4qIHWxws63hNSlfd9S
-3Od4q4p4JRPu9sok+2w9sKZUIYZ3VQRqlJ1DzujDS1PRVesqy72NZURwG0HOOfjd
-GPeZDmweTojU0wqWLYrrVBelsBg8yh5Zuhb870Gdls7/RJZ2XQ==
+MIIE6DCCA9CgAwIBAgIBATANBgkqhkiG9w0BAQsFADCBiDELMAkGA1UEBhMCREUx
+DzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRswGQYDVQQKDBJD
+b21wYW55IENBIExpbWl0ZWQxNzA1BgNVBAMMLkNvbXBhbnkgUlNBIERvbWFpbiBW
+YWxpZGF0aW9uIFNlY3VyZSBTZXJ2ZXIgQ0EwHhcNMTkwMTA2MjMyMjI2WhcNMjAw
+MTA2MjMyMjI2WjBSMSEwHwYDVQQLDBhEb21haW4gQ29udHJvbCBWYWxpZGF0ZWQx
+FDASBgNVBAsMC0ludGVybmFsU1NMMRcwFQYDVQQDDA53d3cuZG9tYWluLmNvbTCC
+ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMVnFmg/ROjnjaBiylHl67Na
+UBgiddQi385tj4qfYl8+w+ux40YkYw8xhDWIDFftsD+TMr5EYZPwwIycjzd0Jyxf
+KyO/8Xur/owPp2WrVM28lHt/eowP1AjGSk5f4i17TMrln9ZAHCZYY/GhE3pd8OUG
+7gn1vI4MnF7ATj07syY07TiXHQLgy+eq7sHfBsK0cp/40BQrFgLOJ+qcn+fxlzSj
+fF9+ermgBnWu+K9gbk0xosD8aDcNytXOTZW7A7QwnqzMPFqlv9zeJ9fwawKb4EHM
+YRJ8YpB3ksWy1Clmg8G8OTZjx2/WGOwKNIKlsIwyPvJdGOtEYtE822DVkB3kzp0C
+AwEAAaOCAZAwggGMMB8GA1UdIwQYMBaAFOLqvc4bAIg+s4RRrnUElIsLUwhOMB0G
+A1UdDgQWBBQxhbHtBDD0tQDUB0RJ3xTO2utRATAOBgNVHQ8BAf8EBAMCBaAwDAYD
+VR0TAQH/BAIwADAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwEwYDVR0g
+BAwwCjAIBgZngQwBAgEwVgYDVR0fBE8wTTBLoEmgR4ZFaHR0cDovL2NybC5jb21w
+YW55Y2EuY29tL0NvbXBhbnlSU0FEb21haW5WYWxpZGF0aW9uU2VjdXJlU2VydmVy
+Q0EuY3JsMIGIBggrBgEFBQcBAQR8MHowUQYIKwYBBQUHMAKGRWh0dHA6Ly9jcnQu
+Y29tcGFueWNhLmNvbS9Db21wYW55UlNBRG9tYWluVmFsaWRhdGlvblNlY3VyZVNl
+cnZlckNBLmNydDAlBggrBgEFBQcwAYYZaHR0cDovL29jc3AuY29tcGFueWNhLmNv
+bTAVBgNVHREEDjAMggpkb21haW4uY29tMA0GCSqGSIb3DQEBCwUAA4IBAQBXpjtc
+0n7ff+aWhCxu65g5OtfvhwZ9QIJ0qW/nmoX3mH7vBIVm8rJyTGx0foUs1ATUN5b2
+SOJOyvJBDwO5ysc5MK6ixhZn/UNxsDgYD/L8q6HGUNViuUBAFH+zWlW6jR3wJY86
+EkaXS9eXoem4Nb8xHiJmWVORAzywk5VgCE9gkd9IACxCxAOJZtWmsMUFnjSAQL+3
+eFRq/sYrbs2/4n7WkMHJt06JZmHdBx5kT8dESiod0Eoayms9rfQ2uIQPdvl+Psiw
+Psb6Qs3Mw/ruzPoK/C4WFEjMPpy2Qlh5HEemqZnywxiJ++J/9qMMaoe4r3HdAOQt
+0ulH8BPP1c9hKGKK
 -----END CERTIFICATE-----
 CERTIFICATE
   end
+  let(:certpath) { '/etc/pki/tls/certs/www.domain.com.pem' }
   let(:www_domain_com_certificate_modulus) do
-    'DA2A321CEAF43BEFE3EF3B5AA5D6FDA89976966384382F2EFC0C1A8C0261859E4D67D705'\
-    '7ADE785B21B1FA8BB9F5D2900E019107A125E70373321C15A15858E95C09ADE9BF7B7503'\
-    '0E123DB6BAF6122FB4C199052CAFF099335D67D4669D97D12F6E20FF617FEF0A61ABF6A4'\
-    '4463E3423402EC4BFA8D7C9DDCEFA8D2AA82EDD88C11DF9F5A9652F784EF69C7FFEC2D6A'\
-    'EA9BC1A314EFF9B7F7EC3F216038B814CF84EC673290970C0DA78076EDFAA0268CF431E3'\
-    '66C79D386139FA082DD0A9BE639AD19A98532ED8307F03469C7577F253A441CE675CD117'\
-    '9328F4030416D1E32EAE623978FDB414B9E08A0E32FECF17E4E8989F52EB396EE2D0A323'\
-    'D0AD32CB'
+    'C56716683F44E8E78DA062CA51E5EBB35A50182275D422DFCE6D8F8A9F625F3EC3EBB1E3'\
+    '4624630F318435880C57EDB03F9332BE446193F0C08C9C8F3774272C5F2B23BFF17BABFE'\
+    '8C0FA765AB54CDBC947B7F7A8C0FD408C64A4E5FE22D7B4CCAE59FD6401C265863F1A113'\
+    '7A5DF0E506EE09F5BC8E0C9C5EC04E3D3BB32634ED38971D02E0CBE7AAEEC1DF06C2B472'\
+    '9FF8D0142B1602CE27EA9C9FE7F19734A37C5F7E7AB9A00675AEF8AF606E4D31A2C0FC68'\
+    '370DCAD5CE4D95BB03B4309EACCC3C5AA5BFDCDE27D7F06B029BE041CC61127C62907792'\
+    'C5B2D4296683C1BC393663C76FD618EC0A3482A5B08C323EF25D18EB4462D13CDB60D590'\
+    '1DE4CE9D'
   end
   let(:www_domain_com_intermediate) do
     <<-CERTIFICATE
 -----BEGIN CERTIFICATE-----
-MIIETzCCAzegAwIBAgIBATANBgkqhkiG9w0BAQsFADBvMQswCQYDVQQGEwJERTEY
-MBYGA1UECgwPRG9tYWluLmNvbSBJbmMuMRcwFQYDVQQLDA53d3cuZG9tYWluLmNv
-bTEtMCsGA1UEAwwkRG9tYWluLmNvbSBIaWdoIEFzc3VyYW5jZSBFViBSb290IENB
-MB4XDTE5MDEwNDEwNDY0MloXDTIwMDEwNDEwNDY0MlowcjELMAkGA1UEBhMCREUx
-FzAVBgNVBAoMDkRvbWFpbi5jb20gSW5jMRcwFQYDVQQLDA53d3cuZG9tYWluLmNv
-bTExMC8GA1UEAwwoRG9tYWluLmNvbSBTSEEyIEhpZ2ggQXNzdXJhbmNlIFNlcnZl
-ciBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMWymCU/flUDnmtm
-QKMr2jFMmsaHBJ1LGz86+e2J4jj4qapCPkwWdCuX0DkFzNRlcZCQLzvP2UYQXNg8
-rTq+QHhmwQbknsno7TE3hBaOWOTBKgDbE1QPyaryNN0O+4RI3Q2KLpdb8aHfyr/Q
-rzbweuLmh7jUpB0BrCCxV2XCEViPV+5WH/Lh9yLkisYXanCFV6fmKOTnsJAkK/Nm
-CzOrvJjdxtdxDUPEKSfbcoA38W/Ih0/pVcLVWzgTrresL9LLPOWdMzPG+X49gLx7
-nsWpMemg+IpYMq6O6gpRcQigWa55EB/wMHOSr4Hn9sX9DL1rurWUOoOZdDOqO2mC
-kdfX6/8CAwEAAaOB8jCB7zASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQE
-AwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwMgYIKwYBBQUHAQEE
-JjAkMCIGCCsGAQUFBzABhhZodHRwOi8vb2NzcC5kb21haW4uY29tMDYGA1UdHwQv
-MC0wK6ApoCeGJWh0dHA6Ly9jcmwuZG9tYWluLmNvbS9jcmxzL2dsb2JhbC5jcmww
-HQYDVR0OBBYEFMgx7GKG323FzI1kZU4YZy++SDg7MB8GA1UdIwQYMBaAFHMuhPNM
-q8tDVXw45TjLO9ycGCuDMA0GCSqGSIb3DQEBCwUAA4IBAQBkRjdVJKyTG+bwKKFl
-4xz2c3GKNznvMFjY5CZ5IbAPPQJmugGilI07UFvxVDVimEmiSya7virGAtlV9TM9
-a+TJB3LUUKrxmek9xQRf1nSWKEDif3d+ccJ384GmXWb0ImyDS50Li68Hoj6hz8Vg
-aeLf7zi0YAQqHzCbWQEokXXVP9SSyfmwT9DnZ1DUd2fL71jNeqwu7VQXH5J63/ub
-xVUAwv6jUsAKmFUvvqM8dEIB6zM3xplFIJF5QHwwfqOmJydmrNwj37hFiE2uFw0u
-NCOPoS6/Htch8uRSj2UfcuFBtsXMg3RX+e6CTNz49ogTUYtzL8aVR3UBqaf8FrVY
-RNae
+MIIE8TCCA9mgAwIBAgIBATANBgkqhkiG9w0BAQsFADB9MQswCQYDVQQGEwJERTEP
+MA0GA1UECAwGSGVzc2VuMRIwEAYDVQQHDAlGcmFua2Z1cnQxGzAZBgNVBAoMEkNv
+bXBhbnkgQ0EgTGltaXRlZDEsMCoGA1UEAwwjQ29tcGFueSBSU0EgQ2VydGlmaWNh
+dGlvbiBBdXRob3JpdHkwHhcNMTkwMTA2MjE0MzUxWhcNMjAwMTA2MjE0MzUxWjCB
+iDELMAkGA1UEBhMCREUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtm
+dXJ0MRswGQYDVQQKDBJDb21wYW55IENBIExpbWl0ZWQxNzA1BgNVBAMMLkNvbXBh
+bnkgUlNBIERvbWFpbiBWYWxpZGF0aW9uIFNlY3VyZSBTZXJ2ZXIgQ0EwggEiMA0G
+CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC1KboZmOrID0NVOBz62DqhAWFM9nLQ
+GGRrdz/dSK6hZWpHvaamxMIdlGKFVxv9NNRhhs6iCeSPd17ENgcZK1jEm4Ne7VZm
+2QHLiMd3IXXqway88eMrIn9TNRV7SWYgusgnLGy3D4h2z3jK6SScSueN4uoOzV6q
+vcHKGInFgTCSOeFaH+dH1iKs0P6JLyRNUtKQf2ZUw770RvQZlS3gGVSGiBU9tqgr
+LWu9+QtVaN0FYNjwC7rUXKGOfSz4kdce3hOxfLDRWJOlUNRsPNW27Iws7cV/uVLL
+sbGrbj1RU6n1kyt/sXWNjEL58r6DfQK8Qh3FKv8EVNy9s/DmQ3E+W8DPAgMBAAGj
+ggFuMIIBajAfBgNVHSMEGDAWgBRD22vglhqyVabtkH+x1FzbBCzsETAdBgNVHQ4E
+FgQU4uq9zhsAiD6zhFGudQSUiwtTCE4wDgYDVR0PAQH/BAQDAgGGMBIGA1UdEwEB
+/wQIMAYBAf8CAQAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMBsGA1Ud
+IAQUMBIwBgYEVR0gADAIBgZngQwBAgEwTgYDVR0fBEcwRTBDoEGgP4Y9aHR0cDov
+L2NybC5jb21wYW55Y2EuY29tL0NvbXBhbnlSU0FDZXJ0aWZpY2F0aW9uQXV0aG9y
+aXR5LmNybDB4BggrBgEFBQcBAQRsMGowQQYIKwYBBQUHMAKGNWh0dHA6Ly9jcnQu
+Y29tcGFueWNhLmNvbS9Db21wYW55UlNBRG9tYWluRG90Q29tQ0EuY3J0MCUGCCsG
+AQUFBzABhhlodHRwOi8vb2NzcC5jb21wYW55Y2EuY29tMA0GCSqGSIb3DQEBCwUA
+A4IBAQCTNcUhijCxTLiKO4EjWecC95NVAHYYjWMd9XJ6wi++D91zGoc/nr9PdOkR
+HKL8NWVGm4u7DcKoXMwS2mXn/Oi9/5QzxmlrRpRxkRmJnDikh6+EfMWdg98qOA4X
+CkENKu/DJL/jerP/+Ply0fNCN1A7RKRuVs6p7BAH55iayotmZ7aBTdnpeW33N8wR
+bNLVYUPvPPcxSOvL9klwvuN/TX90NAMsBYF/B9Z78fChdeXnao4GA32WnPH3K5lF
+YbsA4uENjiuzhXm3tRowzTRYun6LTOg0SKPTLKsnIa8nWM8zui7SHrT853i2YH8E
+QhUEQsjnS6lCImFQVI0oxGx3En22
 -----END CERTIFICATE-----
-    CERTIFICATE
+CERTIFICATE
   end
+  let(:capath) { '/etc/pki/tls/certs/f1453246.pem' }
+  let(:www_domain_com_intermediate_parent) do
+    <<-CERTIFICATE
+-----BEGIN CERTIFICATE-----
+MIIEZjCCA06gAwIBAgIBATANBgkqhkiG9w0BAQsFADB7MQswCQYDVQQGEwJERTEY
+MBYGA1UECgwPRG9tYWluRG90Q29tIEFCMSowKAYDVQQLDCFEb21haW5Eb3RDb20g
+RXh0ZXJuYWwgVFRQIE5ldHdvcmsxJjAkBgNVBAMMHURvbWFpbkRvdENvbSBFeHRl
+cm5hbCBDQSBSb290MB4XDTE5MDEwNjIwNTgzN1oXDTIwMDEwNjIwNTgzN1owfTEL
+MAkGA1UEBhMCREUxDzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0
+MRswGQYDVQQKDBJDb21wYW55IENBIExpbWl0ZWQxLDAqBgNVBAMMI0NvbXBhbnkg
+UlNBIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MIIBIjANBgkqhkiG9w0BAQEFAAOC
+AQ8AMIIBCgKCAQEAoA/moPZrHp4rdJFxFTezDWa4xR9p+VAW2PYKGAcWsNy6UA7h
+9Ua4w3o+YznWOKsy+LqdE37canWq+4L6F6Q+oNtygxqhccBttzTBh/P6nOOCffOI
+mRZPFuLfHhlowQDLyCmbkbzIg4rSWjSzfDKOfeRQsfHf2dK876+5DAP2M3xSV1U9
+7oXN+kaWCFqAokhYXLu5QWGxCK+QZeWgtkhi6b05UbhgJ+77JhIMWOwAVnTeo0GI
+bNaMVI+Jpzg81riM8nsGsjSmJ0CYEaOXb3w2lgoIJDPh/e0n5XzZglNMeiQmzFLp
+exaf0WxRQa8I8OJBWv4HH3Tkpbgmo7bP5r6cawIDAQABo4HyMIHvMB8GA1UdIwQY
+MBaAFP9OEBEe8AnZPk4x3PMOBndYdQ3eMB0GA1UdDgQWBBRD22vglhqyVabtkH+x
+1FzbBCzsETAOBgNVHQ8BAf8EBAMCAYYwDwYDVR0TAQH/BAUwAwEB/zARBgNVHSAE
+CjAIMAYGBFUdIAAwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybC5kb21haW4u
+Y29tL0RvbWFpbkRvdENvbUV4dGVybmFsQ0FSb290LmNybDAyBggrBgEFBQcBAQQm
+MCQwIgYIKwYBBQUHMAGGFmh0dHA6Ly9vY3NwLmRvbWFpbi5jb20wDQYJKoZIhvcN
+AQELBQADggEBAMCAcCb+7RzHJvNgAgH8P5KSWWeFJPVOXPllKoNFjqK6QrmijJnH
+UQkoD4G8wOSey7YkfSEJe2uc7uGWxqSjvOqhpcePSUSh5kzodFDXaQicCn+2xWYS
+xZpfQgXygextLMWfFu1w3ImqYtvRZjwTv+03hF6+7zUxBKLQCbm90NRDFoINHXT0
+ZMf2eDCwH/FUsZs1oaerTzNCSVipki89TIiohj/3T2cM1vOtJqMCN2+ZSm2P2+gH
+uKA/w3c23yMmYdjjd7yJXtrf6TZJ63d737gHKrDgercDrMyoma2OB9YiMKYziC/j
+2BO356eWcUXh6yLJYIWm4wBbUkPu1ji7z/I=
+-----END CERTIFICATE-----
+CERTIFICATE
+  end
+  let(:capath_parent) { '/etc/pki/tls/certs/a4144c98.pem' }
 
   it 'check with empty parameters list' do
     params = {
@@ -117,9 +188,152 @@ RNae
 
   it 'check with empty parameters and proper title' do
     params = {
-      title: '/etc/pki/tls/certs/www.domain.com.pem',
+      title: certpath,
       catalog: catalog
     }
     expect { described_class.new(params) }.to raise_error Puppet::Error, %r{:content property is mandatory for Sslcertificate resource}
+  end
+
+  it 'check with empty parameters and ensure: :absent' do
+    params = {
+      title: certpath,
+      ensure: :absent,
+      catalog: catalog
+    }
+    expect { described_class.new(params) }.not_to raise_error
+  end
+
+  context 'when only content specified' do
+    let(:params) do
+      {
+        title: certpath,
+        content: www_domain_com_certificate,
+        catalog: catalog
+      }
+    end
+    let(:cert) { described_class.new(params) }
+
+    it 'not fail' do
+      expect { described_class.new(params) }.not_to raise_error
+    end
+
+    it 'set subject hash' do
+        expect(cert[:subject_hash]).to eq('c07dba14')
+    end
+
+    it 'set old subject hash' do
+        expect(cert[:subject_hash_old]).to eq('ee3cd8bd')
+    end
+  end
+
+  context 'when title_patterns match / at the end' do
+    let(:cert) do
+      described_class.new(
+        title: "#{certpath}//",
+        content: www_domain_com_certificate,
+        catalog: catalog,
+      )
+    end
+
+    it 'set path without slashes at the end' do
+      expect(cert[:path]).to eq(certpath)
+    end
+  end
+
+  context 'when pkey specified' do
+    let(:params) do
+      {
+        title: certpath,
+        content: www_domain_com_certificate,
+        pkey: keypath,
+        catalog: catalog,
+      }
+    end
+    let(:cert) { described_class.new(params) }
+    let(:key) do
+        Puppet::Type.type(:sslkey).new(name: keypath, content: www_domain_com_private)
+    end
+    let(:key_wildcard) do
+        Puppet::Type.type(:sslkey).new(name: keypath_wildcard, content: wildcard_domain_com_private)
+    end
+
+    it 'with relative path to key' do
+      expect { described_class.new(params.merge(pkey: 'www.domain.com.key')) }.to raise_error \
+        Puppet::Error, %r{Pkey parameter must be fully qualified path to private key, not 'www.domain.com.key'}
+    end
+
+    it 'with full path to key' do
+      expect { described_class.new(params) }.to raise_error \
+        Puppet::Error, %r{You must define resource Sslkey\[/etc/pki/tls/private/www.domain.com.key\]}
+    end
+
+    it 'with wrong key' do
+      catalog.add_resource key_wildcard
+      expect { described_class.new(params.merge(pkey: keypath_wildcard)) }.to raise_error \
+        Puppet::Error, %r{Certificate public key does not match private key /etc/pki/tls/private/wildcard.domain.com.key}
+    end
+
+    context 'with correct key' do
+      before(:each) { catalog.add_resource key }
+
+      it 'not fail' do
+        expect { described_class.new(params) }.not_to raise_error
+      end
+
+      it 'check pkey keyobj type' do
+        expect(cert.parameters[:pkey].keyobj).to be_instance_of(OpenSSL::PKey::RSA)
+      end
+
+      it 'check pkey keyobj modulus' do
+        expect(cert.parameters[:pkey].keyobj.params['n'].to_s(16)).to eq(www_domain_com_certificate_modulus)
+      end
+    end
+  end
+
+  context 'when cacert specified' do
+    let(:params) do
+      {
+        title: certpath,
+        content: www_domain_com_certificate,
+        pkey: keypath,
+        cacert: true,
+        catalog: catalog,
+      }
+    end
+    let(:cert) { described_class.new(params) }
+    let(:key) do
+      Puppet::Type.type(:sslkey).new(name: keypath, content: www_domain_com_private)
+    end
+    let(:cacert) do
+      Puppet::Type.type(:sslcertificate).new(name: capath, content: www_domain_com_intermediate)
+    end
+
+    before(:each) { catalog.add_resource key }
+
+    it 'fail if ca cert not in catalog' do
+      expect { described_class.new(params) }.to raise_error \
+        Puppet::Error, %r{You must define Sslcertificate resource with subject /C=DE/ST=Hessen/L=Frankfurt/O=Company CA Limited/CN=Company RSA Domain Validation Secure Server CA}
+    end
+
+    context 'with CA cert in catalog' do
+      before(:each) { catalog.add_resource cacert }
+
+      it 'not fail' do
+        expect { described_class.new(params) }.not_to raise_error
+      end
+
+      it 'check cacert certobj with single CA cert' do
+        certobj = cert.parameters[:cacert].certobj
+        expect(certobj).to be_instance_of(Array)
+        expect(certobj.count).to eq(1)
+      end
+
+      it 'check cacert certchain with single CA cert is empty' do
+        certchain = cert.parameters[:cacert].certchain
+        expect(certchain).to be_instance_of(Array)
+        expect(certchain.count).to eq(1)
+        expect(certchain[0]).to eq(nil)
+      end
+    end
   end
 end
