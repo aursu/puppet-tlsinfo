@@ -142,7 +142,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def certchain
       return nil unless sslcert
-      sslcert.map { |c| c.certchain }.flatten.uniq
+      sslcert.map { |c| c.certchain }.reject { |c| c.nil? }.flatten.uniq
     end
   end
 
