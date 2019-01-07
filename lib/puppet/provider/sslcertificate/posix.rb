@@ -39,19 +39,21 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     store.add_file(cabundle) if cabundle && File.exist?(cabundle)
 
     status = store.verify(resource.certobj)
-
     return true if status
-    # we do not have CA bundle installed
-    unless cabundle
+
+    if cabundle && File.exist?(cabundle)
+      casubject = resource.cacertobj.map { |c| c.subject.to_s }.join(', ')
+      fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) is not valid for certificate %{path} (issuer: %{issuer})') %
+                          {
+                            casubject: casubject,
+                            path: resource[:path],
+                            issuer: resource.certobj.issuer.to_s
+                          }
+    else
+      # we do not have CA bundle installed
       # therefore verification passed if chain has both certificate itself and IM CA
       return true if store.chain.count > 1
     end
-    fail Puppet::Error, _('Provided Intermediate CA certificate (subject: %{casubject}) is not valid for certificate %{path} (issuer: %{issuer})') %
-                        {
-                          casubject: resource.cacertobj.subject.to_s,
-                          path: resource[:path],
-                          issuer: resource.certobj.issuer.to_s
-                        }
   end
 
   def chain
