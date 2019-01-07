@@ -28,14 +28,20 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:subject_hash) do
     desc 'Certificate subject hash (read only)'
 
-    munge { resource.cert_hash }
+    munge do |_value|
+      resource.cert_hash
+    end
+
     defaultto { resource.cert_hash }
   end
 
   newparam(:subject_hash_old) do
     desc 'Certificate subject hash (read only)'
 
-    munge { resource.cert_hash_old }
+    munge do |_value|
+      resource.cert_hash_old
+    end
+
     defaultto { resource.cert_hash_old }
   end
 
@@ -256,7 +262,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def modulus
       return nil if certobj.nil?
-      Puppet_X::TlsInfo.rsa_key_modulus(certobj)
+      Puppet_X::TlsInfo.x509_cert_modulus(certobj)
     end
   end
 
