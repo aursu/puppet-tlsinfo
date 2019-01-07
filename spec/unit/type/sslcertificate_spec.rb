@@ -331,8 +331,99 @@ CERTIFICATE
       it 'check cacert certchain with single CA cert is empty' do
         certchain = cert.parameters[:cacert].certchain
         expect(certchain).to be_instance_of(Array)
-        expect(certchain.count).to eq(1)
-        expect(certchain[0]).to eq(nil)
+        expect(certchain).to be_empty
+      end
+    end
+
+    context 'when multipath CA' do
+      let(:cacert_params) do
+        {
+          title: capath,
+          content: www_domain_com_intermediate,
+          cacert: true,
+          catalog: catalog,
+        }
+      end
+      let(:cacert_parent) do
+        Puppet::Type.type(:sslcertificate).new(name: capath_parent, content: www_domain_com_intermediate_parent)
+      end
+
+      it 'fail if parent CA is not in catalog' do
+        expect { described_class.new(cacert_params) }.to raise_error \
+          Puppet::Error, %r{You must define Sslcertificate resource with subject /C=DE/ST=Hessen/L=Frankfurt/O=Company CA Limited/CN=Company RSA Certification Authority}
+      end
+
+      context 'when parent CA is in catalog' do
+        before(:each) do
+          catalog.add_resource cacert_parent
+        end
+
+        it 'not fail' do
+          expect { described_class.new(cacert_params) }.not_to raise_error
+        end
+
+        it 'check certchain value' do
+          cacert = described_class.new(cacert_params)
+          content = cacert.certchain.map { |c| c.to_pem }.join
+
+          expect(content).to eq([www_domain_com_intermediate, www_domain_com_intermediate_parent].join)
+        end
+
+        it 'check actual content value' do
+          cacert = described_class.new(cacert_params.merge(chain: false))
+
+          expect(cacert.parameters[:content].actual_content).to eq(www_domain_com_intermediate)
+        end
+      end
+
+      context 'with both CA certs in catalog' do
+        let(:params) do
+          {
+            title: certpath,
+            content: www_domain_com_certificate,
+            pkey: keypath,
+            cacert: true,
+            catalog: catalog,
+          }
+        end
+        let(:cacert) { described_class.new(cacert_params) }
+
+        before(:each) do
+          catalog.add_resource cacert_parent
+          catalog.add_resource cacert
+        end
+
+        def check_cacerts(chain, size)
+          expect(chain).to be_instance_of(Array)
+          expect(chain.count).to eq(size)
+          chain.each do |c|
+            basicconstraints, = c.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
+            is_ca = basicconstraints && basicconstraints['value'].include?('CA:TRUE')
+
+            expect(is_ca).to eq(true)
+          end
+        end
+
+        it 'check cacert certchain should consist all CA certificates' do
+          cert = described_class.new(params)
+          certchain = cert.parameters[:cacert].certchain
+
+          check_cacerts(certchain, 2)
+        end
+
+        it "check check cacert certobj when 'cacert' parameter is array" do
+            cert = described_class.new(params.merge(cacert: [capath, capath_parent]))
+            certobj = cert.parameters[:cacert].certobj
+
+            check_cacerts(certobj, 2)
+        end
+
+        it 'check certchain value' do
+            cert = described_class.new(params)
+            content = cert.certchain.map { |c| c.to_pem }.join
+
+            expect(content).to eq([www_domain_com_certificate, www_domain_com_intermediate, www_domain_com_intermediate_parent].join)
+          end
       end
     end
   end
