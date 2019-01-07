@@ -99,7 +99,7 @@ RSAKEYDATA
   end
 
   context 'when title_patterns match / at the end' do
-    let(:service) do
+    let(:key) do
       described_class.new(
         title: '/etc/pki/tls/private/www.domain.com.key//',
         content: www_domain_com_private,
@@ -108,7 +108,7 @@ RSAKEYDATA
     end
 
     it 'set path without slashes at the end' do
-      expect(service[:path]).to eq('/etc/pki/tls/private/www.domain.com.key')
+      expect(key[:path]).to eq('/etc/pki/tls/private/www.domain.com.key')
     end
   end
 
