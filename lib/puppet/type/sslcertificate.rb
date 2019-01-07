@@ -161,6 +161,11 @@ Puppet::Type.newtype(:sslcertificate) do
     defaultto :true
   end
 
+  newparam(:strict, boolean: true, parent: Puppet::Parameter::Boolean) do
+    desc 'Strictly validate over root CA bundle'
+    defaultto :true
+  end
+
   newparam(:identity) do
     desc "Identtity which certificate should represent (eg domain name). Certificate
     Common Name or any of DNS name must match identity field"
