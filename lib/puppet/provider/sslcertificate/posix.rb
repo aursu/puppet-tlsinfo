@@ -43,18 +43,16 @@ Puppet::Type.type(:sslcertificate).provide :posix do
 
     # certificate match to provided intermediate CA
     if store.chain.count > 1
+      return true unless cabundle && File.exist?(cabundle)
+
       # if cabundle exixts then intermediate CA is not valid
-      if cabundle && File.exist?(cabundle)
-        casubject = resource.cacertobj.map { |c| c.subject.to_s }.join(', ')
-        warning _('Provided Intermediate CA certificate (subject: %{casubject}) are not trusted by any root certificate from CA bundle %{path}') %
-                  {
-                    casubject: casubject,
-                    path: cabundle
-                  }
-        return true unless resource.strict?
-      else
-        return true
-      end
+      casubject = resource.cacertobj.map { |c| c.subject.to_s }.join(', ')
+      warning _('Provided Intermediate CA certificate (subject: %{casubject}) are not trusted by any root certificate from CA bundle %{path}') %
+              {
+                casubject: casubject,
+                path: cabundle
+              }
+      return true unless resource.strict?
     end
     fail Puppet::Error, _('Certificate %{path} is not valid due to invalid CA (issuer: %{issuer})') %
                         {

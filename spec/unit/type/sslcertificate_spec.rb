@@ -218,11 +218,11 @@ CERTIFICATE
     end
 
     it 'set subject hash' do
-        expect(cert[:subject_hash]).to eq('c07dba14')
+      expect(cert[:subject_hash]).to eq('c07dba14')
     end
 
     it 'set old subject hash' do
-        expect(cert[:subject_hash_old]).to eq('ee3cd8bd')
+      expect(cert[:subject_hash_old]).to eq('ee3cd8bd')
     end
   end
 
@@ -246,15 +246,15 @@ CERTIFICATE
         title: certpath,
         content: www_domain_com_certificate,
         pkey: keypath,
-        catalog: catalog,
+        catalog: catalog
       }
     end
     let(:cert) { described_class.new(params) }
     let(:key) do
-        Puppet::Type.type(:sslkey).new(name: keypath, content: www_domain_com_private)
+      Puppet::Type.type(:sslkey).new(name: keypath, content: www_domain_com_private)
     end
     let(:key_wildcard) do
-        Puppet::Type.type(:sslkey).new(name: keypath_wildcard, content: wildcard_domain_com_private)
+      Puppet::Type.type(:sslkey).new(name: keypath_wildcard, content: wildcard_domain_com_private)
     end
 
     it 'with relative path to key' do
@@ -297,7 +297,7 @@ CERTIFICATE
         content: www_domain_com_certificate,
         pkey: keypath,
         cacert: true,
-        catalog: catalog,
+        catalog: catalog
       }
     end
     let(:cert) { described_class.new(params) }
@@ -341,7 +341,7 @@ CERTIFICATE
           title: capath,
           content: www_domain_com_intermediate,
           cacert: true,
-          catalog: catalog,
+          catalog: catalog
         }
       end
       let(:cacert_parent) do
@@ -383,7 +383,7 @@ CERTIFICATE
             content: www_domain_com_certificate,
             pkey: keypath,
             cacert: true,
-            catalog: catalog,
+            catalog: catalog
           }
         end
         let(:cacert) { described_class.new(cacert_params) }
@@ -412,18 +412,22 @@ CERTIFICATE
         end
 
         it "check check cacert certobj when 'cacert' parameter is array" do
-            cert = described_class.new(params.merge(cacert: [capath, capath_parent]))
-            certobj = cert.parameters[:cacert].certobj
+          cert = described_class.new(params.merge(cacert: [capath, capath_parent]))
+          certobj = cert.parameters[:cacert].certobj
 
-            check_cacerts(certobj, 2)
+          check_cacerts(certobj, 2)
         end
 
         it 'check certchain value' do
-            cert = described_class.new(params)
-            content = cert.certchain.map { |c| c.to_pem }.join
+          cert = described_class.new(params)
+          content = cert.certchain.map { |c| c.to_pem }.join
 
-            expect(content).to eq([www_domain_com_certificate, www_domain_com_intermediate, www_domain_com_intermediate_parent].join)
-          end
+          expect(content).to eq([
+            www_domain_com_certificate,
+            www_domain_com_intermediate,
+            www_domain_com_intermediate_parent
+          ].join)
+        end
       end
     end
   end
