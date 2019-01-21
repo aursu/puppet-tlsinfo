@@ -45,7 +45,8 @@ module Puppet_X
 
       if basicconstraints && basicconstraints['value'].include?('CA:TRUE')
         # basename is Certificate subject hash
-        certobj.subject.hash.to_s(16)
+        i = certobj.subject.hash
+        [i].pack('L').unpack('L').first.to_s(16)
       else
         data.sub('*', 'wildcard')
       end
