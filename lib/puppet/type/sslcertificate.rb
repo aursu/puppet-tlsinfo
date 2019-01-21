@@ -23,12 +23,6 @@ Puppet::Type.newtype(:sslcertificate) do
       return :present if (stat = resource.stat) && stat.ftype.to_s == 'file'
       :absent
     end
-
-    def insync?(current)
-      # skip resource ensure property sync if configuration is not in sync
-      return true if resource.should_be_present?
-      super(current)
-    end
   end
 
   newparam(:subject_hash) do
