@@ -31,6 +31,8 @@ define tlsinfo::certificate (
 
     $certpath = tlsinfo::certpath($certdata, $basepath)
 
+    warning("sslcertificate path: ${certpath}")
+
     sslcertificate { $certpath:
         content => $certdata,
         cacert  => $cacert,
