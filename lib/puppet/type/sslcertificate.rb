@@ -15,6 +15,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     newvalue(:present) do
+      content_sync
     end
 
     defaultto :present
@@ -22,6 +23,13 @@ Puppet::Type.newtype(:sslcertificate) do
     def retrieve
       return :present if (stat = resource.stat) && stat.ftype.to_s == 'file'
       :absent
+    end
+
+    def content_sync
+      property = @resource.property(:content)
+      current = property.retrieve
+      # set provider to sync configuration
+      property.sync unless property.safe_insync?(current)
     end
   end
 
@@ -249,7 +257,6 @@ Puppet::Type.newtype(:sslcertificate) do
     def sync
       return_event = resource.stat ? :content_changed : :content_created
       mode_int = 0o0644
-      Puppet.warning _('sync: @resource[:path]: %{path}') % {path: @resource[:path] }
       File.open(@resource[:path], 'wb', mode_int) { |f| write(f) }
       return_event
     end
@@ -340,7 +347,6 @@ Puppet::Type.newtype(:sslcertificate) do
 
   def stat(path = nil)
     path = self[:path] unless path
-    Puppet.warning _('stat: title - %{title}; path - %{path}') % {title: self.title, path: path}
     Puppet::FileSystem.stat(path)
   rescue Errno::ENOENT
     nil
