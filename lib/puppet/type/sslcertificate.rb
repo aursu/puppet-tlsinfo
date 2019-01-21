@@ -211,7 +211,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def retrieve
-      # Private key file must be not empty.
       return nil unless (stat = resource.stat)
       return nil if stat.zero?
       begin
@@ -250,6 +249,7 @@ Puppet::Type.newtype(:sslcertificate) do
     def sync
       return_event = resource.stat ? :content_changed : :content_created
       mode_int = 0o0644
+      Puppet.warning _('sync: @resource[:path]: %{path}') % {path: @resource[:path] }
       File.open(@resource[:path], 'wb', mode_int) { |f| write(f) }
       # configuration synced here - no need to sync it elsewhere
       return_event
