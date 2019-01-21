@@ -346,7 +346,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   def stat(path = nil)
     path = self[:path] unless path
-    Puppet.warning(path)
+    Puppet.warning _('stat: title - %{title}; path - %{path}') % {title: self.title, path: path}
     Puppet::FileSystem.stat(path)
   rescue Errno::ENOENT
     nil
