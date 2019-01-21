@@ -23,6 +23,12 @@ Puppet::Type.newtype(:sslcertificate) do
       return :present if (stat = resource.stat) && stat.ftype.to_s == 'file'
       :absent
     end
+
+    def insync?(current)
+      # skip resource ensure property sync if configuration is not in sync
+      return true if resource.should_be_present?
+      super(current)
+    end
   end
 
   newparam(:subject_hash) do
@@ -251,7 +257,6 @@ Puppet::Type.newtype(:sslcertificate) do
       mode_int = 0o0644
       Puppet.warning _('sync: @resource[:path]: %{path}') % {path: @resource[:path] }
       File.open(@resource[:path], 'wb', mode_int) { |f| write(f) }
-      # configuration synced here - no need to sync it elsewhere
       return_event
     end
 
