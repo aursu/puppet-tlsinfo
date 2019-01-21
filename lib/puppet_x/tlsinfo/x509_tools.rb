@@ -28,8 +28,9 @@ module Puppet_X
     end
 
     def self.read_x509_cert(value)
-      raw = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
-      OpenSSL::X509::Certificate.new(raw)
+#      raw = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
+#      OpenSSL::X509::Certificate.new(raw)
+      OpenSSL::X509::Certificate.new(value)
     rescue OpenSSL::X509::CertificateError => e
       Puppet.warning(_('Can not create X509 Certificate object (%{message})') % { message: e.message })
       nil
@@ -44,7 +45,6 @@ module Puppet_X
 
       if basicconstraints && basicconstraints['value'].include?('CA:TRUE')
         # basename is Certificate subject hash
-        Puppet.warning _('basename: subject %{subject}') % { subject: certobj.subject.to_s }
         certobj.subject.hash.to_s(16)
       else
         data.sub('*', 'wildcard')
