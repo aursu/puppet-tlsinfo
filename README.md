@@ -80,6 +80,8 @@ Must not be empty. Should be valid RSA private key in DER or PEM encoding form. 
 
 ### Sslcertificate
 
+SSL certificate provided via `content` parameter will be checked over `pkey` private key.
+
 #### sslcertificate title
 
 By default it should be full path to certificate file (eg `/etc/pki/tls/certs/4f06f81d.pem`) but not neccesarry.
@@ -113,13 +115,45 @@ Absolute path to Private key file. Required parameter.
 Puppet catalog should consist `Sslkey` resource with `title` that match `pkey` parameter.
 
 #### sslcertificate::cacert
+
 Default value: `undef`
 
 Possible values are:
+
 * `true` (Intermediate CA should be defined in Puppet catalog as `Sslcertificate` resource),
 * `false` (we don't care about Intermediate CA),
 * String. Any of certificate path, `Sslcertificate` resource title, certificate subject hash (`openssl x509 -subject_hash`) or old hash (`openssl x509 -subject_hash_old`). Should be defined in Puppet catalog as `Sslcertificate` resource
 * Array of strings (list of CA certificates)
+
+#### sslcertificate::replace
+
+Boolean. Default value is `true`. 
+
+If `true` than `content` value will replace existing certificate file. Otherwise - noop.
+
+#### sslcertificate::chain
+
+Boolean. Default is `true`
+
+If `true` than Intermediate CA certificate will be placed into PEM file.
+
+#### sslcertificate::strict
+
+Boolean. Default is `true`
+
+If `true` and `cacert` specified than cert chain will be checked over root certificate bundle (catalog compilation will fail if CA certificate is not valid)
+
+#### sslcertificate::identity
+
+Certificate identities. Could be String or list of strings
+
+Each identity will be checked over Common Name or Alternative Names (DNS). If any of them missed - resource compilation will fail.
+
+#### sslcertificate::content
+
+Certificate PEM data. Required parameter. Can not be empty
+
+It should be valid x509 certificate with valid term of validity
 
 ## Usage
 
