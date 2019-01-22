@@ -5,9 +5,9 @@
 
 1. [Description](#description)
 2. [Setup - The basics of getting started with tlsinfo](#setup)
-    * [What tlsinfo affects](#what-tlsinfo-affects)
-    * [Setup requirements](#setup-requirements)
     * [Beginning with tlsinfo](#beginning-with-tlsinfo)
+    * [sslkey](#sslkey)
+    * [Sslcertificate](#sslcertificate)
 3. [Usage - Configuration options and additional functionality](#usage)
 4. [Limitations - OS compatibility, etc.](#limitations)
 5. [Development - Guide for contributing to the module](#development)
@@ -17,10 +17,6 @@
 tlsinfo module rpovide ability to manage x509 certificates and private keys on web node with proper validation checking (over dates, CA issuers, common names etc)
 
 ## Setup
-
-### What tlsinfo affects **OPTIONAL**
-
-### Setup Requirements **OPTIONAL**
 
 ### Beginning with tlsinfo
 
