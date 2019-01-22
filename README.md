@@ -61,9 +61,9 @@ Example:
   }
 ```
 
-In this example defined type Tlsinfo::Certificate will create certificate /etc/pki/tls/certs/4f06f81d.pem (`4f06f81d` is a certificate subject hash). 
+In this example defined type `Tlsinfo::Certificate` will create certificate `/etc/pki/tls/certs/4f06f81d.pem` (`4f06f81d` is a certificate subject hash). 
 
-Tlsinfo::Certpair will look for `registry_domain_com_certificate` and `registry_domain_com_private` keys through Hiera and create certpair `/etc/pki/tls/certs/registry.domain.com.pem` and `/etc/pki/tls/private/registry.domain.com.key`. It will check certificate-key validity before. Also certificate file /etc/pki/tls/certs/registry.domain.com.pem will consists Intermediate CA on the bottom if such Intermediate CA certificate exists in Puppet catalog (defined via Tlsinfo::Certificate)
+`Tlsinfo::Certpair` will look for `registry_domain_com_certificate` and `registry_domain_com_private` keys through Hiera and create certpair `/etc/pki/tls/certs/registry.domain.com.pem` and `/etc/pki/tls/private/registry.domain.com.key`. It will check certificate-key validity before. Also certificate file `/etc/pki/tls/certs/registry.domain.com.pem` will consists Intermediate CA certificate on the bottom if such Intermediate CA certificate exists in Puppet catalog (defined via Tlsinfo::Certificate)
 
 Path to certificate could be got via function `tlsinfo::certpath` and path to private key - via `tlsinfo::keypath`
 
