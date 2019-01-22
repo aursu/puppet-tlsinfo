@@ -39,6 +39,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     newvalue(:present) do
+      content_sync
     end
 
     defaultto :present
@@ -46,6 +47,13 @@ Puppet::Type.newtype(:sslkey) do
     def retrieve
       return :present if (stat = resource.stat) && stat.ftype.to_s == 'file'
       :absent
+    end
+
+    def content_sync
+      property = @resource.property(:content)
+      current = property.retrieve
+      # set provider to sync configuration
+      property.sync unless property.safe_insync?(current)
     end
   end
 
