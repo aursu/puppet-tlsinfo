@@ -1,16 +1,6 @@
 
 # tlsinfo
 
-Welcome to your new module. A short overview of the generated parts can be found in the PDK documentation at https://puppet.com/pdk/latest/pdk_generating_modules.html .
-
-The README template below provides a starting point with details about what information to include in your README.
-
-
-
-
-
-
-
 #### Table of Contents
 
 1. [Description](#description)
