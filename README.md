@@ -34,10 +34,15 @@ and
 
 ```puppet
 sslcertificate { 'www.domain.com':
-  ensure => present,
-  path   => '/etc/pki/tls/certs/www.domain.com.pem',
-  pkey   => '/etc/pki/tls/private/www.domain.com.key',
-  cacert => true,
+  ensure   => present,
+  path     => '/etc/pki/tls/certs/www.domain.com.pem',
+  pkey     => '/etc/pki/tls/private/www.domain.com.key',
+  cacert   => true,
+  replace  => true,
+  chain    => true,
+  strict   => true,
+  identity => ['www.domain.com', 'domain.com'],
+  content  => lookup('www_domain_com_certificate', String, 'first'),
 }
 ```
 
