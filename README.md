@@ -55,8 +55,8 @@ Example:
     ...
     ...
     ssl              => true,
-    ssl_cert         => $ssl_cert,
-    ssl_key          => $ssl_key,
+    ssl_cert         => $ssl_cert_path,
+    ssl_key          => $ssl_key_path,
     require          => Tlsinfo::Certpair[$server_name],
   }
 ```
