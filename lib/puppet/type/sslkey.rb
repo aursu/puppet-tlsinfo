@@ -18,7 +18,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     munge do |value|
-      return nil if value.nil? || value.empty?
+      return nil if value.empty?
       value
     end
 
