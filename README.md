@@ -82,14 +82,14 @@ Path to certificate could be got via function `tlsinfo::certpath` and path to pr
 ## Limitations
 
 Module uses Ruby library 'openssl'
+
 For unknown reasons this module has unpredicted behavior like:
+
 1) returns old hash instead of new (for certificate Subject and Issuer fields)
 2) returns negative (signed) values for Subject and Issuer hashes (eg `-ece330c` instead of `f131ccf4`)
+
 Therefore it is better to use module functions for default path calculation (`tlsinfo::certpath` and `tlsinfo::keypath`)
 
 ## Development
 
-
-
 ## Release Notes/Contributors/Etc. **Optional**
-
