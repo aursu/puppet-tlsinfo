@@ -24,6 +24,30 @@ tlsinfo module rpovide ability to manage x509 certificates and private keys on w
 
 ### Beginning with tlsinfo
 
+Module provides two custom types:
+
+```puppet
+
+sslcertificate { '':
+  ensure => present,  # second value: absent
+  path   => '/etc/pki/tls/certs/www.domain.com.pem',
+  pkey   => '/etc/pki/tls/private/www.domain.com.key',
+  cacert => true,
+}
+```
+#### sslcertificate::ensure
+#### sslcertificate::subject_hash (readonly)
+#### sslcertificate::subject_hash_old (readonly)
+#### sslcertificate::path
+#### sslcertificate::pkey
+#### sslcertificate::cacert
+Default value: undef
+Possible values are:
+* `true` (Intermediate CA should be defined in Puppet catalog as `Sllcertificate` resource),
+* `false` (we don't care about Intermediate CA),
+* String. Any of certificate path, `Sslcertificate` resource title, certificate subject hash (`openssl x509 -subject_hash`) or old hash (`openssl x509 -subject_hash_old`). Should be defined in Puppet catalog as `Sllcertificate` resource
+* Array of strings (list of CA certificates)
+
 ## Usage
 
 It is required to include tlsinfo module into current scope to make parmeters `tlsinfo::certbase` and `tlsinfo::keybase` available
