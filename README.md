@@ -28,20 +28,58 @@ Module provides two custom types:
 
 ```puppet
 sslkey { '/etc/pki/tls/private/www.domain.com.key':
-
+  ensure   => present,
+  password => 'SecureSecret',
+  path     => '/etc/pki/tls/private/www.domain.com.key',
+  replace  => true,
+  content  => lookup('www_domain_com_private', String, 'first'),
 }
 ```
-#### sslkey title
+and
 
 ```puppet
-
 sslcertificate { 'www.domain.com':
-  ensure => present,  # second value: absent
+  ensure => present,
   path   => '/etc/pki/tls/certs/www.domain.com.pem',
   pkey   => '/etc/pki/tls/private/www.domain.com.key',
   cacert => true,
 }
 ```
+
+### Sslkey
+
+#### sslkey title
+
+Must be full path to private key because `Sslcertificate[pkey]` has requirement to be absolute path.
+
+#### sslkey::ensure
+
+Default value is `present`
+
+If defined as `absent` - private key file will be removed by `unlink()`
+
+#### sslkey::passowrd
+
+Encrypted private key password. Must be a `String` or `nil` (`undef`). Can not be empty string.
+
+#### sslkey::path
+
+Absolute path to Private key file. It is namevar parameter (set to `title` value if not specified). Required parameter.
+
+#### sslkey::replace
+
+Boolean. Default value is `true`. 
+
+If `true` than `content` value will replace existing private key file. Otherwise - noop.
+
+#### sslkey::content
+
+String. Required parameter
+
+Must not be empty. Should be valid RSA private key in DER or PEM encoding form. Key size must be greate or equal 2048 bits
+
+### Sslcertificate
+
 #### sslcertificate title
 
 By default it should be full path to certificate file (eg `/etc/pki/tls/certs/4f06f81d.pem`) but not neccesarry.
@@ -53,6 +91,7 @@ Could be any string.
 #### sslcertificate::ensure
 
 Default value is `present`
+
 If defined as `absent` - certificate file will be removed by `unlink()`
 
 #### sslcertificate::subject_hash (readonly)
@@ -65,7 +104,7 @@ Represent certificate subject old hash `openssl x509 -subject_hash_old`
 
 #### sslcertificate::path
 
-Absolute path to Certificate file. Required parameter.
+Absolute path to certificate file. It is namevar parameter (set to `title` value if not specified). Required parameter.
 
 #### sslcertificate::pkey
 
@@ -75,10 +114,11 @@ Puppet catalog should consist `Sslkey` resource with `title` that match `pkey` p
 
 #### sslcertificate::cacert
 Default value: `undef`
+
 Possible values are:
-* `true` (Intermediate CA should be defined in Puppet catalog as `Sllcertificate` resource),
+* `true` (Intermediate CA should be defined in Puppet catalog as `Sslcertificate` resource),
 * `false` (we don't care about Intermediate CA),
-* String. Any of certificate path, `Sslcertificate` resource title, certificate subject hash (`openssl x509 -subject_hash`) or old hash (`openssl x509 -subject_hash_old`). Should be defined in Puppet catalog as `Sllcertificate` resource
+* String. Any of certificate path, `Sslcertificate` resource title, certificate subject hash (`openssl x509 -subject_hash`) or old hash (`openssl x509 -subject_hash_old`). Should be defined in Puppet catalog as `Sslcertificate` resource
 * Array of strings (list of CA certificates)
 
 ## Usage
