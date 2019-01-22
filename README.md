@@ -28,13 +28,13 @@ tlsinfo module rpovide ability to manage x509 certificates and private keys on w
 
 It is required to include tlsinfo module into current scope to make parmeters `tlsinfo::certbase` and `tlsinfo::keybase` available
 
-```
+```puppet
 include tlsinfo
 ```
 
 Example:
 
-```
+```puppet
   tlsinfo::certificate { 'LetsEncryptAuthorityX3':
     cert => file('profile/certs/LetsEncryptAuthorityX3.crt'),
   }
