@@ -10,7 +10,6 @@
     * [Sslcertificate](#sslcertificate)
 3. [Usage - Configuration options and additional functionality](#usage)
 4. [Limitations - OS compatibility, etc.](#limitations)
-5. [Development - Guide for contributing to the module](#development)
 
 ## Description
 
@@ -210,7 +209,3 @@ For unknown reasons this module has unpredicted behavior like:
 2) returns negative (signed) values for Subject and Issuer hashes (eg `-ece330c` instead of `f131ccf4`)
 
 Therefore it is better to use module functions for default path calculation (`tlsinfo::certpath` and `tlsinfo::keypath`)
-
-## Development
-
-## Release Notes/Contributors/Etc. **Optional**
