@@ -24,72 +24,72 @@ The README template below provides a starting point with details about what info
 
 ## Description
 
-Briefly tell users why they might want to use your module. Explain what your module does and what kind of problems users can solve with it.
-
-This should be a fairly short description helps the user decide if your module is what they want.
-
+tlsinfo module rpovide ability to manage x509 certificates and private keys on web node with proper validation checking (over dates, CA issuers, common names etc)
 
 ## Setup
 
 ### What tlsinfo affects **OPTIONAL**
 
-If it's obvious what your module touches, you can skip this section. For example, folks can probably figure out that your mysql_instance module affects their MySQL instances.
-
-If there's more that they should know about, though, this is the place to mention:
-
-* Files, packages, services, or operations that the module will alter, impact, or execute.
-* Dependencies that your module automatically installs.
-* Warnings or other important notices.
-
 ### Setup Requirements **OPTIONAL**
-
-If your module requires anything extra before setting up (pluginsync enabled, another module, etc.), mention it here.
-
-If your most recent release breaks compatibility or requires particular steps for upgrading, you might want to include an additional "Upgrading" section here.
 
 ### Beginning with tlsinfo
 
-The very basic steps needed for a user to get the module up and running. This can include setup steps, if necessary, or it can be an example of the most basic use of the module.
-
 ## Usage
 
-Include usage examples for common use cases in the **Usage** section. Show your users how to use your module to solve problems, and be sure to include code examples. Include three to five examples of the most important or common tasks a user can accomplish with your module. Show users how to accomplish more complex tasks that involve different types, classes, and functions working in tandem.
+It is required to include tlsinfo module into current scope to make parmeters `tlsinfo::certbase` and `tlsinfo::keybase` available
+
+```
+include tlsinfo
+```
+
+Example:
+
+```
+  tlsinfo::certificate { 'LetsEncryptAuthorityX3':
+    cert => file('profile/certs/LetsEncryptAuthorityX3.crt'),
+  }
+
+  $server_name = 'registry.domain.com'
+  tlsinfo::certpair { $server_name:
+    identity => true,
+  }
+
+  # get certificate data from Hiera
+  $certdata = tlsinfo::lookup($server_name)
+
+  $ssl_cert_path = tlsinfo::certpath($certdata)
+  $ssl_key_path = tlsinfo::keypath($certdata)
+  
+  class { 'profile::registry::nginx':
+    server_name      => $server_name,
+    ...
+    ...
+    ssl              => true,
+    ssl_cert         => $ssl_cert,
+    ssl_key          => $ssl_key,
+    require          => Tlsinfo::Certpair[$server_name],
+  }
+```
+
+In this example defined type Tlsinfo::Certificate will create certificate /etc/pki/tls/certs/4f06f81d.pem (`4f06f81d` is a certificate subject hash). 
+
+Tlsinfo::Certpair will look for `registry_domain_com_certificate` and `registry_domain_com_private` keys through Hiera and create certpair `/etc/pki/tls/certs/registry.domain.com.pem` and `/etc/pki/tls/private/registry.domain.com.key`. It will check certificate-key validity before. Also certificate file /etc/pki/tls/certs/registry.domain.com.pem will consists Intermediate CA on the bottom if such Intermediate CA certificate exists in Puppet catalog (defined via Tlsinfo::Certificate)
+
+Path to certificate could be got via function `tlsinfo::certpath` and path to private key - via `tlsinfo::keypath`
 
 ## Reference
 
-This section is deprecated. Instead, add reference information to your code as Puppet Strings comments, and then use Strings to generate a REFERENCE.md in your module. For details on how to add code comments and generate documentation with Strings, see the Puppet Strings [documentation](https://puppet.com/docs/puppet/latest/puppet_strings.html) and [style guide](https://puppet.com/docs/puppet/latest/puppet_strings_style.html)
-
-If you aren't ready to use Strings yet, manually create a REFERENCE.md in the root of your module directory and list out each of your module's classes, defined types, facts, functions, Puppet tasks, task plans, and resource types and providers, along with the parameters for each.
-
-For each element (class, defined type, function, and so on), list:
-
-  * The data type, if applicable.
-  * A description of what the element does.
-  * Valid values, if the data type doesn't make it obvious.
-  * Default value, if any.
-
-For example:
-
-```
-### `pet::cat`
-
-#### Parameters
-
-##### `meow`
-
-Enables vocalization in your cat. Valid options: 'string'.
-
-Default: 'medium-loud'.
-```
-
 ## Limitations
 
-In the Limitations section, list any incompatibilities, known issues, or other warnings.
+Module uses Ruby library 'openssl'
+For unknown reasons this module has unpredicted behavior like:
+1) returns old hash instead of new (for certificate Subject and Issuer fields)
+2) returns negative (signed) values for Subject and Issuer hashes (eg `-ece330c` instead of `f131ccf4`)
+Therefore it is better to use module functions for default path calculation (`tlsinfo::certpath` and `tlsinfo::keypath`)
 
 ## Development
 
-In the Development section, tell other users the ground rules for contributing to your project and how they should submit their work.
+
 
 ## Release Notes/Contributors/Etc. **Optional**
 
-If you aren't using changelog, put your release notes here (though you should consider using changelog). You can also add any additional sections you feel are necessary or important to include here. Please use the `## ` header.
