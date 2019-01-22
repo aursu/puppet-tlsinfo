@@ -27,21 +27,54 @@ tlsinfo module rpovide ability to manage x509 certificates and private keys on w
 Module provides two custom types:
 
 ```puppet
+sslkey { '/etc/pki/tls/private/www.domain.com.key':
 
-sslcertificate { '':
+}
+```
+#### sslkey title
+
+```puppet
+
+sslcertificate { 'www.domain.com':
   ensure => present,  # second value: absent
   path   => '/etc/pki/tls/certs/www.domain.com.pem',
   pkey   => '/etc/pki/tls/private/www.domain.com.key',
   cacert => true,
 }
 ```
+#### sslcertificate title
+
+By default it should be full path to certificate file (eg `/etc/pki/tls/certs/4f06f81d.pem`) but not neccesarry.
+
+Could be any string.
+
+`Sslcertificate` type applies title pattern to get name variable parameter `path`. Therefore `path` if not defined will be set to `title` value (trimming last hashes `/`) 
+
 #### sslcertificate::ensure
+
+Default value is `present`
+If defined as `absent` - certificate file will be removed by `unlink()`
+
 #### sslcertificate::subject_hash (readonly)
+
+Represent certificate subject hash `openssl x509 -subject_hash`
+
 #### sslcertificate::subject_hash_old (readonly)
+
+Represent certificate subject old hash `openssl x509 -subject_hash_old`
+
 #### sslcertificate::path
+
+Absolute path to Certificate file. Required parameter.
+
 #### sslcertificate::pkey
+
+Absolute path to Private key file. Required parameter.
+
+Puppet catalog should consist `Sslkey` resource with `title` that match `pkey` parameter.
+
 #### sslcertificate::cacert
-Default value: undef
+Default value: `undef`
 Possible values are:
 * `true` (Intermediate CA should be defined in Puppet catalog as `Sllcertificate` resource),
 * `false` (we don't care about Intermediate CA),
