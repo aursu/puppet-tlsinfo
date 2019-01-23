@@ -319,7 +319,7 @@ Puppet::Type.newtype(:sslcertificate) do
       # check if specified identitiesand certificate subject names are match
       if self[:identity]
         names = cert_names
-        unless (names & self[:identity]) == names
+        unless (names | self[:identity]) == names
           self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
                     {
                       names: names,
