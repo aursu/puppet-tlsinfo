@@ -39,20 +39,22 @@
 #   tlsinfo::certpair { 'namevar': }
 define tlsinfo::certpair (
     Optional[String]
-            $cert     = undef,
+            $lookup = undef,
     Optional[String]
-            $pkey     = undef,
+            $cert      = undef,
+    Optional[String]
+            $pkey      = undef,
     Optional[
         Variant[
             Boolean,
             Stdlib::Unixpath,
             Array[Stdlib::Unixpath]
         ]
-    ]       $cacert   = true,
+    ]       $cacert    = true,
     Optional[Stdlib::Unixpath]
-            $certbase = $tlsinfo::certbase,
+            $certbase  = $tlsinfo::certbase,
     Optional[Stdlib::Unixpath]
-            $keybase  = $tlsinfo::keybase,
+            $keybase   = $tlsinfo::keybase,
     Optional[
         Variant[
             Boolean,
@@ -62,12 +64,18 @@ define tlsinfo::certpair (
     ]       $identity  = undef,
 )
 {
-    $lookupkey = tlsinfo::normalize($name)
+    if $lookup {
+        $lookupkey = tlsinfo::normalize($lookup)
+    }
+    else {
+        $lookupkey = tlsinfo::normalize($name)
+    }
+
     if $cert {
         $certdata = $cert
     }
     else {
-        $certdata = tlsinfo::lookup($name)
+        $certdata = tlsinfo::lookup($lookupkey)
     }
 
     unless $certdata {
@@ -78,7 +86,7 @@ define tlsinfo::certpair (
         $pkeydata = $pkey
     }
     else {
-        $pkeydata = tlsinfo::lookup($name, true)
+        $pkeydata = tlsinfo::lookup($lookupkey, true)
     }
 
     unless $pkeydata {
