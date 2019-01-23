@@ -10,4 +10,5 @@ class tlsinfo (
     Optional[Stdlib::Unixpath]
         $keybase,
 ){
+    include tlsinfo::params
 }
