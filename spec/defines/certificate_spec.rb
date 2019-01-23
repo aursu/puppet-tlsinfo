@@ -55,8 +55,9 @@ CERTIFICATE
       end
 
       context 'with certificate in DER format via Hiera' do
-        let(:facts) { os_facts.merge( stype: 'stype1' ) }
+        let(:facts) { os_facts.merge(stype: 'stype1') }
         let(:title) { 'StarfieldSecureCertificateAuthorityG2' }
+
         it {
           is_expected.to compile
         }

@@ -131,13 +131,7 @@ RSAKEYDATA
       end
 
       it 'not fail' do
-        # to prevent the catalog from trying to write state.yaml
-        Puppet::Util::Storage.stubs(:store)
-
-        catalog.add_resource(key)
-        report = catalog.apply.report
-
-        expect(report.resource_statuses['Sslkey[/etc/pki/tls/private/8994aafb.key]']).not_to be_failed
+        expect { described_class.new(params.merge(password: 'SecureSecret')) }.not_to raise_error
       end
 
       it 'check content keyobj type to be OpenSSL::PKey::RSA' do
