@@ -53,7 +53,7 @@ module Puppet_X
     end
 
     def self.normalize(name)
-      name.sub('*', 'wildcard').tr('.', '_').tr("'", '_').tr(' ', '_')
+      name.sub('*', 'wildcard').tr('.-', '_').tr("'", '_').tr(' ', '_')
     end
 
     def self.cert_names(cert)
