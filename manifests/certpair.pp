@@ -67,7 +67,7 @@ define tlsinfo::certpair (
     Boolean $rootca    = false,
 )
 {
-    if $lookup {
+    if $lookupkey {
         $hierakey = tlsinfo::normalize($lookupkey)
     }
     else {
