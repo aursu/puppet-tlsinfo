@@ -1,3 +1,5 @@
+require 'securerandom'
+
 Puppet::Type.type(:sslkey).provide :posix do
   desc 'Uses POSIX functionality to manage key file.'
 
@@ -5,5 +7,9 @@ Puppet::Type.type(:sslkey).provide :posix do
 
   def remove_file
     Puppet::FileSystem.unlink(@resource[:path])
+  end
+
+  def password
+    SecureRandom.urlsafe_base64(10)
   end
 end
