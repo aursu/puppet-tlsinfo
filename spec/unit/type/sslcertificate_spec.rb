@@ -177,6 +177,37 @@ uKA/w3c23yMmYdjjd7yJXtrf6TZJ63d737gHKrDgercDrMyoma2OB9YiMKYziC/j
 CERTIFICATE
   end
   let(:capath_parent) { '/etc/pki/tls/certs/a4144c98.pem' }
+  let(:www_domain_com_rootca) do
+    <<-CERTIFICATE
+-----BEGIN CERTIFICATE-----
+MIIEWjCCA0KgAwIBAgIBATANBgkqhkiG9w0BAQsFADB7MQswCQYDVQQGEwJERTEY
+MBYGA1UECgwPRG9tYWluRG90Q29tIEFCMSowKAYDVQQLDCFEb21haW5Eb3RDb20g
+RXh0ZXJuYWwgVFRQIE5ldHdvcmsxJjAkBgNVBAMMHURvbWFpbkRvdENvbSBFeHRl
+cm5hbCBDQSBSb290MB4XDTE5MDEwNjEwNDkxMloXDTI5MDEwMzEwNDkxMlowezEL
+MAkGA1UEBhMCREUxGDAWBgNVBAoMD0RvbWFpbkRvdENvbSBBQjEqMCgGA1UECwwh
+RG9tYWluRG90Q29tIEV4dGVybmFsIFRUUCBOZXR3b3JrMSYwJAYDVQQDDB1Eb21h
+aW5Eb3RDb20gRXh0ZXJuYWwgQ0EgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAMoyg0THxN4suAvaUg4Emwocji2xGAwW90s88a5GinZJ7nbHvI8b
+h0YCULBNssWoPdmkEBBJgr2jaOTl68moBiO2n/mJNgqJSUnYKwbSzmpDi4hv78ll
+iPKaqZb6Zys+O3qWEJ4pGtBNFU2NnCy2Ve8pr7oyhVtfLqOqWfdhnbnwdFU5BGA9
+ElJMo2ssp7zA1HmuQiMCzMU+BIU6ay1YDpGNXZb7feAZ+BvKqBqjw5l3tWY85AWh
+Z20BiACYdzfLOZ9r9GDsrW2AuwxybGUHikTQ9BaweIyxmvXoO7/3jONvg8u2f9o8
+Hgy3ZYjx8k6KgxMrxU8NixE1uyiQnUnv0W8CAwEAAaOB6DCB5TAdBgNVHQ4EFgQU
+/04QER7wCdk+TjHc8w4Gd1h1Dd4wCwYDVR0PBAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wgaUGA1UdIwSBnTCBmoAU/04QER7wCdk+TjHc8w4Gd1h1Dd6hf6R9MHsxCzAJ
+BgNVBAYTAkRFMRgwFgYDVQQKDA9Eb21haW5Eb3RDb20gQUIxKjAoBgNVBAsMIURv
+bWFpbkRvdENvbSBFeHRlcm5hbCBUVFAgTmV0d29yazEmMCQGA1UEAwwdRG9tYWlu
+RG90Q29tIEV4dGVybmFsIENBIFJvb3SCAQEwDQYJKoZIhvcNAQELBQADggEBAHYV
+tLA+JLtZ7Dkaz/D1cIDtaNIb6Kda3EV6yMYEx9T3eEr6kXEPJXvj8sQlbVO3xkNe
+DOiL+v3nhc38K5IGmgHezasRTyt3g/RZvRd6VwCGwcDpzEqq9fPB0fexWFcTKVBN
+TBd8U17AOulBLgwhoAWVFLU8kSw84Fpr+n95KOoj8tDzJev3WqlHlyLO6AbgGqRz
+pHAY2sj5YIa6+XP5pU/kpfOARvj+e3CqhoySYy8XBxYRDiUoWmTwVUu95924yjPh
+f1Dphci48VYqVT+MYwdDuSgz40WzsBVKFlBWe2/LRLKYgIwtY2ciwkG+7+0jFx1S
+n8xHsqxe75BgSa8aU/s=
+-----END CERTIFICATE-----
+CERTIFICATE
+  end
+  let(:capath_root) { '/etc/pki/tls/certs/708f6eb2.pem' }
 
   it 'check with empty parameters list' do
     params = {
@@ -201,6 +232,29 @@ CERTIFICATE
       catalog: catalog
     }
     expect { described_class.new(params) }.not_to raise_error
+  end
+
+  context 'when self-signed certificate' do
+    let(:params) do
+      {
+        title: capath_root,
+        content: www_domain_com_rootca,
+        catalog: catalog
+      }
+    end
+    let(:cert) { described_class.new(params) }
+
+    it 'not fail' do
+      expect { described_class.new(params) }.not_to raise_error
+    end
+
+    it 'check certchain is nil for self-signed' do
+      expect(cert.certchain).to be_nil
+    end
+
+    it 'check actual content equal to certificate PEM' do
+      expect(cert.parameters[:content].actual_content).to eq(www_domain_com_rootca)
+    end
   end
 
   context 'when only content specified' do
@@ -335,6 +389,17 @@ CERTIFICATE
       end
     end
 
+    def check_cacerts(chain, size)
+      expect(chain).to be_instance_of(Array)
+      expect(chain.count).to eq(size)
+      chain.each do |c|
+        basicconstraints, = c.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
+        is_ca = basicconstraints && basicconstraints['value'].include?('CA:TRUE')
+
+        expect(is_ca).to eq(true)
+      end
+    end
+
     context 'when multipath CA' do
       let(:cacert_params) do
         {
@@ -394,24 +459,13 @@ CERTIFICATE
           catalog.add_resource cacert
         end
 
-        def check_cacerts(chain, size)
-          expect(chain).to be_instance_of(Array)
-          expect(chain.count).to eq(size)
-          chain.each do |c|
-            basicconstraints, = c.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
-            is_ca = basicconstraints && basicconstraints['value'].include?('CA:TRUE')
-
-            expect(is_ca).to eq(true)
-          end
-        end
-
         it 'check cacert certchain should consist all CA certificates' do
           certchain = cert.parameters[:cacert].certchain
 
           check_cacerts(certchain, 2)
         end
 
-        it "check check cacert certobj when 'cacert' parameter is array" do
+        it "check cacert certobj when 'cacert' parameter is array" do
           cert = described_class.new(params.merge(cacert: [capath, capath_parent]))
           certobj = cert.parameters[:cacert].certobj
 
@@ -427,6 +481,42 @@ CERTIFICATE
             www_domain_com_intermediate_parent
           ].join)
         end
+      end
+    end
+
+    context 'when Root CA in catalog' do
+      let(:params) do
+        {
+          title: capath_parent,
+          content: www_domain_com_intermediate_parent,
+          cacert: true,
+          catalog: catalog
+        }
+      end
+      let(:rootca) do
+        Puppet::Type.type(:sslcertificate).new(name: capath_root, content: www_domain_com_rootca)
+      end
+      let(:cacert_parent) do
+        Puppet::Type.type(:sslcertificate).new(params)
+      end
+
+      before(:each) do
+        catalog.add_resource rootca
+      end
+
+      it "check root certificate is NOT in chain" do
+        check_cacerts(cacert_parent.certchain, 1)
+      end
+
+      it "check root certificate is in chain" do
+        cert = described_class.new(params.merge(rootca: true))
+        content = cert.certchain.map { |c| c.to_pem }.join
+
+        check_cacerts(cert.certchain, 2)
+        expect(content).to eq([
+          www_domain_com_intermediate_parent,
+          www_domain_com_rootca
+        ].join)
       end
     end
   end

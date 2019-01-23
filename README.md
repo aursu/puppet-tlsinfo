@@ -68,7 +68,7 @@ Absolute path to Private key file. It is namevar parameter (set to `title` value
 
 #### sslkey::replace
 
-Boolean. Default value is `true`. 
+Boolean. Default value is `true`.
 
 If `true` than `content` value will replace existing private key file. Otherwise - noop.
 
@@ -88,7 +88,7 @@ By default it should be full path to certificate file (eg `/etc/pki/tls/certs/4f
 
 Could be any string.
 
-`Sslcertificate` type applies title pattern to get name variable parameter `path`. Therefore `path` if not defined will be set to `title` value (trimming last hashes `/`) 
+`Sslcertificate` type applies title pattern to get name variable parameter `path`. Therefore `path` if not defined will be set to `title` value (trimming last hashes `/`)
 
 #### sslcertificate::ensure
 
@@ -127,7 +127,7 @@ Possible values are:
 
 #### sslcertificate::replace
 
-Boolean. Default value is `true`. 
+Boolean. Default value is `true`.
 
 If `true` than `content` value will replace existing certificate file. Otherwise - noop.
 
@@ -136,6 +136,13 @@ If `true` than `content` value will replace existing certificate file. Otherwise
 Boolean. Default is `true`
 
 If `true` than Intermediate CA certificate will be placed into PEM file.
+
+#### sslcertificate::rootca
+
+Boolean. Default is `false`
+
+If `true` than content of Root CA will be included into PEM file if CA bundle exists on host
+This option is useful for self-signed CA
 
 #### sslcertificate::strict
 
@@ -180,7 +187,7 @@ Example:
 
   $ssl_cert_path = tlsinfo::certpath($certdata)
   $ssl_key_path = tlsinfo::keypath($certdata)
-  
+
   class { 'profile::registry::nginx':
     server_name      => $server_name,
     ...
@@ -192,7 +199,7 @@ Example:
   }
 ```
 
-In this example defined type `Tlsinfo::Certificate` will create certificate `/etc/pki/tls/certs/4f06f81d.pem` (`4f06f81d` is a certificate subject hash). 
+In this example defined type `Tlsinfo::Certificate` will create certificate `/etc/pki/tls/certs/4f06f81d.pem` (`4f06f81d` is a certificate subject hash).
 
 `Tlsinfo::Certpair` will look for `registry_domain_com_certificate` and `registry_domain_com_private` keys through Hiera (this behavior defined by function `tlsinfo::lookup`).
 

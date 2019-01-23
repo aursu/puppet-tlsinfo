@@ -16,6 +16,7 @@ define tlsinfo::certificate (
             Array[Stdlib::Unixpath]
         ]
     ]       $cacert = undef,
+    Boolean $rootca = false,
 ) {
     $lookupkey = tlsinfo::normalize($name)
     if $cert {
@@ -34,5 +35,6 @@ define tlsinfo::certificate (
     sslcertificate { $certpath:
         content => $certdata,
         cacert  => $cacert,
+        rootca  => $rootca,
     }
 }
