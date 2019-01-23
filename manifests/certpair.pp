@@ -44,6 +44,8 @@ define tlsinfo::certpair (
             $cert      = undef,
     Optional[String]
             $pkey      = undef,
+    Optional[String]
+            $secret    = undef,
     Optional[
         Variant[
             Boolean,
@@ -110,7 +112,8 @@ define tlsinfo::certpair (
 
     $keypath = tlsinfo::keypath($certdata, $keybase)
     sslkey { $keypath:
-        content => $pkeydata,
+        content  => $pkeydata,
+        password => $secret,
     }
 
     $certpath = tlsinfo::certpath($certdata, $certbase)
