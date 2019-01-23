@@ -93,22 +93,18 @@ define tlsinfo::certpair (
         fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${lookupkey}_private\"")
     }
 
-    if $identity =~ Boolean {
-        if $identity {
-            $identityinfo = $name
-        }
-        else {
-            $identityinfo = undef
-        }
+    if $identity =~ Boolean and $identity {
+        $identityinfo = $name
+    }
+    # tlsinfo::certpair name (title) must match one of ceritficate names
+    elsif $identity =~ Array {
+        $identityinfo = $identity + [ $name ]
+    }
+    elsif $identity =~ String {
+        $identityinfo = [ $identity, $name ]
     }
     else {
-        # tlsinfo::certpair name (title) must match one of ceritficate names
-        if $identity =~ Array {
-            $identityinfo = $identity + [ $name ]
-        }
-        else {
-            $identityinfo = [ $identity, $name ]
-        }
+        $identityinfo = undef
     }
 
     $keypath = tlsinfo::keypath($certdata, $keybase)
