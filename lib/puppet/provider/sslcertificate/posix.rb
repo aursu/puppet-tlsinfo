@@ -65,6 +65,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     validate unless store
     return nil unless store && store.chain
 
+    return store.chain if resource.rootca?
     store.chain.reject { |c| c.subject == c.issuer }
   end
 

@@ -169,6 +169,11 @@ Puppet::Type.newtype(:sslcertificate) do
     defaultto :true
   end
 
+  newparam(:rootca, boolean: true, parent: Puppet::Parameter::Boolean) do
+    desc 'Whether to place Root CA certificate into certificate file or not'
+    defaultto :false
+  end
+
   newparam(:strict, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc 'Strictly validate over root CA bundle'
     defaultto :true
