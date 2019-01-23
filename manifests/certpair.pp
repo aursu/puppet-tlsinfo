@@ -39,7 +39,7 @@
 #   tlsinfo::certpair { 'namevar': }
 define tlsinfo::certpair (
     Optional[String]
-            $lookup = undef,
+            $lookupkey = undef,
     Optional[String]
             $cert      = undef,
     Optional[String]
@@ -68,32 +68,32 @@ define tlsinfo::certpair (
 )
 {
     if $lookup {
-        $lookupkey = tlsinfo::normalize($lookup)
+        $hierakey = tlsinfo::normalize($lookupkey)
     }
     else {
-        $lookupkey = tlsinfo::normalize($name)
+        $hierakey = tlsinfo::normalize($name)
     }
 
     if $cert {
         $certdata = $cert
     }
     else {
-        $certdata = tlsinfo::lookup($lookupkey)
+        $certdata = tlsinfo::lookup($hierakey)
     }
 
     unless $certdata {
-        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${lookupkey}_certificate\"")
+        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${hierakey}_certificate\"")
     }
 
     if $pkey {
         $pkeydata = $pkey
     }
     else {
-        $pkeydata = tlsinfo::lookup($lookupkey, true)
+        $pkeydata = tlsinfo::lookup($hierakey, true)
     }
 
     unless $pkeydata {
-        fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${lookupkey}_private\"")
+        fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${hierakey}_private\"")
     }
 
     if $identity =~ Boolean and $identity {
