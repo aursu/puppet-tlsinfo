@@ -504,11 +504,11 @@ CERTIFICATE
         catalog.add_resource rootca
       end
 
-      it "check root certificate is NOT in chain" do
+      it 'check root certificate is NOT in chain' do
         check_cacerts(cacert_parent.certchain, 1)
       end
 
-      it "check root certificate is in chain" do
+      it 'check root certificate is in chain' do
         cert = described_class.new(params.merge(rootca: true))
         content = cert.certchain.map { |c| c.to_pem }.join
 
