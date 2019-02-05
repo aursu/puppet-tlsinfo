@@ -92,6 +92,34 @@ module Puppet_X
       cert.serial.to_s(16)
     end
 
+    def self.cert_not_before(cert)
+      cert.not_before
+    end
+
+    def self.cert_not_before_valid(cert)
+      cert.not_before < Time.now
+    end
+
+    def self.cert_not_before_message(cert)
+      cert.not_before.strftime('notBefore=%b %_d %T %Y %Z')
+    end
+
+    def self.cert_not_after(cert)
+      cert.not_after
+    end
+
+    def self.cert_not_after_valid(cert)
+      cert.not_after > Time.now
+    end
+
+    def self.cert_not_after_message(cert)
+      cert.not_after.strftime('notAfter=%b %_d %T %Y %Z')
+    end
+
+    def self.cert_valid(cert)
+      cert_not_before_valid(cert) && cert_not_after_valid(cert)
+    end
+
     def self.read_x509_chain(path)
       return nil unless File.exist?(path)
       cert = File.read(path)
