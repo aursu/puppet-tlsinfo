@@ -255,7 +255,7 @@ Puppet::Type.newtype(:sslcertificate) do
         else
           return false if resource.rootca? && chain.count == 1
         end
-        # get ca chain along wit root ca
+        # get CA chain along wit Root CA if specified
         c = resource.cachain(resource.rootca?)
         return false if c && chain.count < (1 + c.count)
       elsif chain.count > 1
