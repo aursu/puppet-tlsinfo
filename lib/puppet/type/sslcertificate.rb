@@ -249,7 +249,12 @@ Puppet::Type.newtype(:sslcertificate) do
 
       # chain handling
       if resource.chain?
-        return false if resource.cacertobj && chain.count == 1
+        # not in sync if no chain
+        if resource.cacertobj
+          return false if chain.count == 1
+        else
+          return false if resource.rootca? && chain.count == 1
+        end
         return false if (c = resource.cachain) && chain.count < (1 + c.count)
       elsif chain.count > 1
         # not in sync if should not be chain but it is
