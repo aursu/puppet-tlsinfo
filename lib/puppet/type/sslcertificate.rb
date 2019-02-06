@@ -255,7 +255,9 @@ Puppet::Type.newtype(:sslcertificate) do
         else
           return false if resource.rootca? && chain.count == 1
         end
-        return false if (c = resource.cachain) && chain.count < (1 + c.count)
+        # get ca chain along wit root ca
+        c = resource.cachain(resource.rootca?)
+        return false if c && chain.count < (1 + c.count)
       elsif chain.count > 1
         # not in sync if should not be chain but it is
         return false
@@ -383,8 +385,8 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   # return Array[OpenSSL::X509::Certificate] - certificate chain for current certificate
-  def certchain
-    provider.chain
+  def certchain(rootca = true)
+    provider.chain(rootca)
   end
 
   # return OpenSSL::X509::Certificate representation of Intermediate certificate
@@ -395,9 +397,9 @@ Puppet::Type.newtype(:sslcertificate) do
 
   # return Array[OpenSSL::X509::Certificate] - certificate chain of Intermediate certificate
   # duplicate certificates are possible
-  def cachain
+  def cachain(rootca = true)
     return nil unless cacert
-    cacert.certchain
+    cacert.certchain(rootca)
   end
 
   def cert_names
