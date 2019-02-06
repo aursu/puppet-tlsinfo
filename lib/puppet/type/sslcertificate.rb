@@ -148,9 +148,9 @@ Puppet::Type.newtype(:sslcertificate) do
       sslcert.map { |c| c.certobj }
     end
 
-    def certchain
+    def certchain(rootca = true)
       return nil unless sslcert
-      sslcert.map { |c| c.certchain }.reject { |c| c.nil? }.flatten.uniq
+      sslcert.map { |c| c.certchain(rootca) }.reject { |c| c.nil? }.flatten.uniq
     end
   end
 
