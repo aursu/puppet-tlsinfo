@@ -172,6 +172,11 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:rootca, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc 'Whether to place Root CA certificate into certificate file or not'
     defaultto :false
+
+    munge do |value|
+      if value return true
+      false
+    end
   end
 
   newparam(:strict, boolean: true, parent: Puppet::Parameter::Boolean) do
@@ -246,8 +251,6 @@ Puppet::Type.newtype(:sslcertificate) do
       # check serial number for certificate
       cert = chain[0]
       return false unless Puppet_X::TlsInfo.cert_serial(certobj) == Puppet_X::TlsInfo.cert_serial(cert)
-
-      warning _("resource.rootca?: #{resource.rootca?};")
 
       # chain handling
       if resource.chain?
