@@ -65,11 +65,9 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     validate unless store
     return nil unless store && store.chain
 
+    # rootca flag could be disabled on parameters level
     # don't influence if not specified
     rootca = true if rootca.nil?
-
-    # rootca flag could be disabled on parameters level
-    warning _("store.chain: #{store.chain}; rootca: #{rootca}; resource.rootca?: #{resource.rootca?};")
 
     return store.chain if rootca && resource.rootca?
     store.chain.reject { |c| c.subject == c.issuer }

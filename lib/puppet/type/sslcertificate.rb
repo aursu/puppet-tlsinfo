@@ -172,11 +172,6 @@ Puppet::Type.newtype(:sslcertificate) do
   newparam(:rootca, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc 'Whether to place Root CA certificate into certificate file or not'
     defaultto :false
-
-    munge do |value|
-      return true if value
-      false
-    end
   end
 
   newparam(:strict, boolean: true, parent: Puppet::Parameter::Boolean) do
@@ -247,6 +242,9 @@ Puppet::Type.newtype(:sslcertificate) do
       return false if is.nil?
       return true unless resource.replace?
 
+      rootca = resource.rootca?
+      rootca = false if rootca.nil?
+
       # modulus are usually same during certificate upgrade
       # check serial number for certificate
       cert = chain[0]
@@ -259,12 +257,12 @@ Puppet::Type.newtype(:sslcertificate) do
           # certificate
           return false if chain.count == 1
           # get CA chain - not in sync if CA certs count mismatch
-          cachain = resource.cachain(resource.rootca?)
+          cachain = resource.cachain(rootca)
 
           if cachain
             return false unless chain.count == (cachain.count + 1)
           end
-        elsif resource.rootca?
+        elsif rootca
           # Root CA should be included. Check if chain has min 2 certificates
           # considering 2nd one is Root CA
           return false if chain.count == 1
@@ -288,8 +286,12 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def write(file)
+
+      rootca = resource.rootca?
+      rootca = false if rootca.nil?
+
       # write chain if requested
-      content = if resource.chain? && (c = provider.chainpem(resource.rootca?))
+      content = if resource.chain? && (c = provider.chainpem(rootca))
                   c
                 else
                   actual_content
