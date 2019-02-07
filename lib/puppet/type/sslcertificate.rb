@@ -247,6 +247,8 @@ Puppet::Type.newtype(:sslcertificate) do
       cert = chain[0]
       return false unless Puppet_X::TlsInfo.cert_serial(certobj) == Puppet_X::TlsInfo.cert_serial(cert)
 
+      warning _("resource.rootca?: #{resource.rootca?};")
+
       # chain handling
       if resource.chain?
         if resource.cacertobj
@@ -255,8 +257,7 @@ Puppet::Type.newtype(:sslcertificate) do
           return false if chain.count == 1
           # get CA chain - not in sync if CA certs count mismatch
           cachain = resource.cachain(resource.rootca?)
-          puts "cachain: #{cachain}; cachain.count: #{cachain.count}; resource.rootca?: #{resource.rootca?}; chain.count: #{chain.count}"
-          warning _("cachain: #{cachain}; cachain.count: #{cachain.count}; resource.rootca?: #{resource.rootca?}; chain.count: #{chain.count}")
+
           if cachain
             return false unless chain.count == (cachain.count + 1)
           end
