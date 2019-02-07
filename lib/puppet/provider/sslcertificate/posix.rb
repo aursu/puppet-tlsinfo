@@ -24,7 +24,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
 
   # validate certificate chain
   def validate
-    return false unless resource.cacertobj || rooresource.rootca?
+    return false unless resource.cacertobj || resource.rootca?
 
     @store = make_x509_store(resource.cacertobj, resource.cachain(resource.rootca?)) if store.nil?
 
