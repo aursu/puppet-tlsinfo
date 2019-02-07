@@ -72,9 +72,9 @@ Puppet::Type.type(:sslcertificate).provide :posix do
 
     # rootca flag could be disabled on parameters level
     # don't influence if not specified
-    rootca = true if rootca.nil?
+    rootca = false if rootca.nil?
 
-    return store.chain if rootca && resource.rootca?
+    return store.chain if rootca
     store.chain.reject { |c| c.subject == c.issuer }
   end
 
