@@ -27,8 +27,6 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     rootca = false
     rootca = true if resource.rootca?
 
-    return false unless resource.cacertobj || rootca
-
     @store = make_x509_store(resource.cacertobj, resource.cachain(rootca)) if store.nil?
 
     cabundle = nil
@@ -44,8 +42,9 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     status = store.verify(resource.certobj)
     return true if status
 
-    # certificate match to provided intermediate CA
+
     if store.chain.count > 1
+      # certificate match to provided intermediate CA (Root CA is not available)
       return true unless cabundle && File.exist?(cabundle)
 
       # if cabundle exixts then intermediate CA is not valid
@@ -57,6 +56,10 @@ Puppet::Type.type(:sslcertificate).provide :posix do
               }
       return true unless resource.strict?
     end
+
+    # no CA available
+    return false unless resource.cacertobj
+
     fail Puppet::Error, _('Certificate %{path} is not valid due to invalid CA (issuer: %{issuer})') %
                         {
                           path: resource[:path],
