@@ -72,6 +72,8 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     # don't influence if not specified
     rootca = true if rootca.nil?
 
+    warning _("provide.chain: rootca: #{rootca}; resource.rootca?: #{resource.rootca?};")
+
     return store.chain if rootca && resource.rootca?
     store.chain.reject { |c| c.subject == c.issuer }
   end

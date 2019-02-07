@@ -259,6 +259,7 @@ Puppet::Type.newtype(:sslcertificate) do
           # get CA chain - not in sync if CA certs count mismatch
           cachain = resource.cachain(rootca)
 
+          warning _("chain.count: #{chain.count}; cachain.count: #{cachain.count}; rootca: #{rootca}; resource.rootca?: #{resource.rootca?};")
           if cachain
             return false unless chain.count == (cachain.count + 1)
           end
