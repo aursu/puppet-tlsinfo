@@ -174,7 +174,7 @@ Puppet::Type.newtype(:sslcertificate) do
     defaultto :false
 
     munge do |value|
-      if value return true
+      return true if value
       false
     end
   end
