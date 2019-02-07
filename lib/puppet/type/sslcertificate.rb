@@ -242,8 +242,8 @@ Puppet::Type.newtype(:sslcertificate) do
       return false if is.nil?
       return true unless resource.replace?
 
-      rootca = resource.rootca?
-      rootca = false if rootca.nil?
+      rootca = false
+      rootca = true if resource.rootca?
 
       # modulus are usually same during certificate upgrade
       # check serial number for certificate
@@ -287,8 +287,8 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def write(file)
 
-      rootca = resource.rootca?
-      rootca = false if rootca.nil?
+      rootca = false
+      rootca = true if resource.rootca?
 
       # write chain if requested
       content = if resource.chain? && (c = provider.chainpem(rootca))
