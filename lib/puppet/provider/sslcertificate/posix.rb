@@ -61,7 +61,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
                         }
   end
 
-  def chain(rootca = true)
+  def chain(rootca)
     validate unless store
     return nil unless store && store.chain
 
@@ -70,8 +70,8 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     store.chain.reject { |c| c.subject == c.issuer }
   end
 
-  def chainpem
-    return nil unless chain
-    chain.map { |c| c.to_pem }.join
+  def chainpem(rootca)
+    return nil unless chain(rootca)
+    chain(rootca).map { |c| c.to_pem }.join
   end
 end
