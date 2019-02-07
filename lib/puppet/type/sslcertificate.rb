@@ -148,7 +148,7 @@ Puppet::Type.newtype(:sslcertificate) do
       sslcert.map { |c| c.certobj }
     end
 
-    def certchain(rootca)
+    def certchain(rootca = nil)
       return nil unless sslcert
       sslcert.map { |c| c.certchain(rootca) }.reject { |c| c.nil? }.flatten.uniq
     end
@@ -393,7 +393,7 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   # return Array[OpenSSL::X509::Certificate] - certificate chain for current certificate
-  def certchain(rootca)
+  def certchain(rootca = nil)
     provider.chain(rootca)
   end
 
@@ -405,7 +405,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   # return Array[OpenSSL::X509::Certificate] - certificate chain of Intermediate certificate
   # duplicate certificates are possible
-  def cachain(rootca)
+  def cachain(rootca = nil)
     return nil unless cacert
     cacert.certchain(rootca)
   end
