@@ -257,7 +257,6 @@ Puppet::Type.newtype(:sslcertificate) do
           cachain = resource.cachain(resource.rootca?)
           puts "cachain: #{cachain}; cachain.count: #{cachain.count}; resource.rootca?: #{resource.rootca?}; chain.count: #{chain.count}"
           warning _("cachain: #{cachain}; cachain.count: #{cachain.count}; resource.rootca?: #{resource.rootca?}; chain.count: #{chain.count}")
-
           if cachain
             return false unless chain.count == (cachain.count + 1)
           end
