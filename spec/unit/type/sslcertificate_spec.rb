@@ -248,8 +248,8 @@ CERTIFICATE
       expect { described_class.new(params) }.not_to raise_error
     end
 
-    it 'check certchain is nil for self-signed' do
-      expect(cert.certchain).to be_nil
+    it 'check certchain is empty for self-signed' do
+      expect(cert.certchain).to be_empty
     end
 
     it 'check actual content equal to certificate PEM' do
@@ -385,7 +385,9 @@ CERTIFICATE
       it 'check cacert certchain with single CA cert is empty' do
         certchain = cert.parameters[:cacert].certchain
         expect(certchain).to be_instance_of(Array)
-        expect(certchain).to be_empty
+        # if IM CA certificate exists its chain could not be empty as it is
+        # inside the chain
+        expect(certchain.count).to eq(1)
       end
     end
 

@@ -42,7 +42,6 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     status = store.verify(resource.certobj)
     return true if status
 
-
     if store.chain.count > 1
       # certificate match to provided intermediate CA (Root CA is not available)
       return true unless cabundle && File.exist?(cabundle)
@@ -74,8 +73,6 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     # rootca flag could be disabled on parameters level
     # don't influence if not specified
     rootca = true if rootca.nil?
-
-    warning _("provide.chain: rootca: #{rootca}; resource.rootca?: #{resource.rootca?};")
 
     return store.chain if rootca && resource.rootca?
     store.chain.reject { |c| c.subject == c.issuer }
