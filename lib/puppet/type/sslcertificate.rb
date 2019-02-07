@@ -258,10 +258,11 @@ Puppet::Type.newtype(:sslcertificate) do
           # not in sync if chain is single cert (itself)
           return false if resource.rootca? && chain.count == 1
         end
-        # get CA chain along wit Root CA if specified - not in sync if CA certs
-        # count mismatch
-        c = resource.cachain(resource.rootca?)
-        return false if c && chain.count < (1 + c.count)
+        # get CA chain - not in sync if CA certs count mismatch
+        cc = resource.cachain(resource.rootca?)
+        if cc
+          return false unless chain.count == (cc.count + 1)
+        end
       elsif chain.count > 1
         # not in sync if should not be chain but it is
         return false
