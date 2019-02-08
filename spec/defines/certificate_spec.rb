@@ -61,9 +61,26 @@ CERTIFICATE
         it {
           is_expected.to compile
         }
+
         it {
           is_expected.to contain_sslcertificate('/etc/pki/tls/certs/cd7781e5.pem')
         }
+
+        context 'with link specified' do
+          let(:params) do
+            {
+              'link' => 'StarfieldSecureCertificateAuthorityG2.pem',
+            }
+          end
+
+          it {
+            is_expected.to contain_sslcertificate('/etc/pki/tls/certs/cd7781e5.pem')
+          }
+
+          it {
+            is_expected.to contain_file('/etc/pki/tls/certs/StarfieldSecureCertificateAuthorityG2.pem')
+          }
+        end
       end
     end
   end

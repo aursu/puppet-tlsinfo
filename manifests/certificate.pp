@@ -20,7 +20,7 @@ define tlsinfo::certificate (
     Optional[
         Variant[
             Stdlib::Unixpath,
-            Pattern[/^[^/]+\.pem$/]  # basename (relative to basepath/certbase)
+            Pattern[/^[^\/]+\.pem$/]  # basename (relative to basepath/certbase)
         ]
     ]       $link    = undef,
 ) {
@@ -51,8 +51,9 @@ define tlsinfo::certificate (
         }
         # create human readable symlink to certificate
         file { $link_path:
-            ensure => 'link',
-            target => $certpath,
+            ensure  => 'link',
+            target  => $certpath,
+            require => Sslcertificate[$certpath],
         }
     }
 }
