@@ -17,6 +17,12 @@ define tlsinfo::certificate (
         ]
     ]       $cacert = undef,
     Boolean $rootca = false,
+    Optional[
+        Variant[
+            Stdlib::Unixpath,
+            Pattern[/^[^/]+\.pem$/]  # basename (relative to basepath/certbase)
+        ]
+    ]       $link    = undef,
 ) {
     $lookupkey = tlsinfo::normalize($name)
     if $cert {
@@ -36,5 +42,17 @@ define tlsinfo::certificate (
         content => $certdata,
         cacert  => $cacert,
         rootca  => $rootca,
+    }
+
+    if $link {
+        $link_path = $link? {
+            Stdlib::Unixpath => $link,
+            default          => "${basepath}/${link}",
+        }
+        # create human readable symlink to certificate
+        file { $link_path:
+            ensure => 'link',
+            target => $certpath,
+        }
     }
 }
