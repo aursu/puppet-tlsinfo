@@ -70,8 +70,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     validate unless store
     return nil unless store && store.chain
 
-    # rootca flag could be disabled on parameters level
-    # don't influence if not specified
+    # default behavior - to not include Root CA
     rootca = false if rootca.nil?
 
     return store.chain if rootca
