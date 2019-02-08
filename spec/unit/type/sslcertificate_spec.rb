@@ -68,6 +68,41 @@ UJB6MzKFZqSp3kQGh0PaO4YaEDPuGy5+HjXB9N0pwcKD6Ep/PF5l
 RSAKEYDATA
   end
   let(:keypath_wildcard) { '/etc/pki/tls/private/wildcard.domain.com.key' }
+  let(:wildcard_domain_com_certificate) do
+    <<-CERTIFICATE
+-----BEGIN CERTIFICATE-----
+MIIFNDCCBBygAwIBAgIBAjANBgkqhkiG9w0BAQsFADCBiDELMAkGA1UEBhMCREUx
+DzANBgNVBAgMBkhlc3NlbjESMBAGA1UEBwwJRnJhbmtmdXJ0MRswGQYDVQQKDBJD
+b21wYW55IENBIExpbWl0ZWQxNzA1BgNVBAMMLkNvbXBhbnkgUlNBIERvbWFpbiBW
+YWxpZGF0aW9uIFNlY3VyZSBTZXJ2ZXIgQ0EwHhcNMTkwMTA3MDAyNTQyWhcNMjAw
+MTA3MDAyNTQyWjBQMSEwHwYDVQQLDBhEb21haW4gQ29udHJvbCBWYWxpZGF0ZWQx
+FDASBgNVBAsMC0ludGVybmFsU1NMMRUwEwYDVQQDDAwqLmRvbWFpbi5jb20wggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDCTaGsQTQJ3supvtHBleHkPbx5
+TVBWb6XcblnAz1TDE6ORZ7os2QpqttxXk4LicnRPKY1ECM3GOKxM3Rj9IJhQtmtn
+MWksGr0kWIHxdG1wu4OhfNCdKaWv2EFi7Rrl1zJi1IdoxFf7vS2W7N6ybaW4UQYw
+V3kSJ12iFU3CJYGEmAR47MDtAAlm4H7D/4YmMQnD+yZMyhldCJgD6gKSPLweqdrr
+Ksp2x1vfiX1K/eobpA9Fkik+YjURk+cypIvsU51QDeW3MrQQGC4nGrDNQadfyp1J
+tw6UPTb4h3VijwmkM6FtkicYWVICX3c3d6JVOrYgVM7FwLF0z+bEhJaDMz8pAgMB
+AAGjggHeMIIB2jAfBgNVHSMEGDAWgBTi6r3OGwCIPrOEUa51BJSLC1MITjAdBgNV
+HQ4EFgQU+LFXFI3BMiw/bN9izW9hanHOLEEwDgYDVR0PAQH/BAQDAgWgMAwGA1Ud
+EwEB/wQCMAAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMBMGA1UdIAQM
+MAowCAYGZ4EMAQIBMFYGA1UdHwRPME0wS6BJoEeGRWh0dHA6Ly9jcmwuY29tcGFu
+eWNhLmNvbS9Db21wYW55UlNBRG9tYWluVmFsaWRhdGlvblNlY3VyZVNlcnZlckNB
+LmNybDCBiAYIKwYBBQUHAQEEfDB6MFEGCCsGAQUFBzAChkVodHRwOi8vY3J0LmNv
+bXBhbnljYS5jb20vQ29tcGFueVJTQURvbWFpblZhbGlkYXRpb25TZWN1cmVTZXJ2
+ZXJDQS5jcnQwJQYIKwYBBQUHMAGGGWh0dHA6Ly9vY3NwLmNvbXBhbnljYS5jb20w
+YwYDVR0RBFwwWoIKZG9tYWluLmNvbYIMKi5kb21haW4uY29tghN3d3cuaG9tZS5k
+b21haW4uY29tghRtYWlsLmhvbWUuZG9tYWluLmNvbYITZG5zLmhvbWUuZG9tYWlu
+LmNvbTANBgkqhkiG9w0BAQsFAAOCAQEAY6CaritAno/8gi2T1exLLAvMm8mXL9Uz
+SLQNHCMwcodpQgr8ZrVZ0gaSsPdena4il0AJYiY1yhfSxwcjydH8ZjtZKojhucih
+AZs75tGM6kwN/6K+kVlRUHTF5+QP07hYCPUVE6z2tVq8dXf2h4iwfHtQeqIH8cEg
+szQGA7PALOtGpkvW92qSTapKsXcg/IVxDRYh9jFlyNLV9ZgbDYzZnDZt3fVhBqBR
+ZXFBikfPD9607O/N8BhHsZYctusZyhdrQxI0yLEHJStuNVyuqSRdmY/2k/3TGaFR
+J3DT8u0gvKcKXZNY+XAaSFGAnQHDDE5Rrhb2uhde4Qp3QziWQw6uqA==
+-----END CERTIFICATE-----
+CERTIFICATE
+  end
+  let(:certpath_wildcard) { '/etc/pki/tls/certs/wildcard.domain.com.pem' }
   let(:www_domain_com_certificate) do
     <<-CERTIFICATE
 -----BEGIN CERTIFICATE-----
@@ -254,6 +289,22 @@ CERTIFICATE
 
     it 'check actual content equal to certificate PEM' do
       expect(cert.parameters[:content].actual_content).to eq(www_domain_com_rootca)
+    end
+  end
+
+  context 'when wildcard certificate' do
+    let(:params) do
+      {
+        title: certpath_wildcard,
+        content: wildcard_domain_com_certificate,
+        catalog: catalog,
+        identity: 'login.domain.com',
+      }
+    end
+    let(:cert) { described_class.new(params) }
+
+    it 'not fail' do
+      expect { described_class.new(params) }.not_to raise_error
     end
   end
 

@@ -342,12 +342,23 @@ Puppet::Type.newtype(:sslcertificate) do
       # check if specified identitiesand certificate subject names are match
       if self[:identity]
         names = cert_names
-        unless (names | self[:identity]) == names
-          self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
-                    {
-                      names: names,
-                      identity: self[:identity]
-                    }
+        wildcard = names.select { |n| n.start_with?('*.') }.map { |n| n.sub('*.', '') }
+        diff = (names | self[:identity]) - names
+
+        unless diff.empty?
+          # wildcard check
+          diff.each do |i|
+            s = i.split('.')  # www.domain.com -> ['www', 'domain', 'com']
+            s.shift           # ['www', 'domain', 'com'] -> ['domain', 'com']
+            d = s.join('.')   # ['domain', 'com'] -> domain.com
+            unless wildcard.include?(d)
+              self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
+              {
+                names: names,
+                identity: self[:identity]
+              }
+            end
+          end
         end
       end
 
@@ -402,6 +413,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   # return Array[OpenSSL::X509::Certificate] - certificate chain for current certificate
   def certchain(rootca = nil)
+    rootca = true if rootca? && rootca.nil?
     provider.chain(rootca)
   end
 
