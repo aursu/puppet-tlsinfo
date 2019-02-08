@@ -301,7 +301,6 @@ CERTIFICATE
         identity: 'login.domain.com',
       }
     end
-    let(:cert) { described_class.new(params) }
 
     it 'not fail' do
       expect { described_class.new(params) }.not_to raise_error
