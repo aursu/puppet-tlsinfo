@@ -79,6 +79,7 @@ CERTIFICATE
 
           it {
             is_expected.to contain_file('/etc/pki/tls/certs/StarfieldSecureCertificateAuthorityG2.pem')
+              .with_target('/etc/pki/tls/certs/cd7781e5.pem')
           }
         end
       end
