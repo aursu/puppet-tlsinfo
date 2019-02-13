@@ -65,6 +65,7 @@ define tlsinfo::certpair (
         ]
     ]       $identity  = undef,
     Boolean $rootca    = false,
+    Boolean $validate  = true,
 )
 {
     if $lookupkey {
@@ -123,5 +124,6 @@ define tlsinfo::certpair (
         cacert   => $cacert,
         identity => $identityinfo,
         rootca   => $rootca,
+        validate => $validate,
     }
 }
