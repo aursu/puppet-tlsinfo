@@ -145,11 +145,13 @@ Puppet::Type.newtype(:sslcertificate) do
 
     def certobj
       return nil unless sslcert
+      return nil if sslcert.empty?
       sslcert.map { |c| c.certobj }
     end
 
     def certchain(rootca = nil)
       return nil unless sslcert
+      return nil if sslcert.empty?
       sslcert.map { |c| c.certchain(rootca) }.reject { |c| c.nil? }.flatten.uniq
     end
   end
@@ -263,19 +265,17 @@ Puppet::Type.newtype(:sslcertificate) do
           # Not in sync if CA cert specified but current chain is single
           # certificate
           return false if chain.count == 1
+
           # get CA chain - not in sync if CA certs count mismatch
           cachain = resource.cachain(rootca)
-
-          if cachain
-            return false unless chain.count == (cachain.count + 1)
-          end
-        elsif rootca
+          return false if cachain && chain.count != (cachain.count + 1)
+        elsif rootca && chain.count == 1
           # Root CA should be included. Check if chain has min 2 certificates
           # considering 2nd one is Root CA
-          return false if chain.count == 1
-        else
+          return false
+        elsif chain.count > 1
           # no IM CA provided and Root CA is off
-          return false if chain.count > 1
+          return false
         end
       elsif chain.count > 1
         # not in sync if should not be chain but it is
@@ -293,7 +293,6 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def write(file)
-
       rootca = false
       rootca = true if resource.rootca?
 
@@ -347,32 +346,34 @@ Puppet::Type.newtype(:sslcertificate) do
       end
 
       # check if specified identitiesand certificate subject names are match
-      if self[:identity]
-        names = cert_names
-        wildcard = names.select { |n| n.start_with?('*.') }.map { |n| n.sub('*.', '') }
-        diff = (names | self[:identity]) - names
-
-        unless diff.empty?
-          # wildcard check
-          diff.each do |i|
-            s = i.split('.')  # www.domain.com -> ['www', 'domain', 'com']
-            s.shift           # ['www', 'domain', 'com'] -> ['domain', 'com']
-            d = s.join('.')   # ['domain', 'com'] -> domain.com
-            unless wildcard.include?(d)
-              self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
-              {
-                names: names,
-                identity: self[:identity]
-              }
-            end
-          end
-        end
-      end
+      check_names(self[:identity]) if self[:identity]
 
       # provider validates CA issuer(s)
       provider.validate if provider.respond_to?(:validate)
     elsif should_be_present?
       self.fail _(':content property is mandatory for Sslcertificate resource')
+    end
+  end
+
+  def check_names(identity)
+    names = cert_names
+    wildcard = names.select { |n| n.start_with?('*.') }.map { |n| n.sub('*.', '') }
+    diff = (names | identity) - names
+
+    return if diff.empty?
+
+    # wildcard check
+    diff.each do |i|
+      s = i.split('.')  # www.domain.com -> ['www', 'domain', 'com']
+      s.shift           # ['www', 'domain', 'com'] -> ['domain', 'com']
+      d = s.join('.')   # ['domain', 'com'] -> domain.com
+      next if wildcard.include?(d)
+
+      self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
+                {
+                  names: names,
+                  identity: identity
+                }
     end
   end
 

@@ -298,7 +298,7 @@ CERTIFICATE
         title: certpath_wildcard,
         content: wildcard_domain_com_certificate,
         catalog: catalog,
-        identity: 'login.domain.com',
+        identity: 'login.domain.com'
       }
     end
 

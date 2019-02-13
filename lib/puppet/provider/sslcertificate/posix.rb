@@ -30,9 +30,9 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     @store = make_x509_store(resource.cacertobj, resource.cachain(rootca)) if store.nil?
 
     cabundle = nil
-    if Facter.value(:osfamily).casecmp('redhat') == 0
+    if Facter.value(:osfamily).casecmp('redhat').zero?
       cabundle = '/etc/pki/tls/certs/ca-bundle.crt'
-    elsif Facter.value(:osfamily).casecmp('debian') == 0
+    elsif Facter.value(:osfamily).casecmp('debian').zero?
       cabundle = '/etc/ssl/certs/ca-certificates.crt'
     end
 
