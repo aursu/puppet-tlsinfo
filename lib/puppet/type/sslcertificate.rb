@@ -179,6 +179,11 @@ Puppet::Type.newtype(:sslcertificate) do
     defaultto :true
   end
 
+  newparam(:validate, boolean: true, parent: Puppet::Parameter::Boolean) do
+    desc 'Validate certificate validity period'
+    defaultto :true
+  end
+
   newparam(:identity) do
     desc "Identtity which certificate should represent (eg domain name). Certificate
     Common Name or any of DNS name must match identity field"
@@ -211,8 +216,10 @@ Puppet::Type.newtype(:sslcertificate) do
 
       cert = Puppet_X::TlsInfo.read_x509_cert(value)
       fail Puppet::Error, _('Can not read certificate content') if cert.nil?
-      fail Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % { time: cert.not_before.asctime } if cert.not_before > Time.now
-      fail Puppet::Error, _('Certificate has expired (Not After is %{time})') % { time: cert.not_after.asctime } if cert.not_after < Time.now
+      if resource.validate?
+        fail Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % { time: cert.not_before.asctime } if cert.not_before > Time.now
+        fail Puppet::Error, _('Certificate has expired (Not After is %{time})') % { time: cert.not_after.asctime } if cert.not_after < Time.now
+      end
 
       # TODO: add notification and tagging for tagmail
     end
