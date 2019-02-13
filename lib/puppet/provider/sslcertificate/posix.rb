@@ -40,29 +40,37 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     store.add_file(cabundle) if cabundle && File.exist?(cabundle)
 
     status = store.verify(resource.certobj)
+
+    # certificate is valid
     return true if status
 
     if store.chain.count > 1
       # certificate match to provided intermediate CA (Root CA is not available)
       return true unless cabundle && File.exist?(cabundle)
 
-      # if cabundle exixts then intermediate CA is not valid
-      casubject = resource.cacertobj.map { |c| c.subject.to_s }.join(', ')
-      warning _('Provided Intermediate CA certificate (subject: %{casubject}) are not trusted by any root certificate from CA bundle %{path}') %
-              {
-                casubject: casubject,
-                path: cabundle
-              }
+      # if cabundle exists then intermediate CA is not valid or chain is not
+      # complete if X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT error occured
+      # see https://www.openssl.org/docs/manmaster/man1/verify.html
+      if store.error == 2
+        casubject = resource.cacertobj.map { |c| c.subject.to_s }.join(', ')
+        warning _('Provided Intermediate CA certificate (subject: %{casubject}) is not trusted by any root certificate from CA bundle %{path}') %
+                {
+                  casubject: casubject,
+                  path: cabundle
+                }
+      end
+
       return true unless resource.strict?
     end
 
-    # no CA available
+    # no CA available - no chain verification
     return false unless resource.cacertobj
 
-    fail Puppet::Error, _('Certificate %{path} is not valid due to invalid CA (issuer: %{issuer})') %
+    fail Puppet::Error, _('Certificate %{path} is not valid due to error %{errcode}: %{errmsg}') %
                         {
                           path: resource[:path],
-                          issuer: resource.certobj.issuer.to_s
+                          errcode: store.error,
+                          errmsg: store.error_string
                         }
   end
 
