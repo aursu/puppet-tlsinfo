@@ -119,11 +119,11 @@ define tlsinfo::certpair (
 
     $certpath = tlsinfo::certpath($certdata, $certbase)
     sslcertificate { $certpath:
-        content  => $certdata,
-        pkey     => $keypath,
-        cacert   => $cacert,
-        identity => $identityinfo,
-        rootca   => $rootca,
-        validate => $validate,
+        content    => $certdata,
+        pkey       => $keypath,
+        cacert     => $cacert,
+        identity   => $identityinfo,
+        rootca     => $rootca,
+        expiration => $validate,
     }
 }

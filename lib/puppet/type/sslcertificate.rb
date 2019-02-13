@@ -179,7 +179,7 @@ Puppet::Type.newtype(:sslcertificate) do
     defaultto :true
   end
 
-  newparam(:validate, boolean: true, parent: Puppet::Parameter::Boolean) do
+  newparam(:expiration, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc 'Validate certificate validity period'
     defaultto :true
   end
@@ -216,7 +216,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
       cert = Puppet_X::TlsInfo.read_x509_cert(value)
       fail Puppet::Error, _('Can not read certificate content') if cert.nil?
-      if resource.validate?
+      if resource.expiration?
         fail Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % { time: cert.not_before.asctime } if cert.not_before > Time.now
         fail Puppet::Error, _('Certificate has expired (Not After is %{time})') % { time: cert.not_after.asctime } if cert.not_after < Time.now
       end
