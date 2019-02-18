@@ -269,10 +269,10 @@ Puppet::Type.newtype(:sslcertificate) do
           # get CA chain - not in sync if CA certs count mismatch
           cachain = resource.cachain(rootca)
           return false if cachain && chain.count != (cachain.count + 1)
-        elsif rootca && chain.count == 1
+        elsif rootca
           # Root CA should be included. Check if chain has min 2 certificates
           # considering 2nd one is Root CA
-          return false
+          return false if chain.count == 1
         elsif chain.count > 1
           # no IM CA provided and Root CA is off
           return false
