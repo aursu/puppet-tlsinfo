@@ -17,6 +17,7 @@ define tlsinfo::certificate (
         ]
     ]       $cacert = undef,
     Boolean $rootca = false,
+    Boolean $chain  = true,
     Optional[
         Variant[
             Stdlib::Unixpath,
@@ -42,6 +43,7 @@ define tlsinfo::certificate (
         content => $certdata,
         cacert  => $cacert,
         rootca  => $rootca,
+        chain   => $chain,
     }
 
     if $link {
