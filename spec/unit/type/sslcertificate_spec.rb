@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 require 'spec_helper'
 require 'openssl'
+require 'tempfile'
 
 describe Puppet::Type.type(:sslcertificate) do
   let(:catalog) { Puppet::Resource::Catalog.new }
@@ -243,6 +244,7 @@ n8xHsqxe75BgSa8aU/s=
 CERTIFICATE
   end
   let(:capath_root) { '/etc/pki/tls/certs/708f6eb2.pem' }
+  let(:capath_sha256) { '{sha256}40b6136d36dc60437b9712f63dc53ec6142bc3c71897799527a3a886915366ac' }
 
   it 'check with empty parameters list' do
     params = {
@@ -289,6 +291,10 @@ CERTIFICATE
 
     it 'check actual content equal to certificate PEM' do
       expect(cert.parameters[:content].actual_content).to eq(www_domain_com_rootca)
+    end
+
+    it 'check if selfsigned flag is set' do
+      expect(cert.parameters[:content].selfsigned).to eq(true)
     end
   end
 

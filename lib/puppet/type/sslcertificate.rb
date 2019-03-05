@@ -211,7 +211,7 @@ Puppet::Type.newtype(:sslcertificate) do
   newproperty(:content) do
     include Puppet::Util::Checksums
 
-    attr_reader :actual_content, :certobj, :chain
+    attr_reader :actual_content, :certobj, :chain, :selfsigned
 
     validate do |value|
       fail Puppet::Error, 'Certificate must be not empty' if value.nil? || value.empty?
@@ -229,6 +229,8 @@ Puppet::Type.newtype(:sslcertificate) do
     munge do |value|
       @certobj = Puppet_X::TlsInfo.read_x509_cert(value)
       @actual_content = certobj.to_pem
+      @selfsigned = (certobj.subject == certobj.issuer)
+
       '{sha256}' + sha256(modulus)
     end
 
@@ -251,13 +253,17 @@ Puppet::Type.newtype(:sslcertificate) do
       return false if is.nil?
       return true unless resource.replace?
 
-      rootca = false
+      rootca = selfsigned
       rootca = true if resource.rootca?
 
       # modulus are usually same during certificate upgrade
       # check serial number for certificate
       cert = chain[0]
       return false unless Puppet_X::TlsInfo.cert_serial(certobj) == Puppet_X::TlsInfo.cert_serial(cert)
+
+      if selfsigned
+        return false unless actual_content == cert.to_pem
+      end
 
       # chain handling
       if resource.chain?
@@ -270,9 +276,12 @@ Puppet::Type.newtype(:sslcertificate) do
           cachain = resource.cachain(rootca)
           return false if cachain && chain.count != (cachain.count + 1)
         elsif rootca
+          # either self-signed or include root ca
+          return super(is) if selfsigned || chain.count > 1
+
           # Root CA should be included. Check if chain has min 2 certificates
           # considering 2nd one is Root CA
-          return false if chain.count == 1
+          return false
         elsif chain.count > 1
           # no IM CA provided and Root CA is off
           return false
@@ -293,7 +302,7 @@ Puppet::Type.newtype(:sslcertificate) do
     end
 
     def write(file)
-      rootca = false
+      rootca = selfsigned
       rootca = true if resource.rootca?
 
       # write chain if requested
