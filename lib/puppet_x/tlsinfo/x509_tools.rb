@@ -125,7 +125,7 @@ module Puppet_X
       cert = File.read(path)
 
       certobj = read_x509_cert(cert)
-      return nil if cert.nil?
+      return nil if certobj.nil?
 
       store = OpenSSL::X509::Store.new
       store.add_file(path)
