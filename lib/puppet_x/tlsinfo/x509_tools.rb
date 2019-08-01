@@ -63,11 +63,11 @@ module Puppet_X
       _name, dns1, _type = cn
 
       altname, = cert.extensions.select { |e| e.oid == 'subjectAltName' }.map { |e| e.to_h }
-      return [dns1] unless altname
+      return [dns1].compact unless altname
       ([dns1] + altname['value'].split(',')
         .map { |san| san.strip.split(':') }
         .select { |m, _san| m == 'DNS' }
-        .map { |_m, san| san }).uniq
+        .map { |_m, san| san }).uniq.compact
     end
 
     def self.cert_hash(cert)
