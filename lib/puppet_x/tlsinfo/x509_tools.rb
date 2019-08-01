@@ -40,10 +40,12 @@ module Puppet_X
       certobj = read_x509_cert(cert)
 
       basicconstraints, = certobj.extensions.select { |e| e.oid == 'basicConstraints' }.map { |e| e.to_h }
+      # cn  and data could be nil in case if Common Name is absent
       cn, = certobj.subject.to_a.select { |name, _data, _type| name == 'CN' }
       _name, data, _type = cn
 
-      if basicconstraints && basicconstraints['value'].include?('CA:TRUE')
+      # check also if data is empty string
+      if basicconstraints && basicconstraints['value'].include?('CA:TRUE') || data.nil? || data.empty?
         # basename is Certificate subject hash
         i = certobj.subject.hash
         [i].pack('L').unpack('L').first.to_s(16)
