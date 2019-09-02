@@ -71,11 +71,11 @@ module Puppet_X
     end
 
     def self.cert_hash(cert)
-      cert.subject.hash.to_s(16)
+      '%08x' % cert.subject.hash
     end
 
     def self.cert_hash_old(cert)
-      cert.subject.hash_old.to_s(16)
+      '%08x' % cert.subject.hash_old
     end
 
     def self.cert_issuer(cert)
@@ -83,7 +83,7 @@ module Puppet_X
     end
 
     def self.cert_issuer_hash(cert)
-      cert.issuer.hash.to_s(16)
+      '%08x' % cert.issuer.hash
     end
 
     def self.x509_cert_modulus(cert)
