@@ -82,6 +82,20 @@ CERTIFICATE
               .with_target('/etc/pki/tls/certs/cd7781e5.pem')
           }
         end
+
+        context 'with path specified' do
+          let(:params) do
+            {
+              'cert' => cd7781e5_certificate,
+              'path' => 'StarfieldSecureCertificateAuthorityG2.crt'
+            }
+          end
+
+          it {
+            is_expected.to contain_file('/etc/pki/tls/certs/StarfieldSecureCertificateAuthorityG2.crt')
+            .with_content(cd7781e5_certificate)
+          }
+        end
       end
     end
   end

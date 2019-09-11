@@ -4,6 +4,22 @@
 #
 # @example
 #   tlsinfo::certificate { 'namevar': }
+#
+# @param cert
+#   Certificate data to use for verification and processing. If not provided
+#   tlsinfo::certificate will look for Hiera key "#{name}_certificate" with
+#   "name" normalized with next rules (string replacement):
+#     1) '*' -> 'wildcard'
+#     2) '.' -> '_'
+#     3) '-' -> '_'
+#     4) "'" -> '_'
+#     5) ' ' -> '_'
+#
+# @param path
+#   Absolute path or relative to system certificate base directory where
+#   provided (with parameter "cert") or found (using Hiera key
+#   "#{name}_certificate") certificate data should be stored (as is without
+#   verification and processing)
 define tlsinfo::certificate (
     Optional[String]
             $cert     = undef,
@@ -24,6 +40,12 @@ define tlsinfo::certificate (
             Pattern[/^[^\/]+\.pem$/]  # basename (relative to basepath/certbase)
         ]
     ]       $link    = undef,
+    Optional[
+        Variant[
+            Stdlib::Unixpath,
+            Pattern[/^[^\/]+\.(pem|crt|cer|cert)$/]  # basename (relative to basepath/certbase)
+        ]
+    ]       $path    = undef,
 ) {
     $lookupkey = tlsinfo::normalize($name)
     if $cert {
@@ -56,6 +78,18 @@ define tlsinfo::certificate (
             ensure  => 'link',
             target  => $certpath,
             require => Sslcertificate[$certpath],
+        }
+    }
+
+    if $path {
+        $data_path = $path? {
+            Stdlib::Unixpath => $path,
+            default          => "${basepath}/${path}",
+        }
+
+        file { $data_path:
+            ensure  => file,
+            content => $certdata,
         }
     }
 }
