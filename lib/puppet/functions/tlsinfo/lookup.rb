@@ -11,7 +11,7 @@ Puppet::Functions.create_function(:'tlsinfo::lookup') do
     lookupkey = Puppet_X::TlsInfo.normalize(key)
     if private
       begin
-        call_function('lookup', "#{lookupkey}_private", Puppet::Pops::Types::PStringType::NON_EMPTY, 'first', nil)
+        call_function('lookup', "#{lookupkey}_private", Puppet::Pops::Types::PBinaryType::DEFAULT, 'first', nil)
       rescue => detail
         raise Puppet::Error, "Can not find #{lookupkey}_private in Hiera: #{detail}", detail.backtrace
       end
