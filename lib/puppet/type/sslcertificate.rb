@@ -60,7 +60,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
-        fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
+        raise Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
       end
     end
 
@@ -76,10 +76,10 @@ Puppet::Type.newtype(:sslcertificate) do
 
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
-        fail Puppet::Error, _("Pkey parameter must be fully qualified path to private key, not '%{path}'") % { path: value }
+        raise Puppet::Error, _("Pkey parameter must be fully qualified path to private key, not '%{path}'") % { path: value }
       end
       unless @resource.catalog.resource(:sslkey, value)
-        fail Puppet::Error, _('You must define resource Sslkey[%{path}]') % { path: value }
+        raise Puppet::Error, _('You must define resource Sslkey[%{path}]') % { path: value }
       end
     end
 
@@ -105,16 +105,16 @@ Puppet::Type.newtype(:sslcertificate) do
         # cacert => true means CA Intermediate certificate already MUST be defined in caralog
         # cacert => false means we do not manage CA Intermediate certificate (therefore validation passed)
         if value && resource.lookupcatalog(resource.cert_issuer_hash).nil?
-          fail Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') %
-                              { subject: resource.cert_issuer }
+          raise Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') %
+                               { subject: resource.cert_issuer }
         end
       else
         # cacert => String is reference to Sslcertificate resource title or system path
         value = [value] if value.is_a?(String)
-        fail Puppet::Error, _('Sslcertificate[cacert] must be either Boolean or String or Array of strings') unless value.is_a?(Array)
+        raise Puppet::Error, _('Sslcertificate[cacert] must be either Boolean or String or Array of strings') unless value.is_a?(Array)
         value.each do |cert|
           if resource.lookupcatalog(cert).nil?
-            fail Puppet::Error, _('You must define resource Sslcertificate with title or path %{name}') % { name: cert }
+            raise Puppet::Error, _('You must define resource Sslcertificate with title or path %{name}') % { name: cert }
           end
         end
       end
@@ -192,14 +192,14 @@ Puppet::Type.newtype(:sslcertificate) do
 
     validate do |value|
       if value.is_a?(String)
-        fail Puppet::Error, _('Domain name must be non-empty string') if value.empty?
+        raise Puppet::Error, _('Domain name must be non-empty string') if value.empty?
       elsif value.is_a?(Array)
         value.each do |entity|
-          fail Puppet::Error, _('Domain name inside list must be a string') unless entity.is_a?(String)
-          fail Puppet::Error, _('Domain name inside list must be a non-empty string') if entity.empty?
+          raise Puppet::Error, _('Domain name inside list must be a string') unless entity.is_a?(String)
+          raise Puppet::Error, _('Domain name inside list must be a non-empty string') if entity.empty?
         end
       else
-        fail Puppet::Error, _('Parameter Sslcertificate[identity] must be string or list of strings')
+        raise Puppet::Error, _('Parameter Sslcertificate[identity] must be string or list of strings')
       end
     end
 
@@ -214,13 +214,13 @@ Puppet::Type.newtype(:sslcertificate) do
     attr_reader :actual_content, :certobj, :chain, :selfsigned
 
     validate do |value|
-      fail Puppet::Error, 'Certificate must be not empty' if value.nil? || value.empty?
+      raise Puppet::Error, 'Certificate must be not empty' if value.nil? || value.empty?
 
       cert = Puppet_X::TlsInfo.read_x509_cert(value)
-      fail Puppet::Error, _('Can not read certificate content') if cert.nil?
+      raise Puppet::Error, _('Can not read certificate content') if cert.nil?
       if resource.expiration?
-        fail Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % { time: cert.not_before.asctime } if cert.not_before > Time.now
-        fail Puppet::Error, _('Certificate has expired (Not After is %{time})') % { time: cert.not_after.asctime } if cert.not_after < Time.now
+        raise Puppet::Error, _('Certificate is not yet valid (Not Before is %{time})') % { time: cert.not_before.asctime } if cert.not_before > Time.now
+        raise Puppet::Error, _('Certificate has expired (Not After is %{time})') % { time: cert.not_after.asctime } if cert.not_after < Time.now
       end
 
       # TODO: add notification and tagging for tagmail
@@ -351,7 +351,7 @@ Puppet::Type.newtype(:sslcertificate) do
     if certobj
       # check if certificate and private key match
       if (p = @parameters[:pkey]) && !certobj.check_private_key(p.keyobj)
-        self.fail _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
+        raise Puppet::Error, _('Certificate public key does not match private key %{path}') % { path: self[:pkey] }
       end
 
       # check if specified identitiesand certificate subject names are match
@@ -360,7 +360,7 @@ Puppet::Type.newtype(:sslcertificate) do
       # provider validates CA issuer(s)
       provider.validate if provider.respond_to?(:validate)
     elsif should_be_present?
-      self.fail _(':content property is mandatory for Sslcertificate resource')
+      raise Puppet::Error, _(':content property is mandatory for Sslcertificate resource')
     end
   end
 
@@ -378,11 +378,11 @@ Puppet::Type.newtype(:sslcertificate) do
       d = s.join('.')   # ['domain', 'com'] -> domain.com
       next if wildcard.include?(d)
 
-      self.fail _('Certificate names (%{names}) do not match provided identities (%{identity})') %
-                {
-                  names: names,
-                  identity: identity
-                }
+      raise Puppet::Error, _('Certificate names (%{names}) do not match provided identities (%{identity})') %
+                           {
+                             names: names,
+                             identity: identity,
+                           }
     end
   end
 

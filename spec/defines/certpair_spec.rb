@@ -95,7 +95,7 @@ CERTIFICATE
             'cert'     => wildcard_domain_com_certificate,
             'pkey'     => wildcard_domain_com_private,
             'cacert'   => false,
-            'validate' => false
+            'validate' => false,
           }
         end
 

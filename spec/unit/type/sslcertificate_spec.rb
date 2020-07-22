@@ -249,7 +249,7 @@ CERTIFICATE
   it 'check with empty parameters list' do
     params = {
       title: 'namevar',
-      catalog: catalog
+      catalog: catalog,
     }
     expect { described_class.new(params) }.to raise_error Puppet::Error, %r{File paths must be fully qualified, not 'namevar'}
   end
@@ -257,7 +257,7 @@ CERTIFICATE
   it 'check with empty parameters and proper title' do
     params = {
       title: certpath,
-      catalog: catalog
+      catalog: catalog,
     }
     expect { described_class.new(params) }.to raise_error Puppet::Error, %r{:content property is mandatory for Sslcertificate resource}
   end
@@ -266,7 +266,7 @@ CERTIFICATE
     params = {
       title: certpath,
       ensure: :absent,
-      catalog: catalog
+      catalog: catalog,
     }
     expect { described_class.new(params) }.not_to raise_error
   end
@@ -276,7 +276,7 @@ CERTIFICATE
       {
         title: capath_root,
         content: www_domain_com_rootca,
-        catalog: catalog
+        catalog: catalog,
       }
     end
     let(:cert) { described_class.new(params) }
@@ -304,7 +304,7 @@ CERTIFICATE
         title: certpath_wildcard,
         content: wildcard_domain_com_certificate,
         catalog: catalog,
-        identity: 'login.domain.com'
+        identity: 'login.domain.com',
       }
     end
 
@@ -318,7 +318,7 @@ CERTIFICATE
       {
         title: certpath,
         content: www_domain_com_certificate,
-        catalog: catalog
+        catalog: catalog,
       }
     end
     let(:cert) { described_class.new(params) }
@@ -356,7 +356,7 @@ CERTIFICATE
         title: certpath,
         content: www_domain_com_certificate,
         pkey: keypath,
-        catalog: catalog
+        catalog: catalog,
       }
     end
     let(:cert) { described_class.new(params) }
@@ -407,7 +407,7 @@ CERTIFICATE
         content: www_domain_com_certificate,
         pkey: keypath,
         cacert: true,
-        catalog: catalog
+        catalog: catalog,
       }
     end
     let(:cert) { described_class.new(params) }
@@ -464,7 +464,7 @@ CERTIFICATE
           title: capath,
           content: www_domain_com_intermediate,
           cacert: true,
-          catalog: catalog
+          catalog: catalog,
         }
       end
       let(:cacert_parent) do
@@ -506,7 +506,7 @@ CERTIFICATE
             content: www_domain_com_certificate,
             pkey: keypath,
             cacert: true,
-            catalog: catalog
+            catalog: catalog,
           }
         end
         let(:cert) { described_class.new(params) }
@@ -536,7 +536,7 @@ CERTIFICATE
           expect(content).to eq([
             www_domain_com_certificate,
             www_domain_com_intermediate,
-            www_domain_com_intermediate_parent
+            www_domain_com_intermediate_parent,
           ].join)
         end
       end
@@ -548,7 +548,7 @@ CERTIFICATE
           title: capath_parent,
           content: www_domain_com_intermediate_parent,
           cacert: true,
-          catalog: catalog
+          catalog: catalog,
         }
       end
       let(:rootca) do
@@ -573,7 +573,7 @@ CERTIFICATE
         check_cacerts(cert.certchain, 2)
         expect(content).to eq([
           www_domain_com_intermediate_parent,
-          www_domain_com_rootca
+          www_domain_com_rootca,
         ].join)
       end
     end

@@ -14,7 +14,7 @@ Puppet::Type.newtype(:sslkey) do
     desc 'Encrypted private key password'
 
     validate do |value|
-      fail ArgumentError, _('Passwords must be a string or :undef') unless value.is_a?(String) || value.nil?
+      raise ArgumentError, _('Passwords must be a string or :undef') unless value.is_a?(String) || value.nil?
     end
 
     munge do |value|
@@ -64,7 +64,7 @@ Puppet::Type.newtype(:sslkey) do
 
     validate do |value|
       unless Puppet::Util.absolute_path?(value)
-        fail Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
+        raise Puppet::Error, _("File paths must be fully qualified, not '%{path}'") % { path: value }
       end
     end
 
@@ -89,14 +89,14 @@ Puppet::Type.newtype(:sslkey) do
     attr_reader :actual_content, :keyobj
 
     validate do |value|
-      fail Puppet::Error, 'Private key must be a string' unless value.is_a?(String)
-      fail Puppet::Error, 'Private must not be empty' if value.empty?
+      raise Puppet::Error, 'Private key must be a string' unless value.is_a?(String)
+      raise Puppet::Error, 'Private must not be empty' if value.empty?
 
       key = Puppet_X::TlsInfo.read_rsa_key(value, @resource[:password])
-      fail Puppet::Error, _('Can not read private key content') if key.nil?
-      fail Puppet::Error, _('Provided key is not a private key') unless key.private?
+      raise Puppet::Error, _('Can not read private key content') if key.nil?
+      raise Puppet::Error, _('Provided key is not a private key') unless key.private?
       if (size = Puppet_X::TlsInfo.rsa_key_size(key)) < 2048
-        fail Puppet::Error, _("Provided key is too weak (key size is #{size}")
+        raise Puppet::Error, _("Provided key is too weak (key size is #{size}")
       end
     end
 
@@ -165,7 +165,7 @@ Puppet::Type.newtype(:sslkey) do
 
   validate do
     if should_be_present?
-      fail Puppet::Error, _(':content property is mandatory for Sslkey resource') unless keyobj
+      raise Puppet::Error, _(':content property is mandatory for Sslkey resource') unless keyobj
     end
     provider.validate if provider.respond_to?(:validate)
   end

@@ -6,7 +6,7 @@ describe 'tlsinfo::tools::cfssl' do
       let(:facts) { os_facts }
       let(:params) do
         {
-          'version' => '1.4.0-rc1'
+          'version' => '1.4.0-rc1',
         }
       end
 
@@ -19,7 +19,8 @@ describe 'tlsinfo::tools::cfssl' do
           .with_cwd('/tmp')
       }
 
-      %w[cfssl cfssl-bundle cfssl-certinfo cfssl-newkey cfssl-scan cfssljson mkbundle multirootca].each do |bin|
+      ['cfssl', 'cfssl-bundle', 'cfssl-certinfo', 'cfssl-newkey', 'cfssl-scan',
+       'cfssljson', 'mkbundle', 'multirootca'].each do |bin|
         it {
           is_expected.to contain_exec("#{bin}-download")
             .with_command("curl -L https://github.com/cloudflare/cfssl/releases/download/v1.4.0-rc1/#{bin}_1.4.0-rc1_linux_amd64 -o #{bin}_1.4.0-rc1_linux_amd64")

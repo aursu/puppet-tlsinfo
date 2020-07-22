@@ -85,7 +85,7 @@ RSAKEYDATA
   it 'check with empty parameters list' do
     params = {
       title: 'namevar',
-      catalog: catalog
+      catalog: catalog,
     }
     expect { described_class.new(params) }.to raise_error Puppet::Error, %r{File paths must be fully qualified, not 'namevar'}
   end
@@ -93,7 +93,7 @@ RSAKEYDATA
   it 'check with empty parameters and proper title' do
     params = {
       title: '/etc/pki/tls/private/www.domain.com.key',
-      catalog: catalog
+      catalog: catalog,
     }
     expect { described_class.new(params) }.to raise_error Puppet::Error, %r{:content property is mandatory for Sslkey resource}
   end
@@ -117,7 +117,7 @@ RSAKEYDATA
       {
         title: '/etc/pki/tls/private/8994aafb.key',
         content: self_signed_encrypted,
-        catalog: catalog
+        catalog: catalog,
       }
     end
 
@@ -149,7 +149,7 @@ RSAKEYDATA
       {
         title: '/etc/pki/tls/private/www.domain.com.key',
         content: www_domain_com_private,
-        catalog: catalog
+        catalog: catalog,
       }
     end
 

@@ -69,7 +69,7 @@ CERTIFICATE
         context 'with link specified' do
           let(:params) do
             {
-              'link' => 'StarfieldSecureCertificateAuthorityG2.pem'
+              'link' => 'StarfieldSecureCertificateAuthorityG2.pem',
             }
           end
 
@@ -87,7 +87,7 @@ CERTIFICATE
           let(:params) do
             {
               'cert' => cd7781e5_certificate,
-              'path' => 'StarfieldSecureCertificateAuthorityG2.crt'
+              'path' => 'StarfieldSecureCertificateAuthorityG2.crt',
             }
           end
 

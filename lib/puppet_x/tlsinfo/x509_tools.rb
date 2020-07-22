@@ -1,6 +1,7 @@
 require 'openssl'
 require 'securerandom'
 
+# rubocop:disable Style/Documentation, Style/ClassAndModuleChildren, Style/ClassAndModuleCamelCase
 module Puppet_X
   module TlsInfo
     def self.read_rsa_key(value, password = nil)

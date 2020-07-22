@@ -56,7 +56,7 @@ Puppet::Type.type(:sslcertificate).provide :posix do
         warning _('Provided Intermediate CA certificate (subject: %{casubject}) is not trusted by any root certificate from CA bundle %{path}') %
                 {
                   casubject: casubject,
-                  path: cabundle
+                  path: cabundle,
                 }
       end
 
@@ -66,12 +66,12 @@ Puppet::Type.type(:sslcertificate).provide :posix do
     # no CA available - no chain verification
     return false unless resource.cacertobj
 
-    fail Puppet::Error, _('Certificate %{path} is not valid due to error %{errcode}: %{errmsg}') %
-                        {
-                          path: resource[:path],
-                          errcode: store.error,
-                          errmsg: store.error_string
-                        }
+    raise Puppet::Error, _('Certificate %{path} is not valid due to error %{errcode}: %{errmsg}') %
+                         {
+                           path: resource[:path],
+                           errcode: store.error,
+                           errmsg: store.error_string,
+                         }
   end
 
   def chain(rootca = nil)
