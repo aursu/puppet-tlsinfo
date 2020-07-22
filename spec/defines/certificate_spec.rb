@@ -93,7 +93,7 @@ CERTIFICATE
 
           it {
             is_expected.to contain_file('/etc/pki/tls/certs/StarfieldSecureCertificateAuthorityG2.crt')
-            .with_content(cd7781e5_certificate)
+              .with_content(cd7781e5_certificate)
           }
         end
       end
