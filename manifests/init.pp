@@ -9,6 +9,8 @@ class tlsinfo (
         $certbase,
     Optional[Stdlib::Unixpath]
         $keybase,
+    Optional[String]
+        $cfssl_version,
 ){
     include tlsinfo::params
 }

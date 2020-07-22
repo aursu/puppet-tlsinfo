@@ -66,8 +66,6 @@ Style/Documentation:
   - lib/puppet/parser/functions/**/*
   - lib/puppet_x/**/*
   - spec/**/*
-Style/WordArray:
-  EnforcedStyle: brackets
 Style/CollectionMethods:
   Enabled: true
 Style/MethodCalledOnDoEndBlock:

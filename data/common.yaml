@@ -1,3 +1,4 @@
 ---
 tlsinfo::certbase: /etc/pki/tls/certs
 tlsinfo::keybase: /etc/pki/tls/private
+tlsinfo::cfssl_version: ~
