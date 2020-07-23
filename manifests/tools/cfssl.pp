@@ -8,7 +8,6 @@ class tlsinfo::tools::cfssl (
     Optional[Pattern[/^1\.[4-9][1-9]?\./]]
             $version          = $tlsinfo::cfssl_version,
     String  $download_source  = $tlsinfo::params::cfssl_download_source,
-    String  $checksum_command = $tlsinfo::params::cfssl_checksum_command,
     Stdlib::Absolutepath
             $tmpdir           = $tlsinfo::params::download_tmpdir,
 ) inherits tlsinfo::params
@@ -49,7 +48,7 @@ class tlsinfo::tools::cfssl (
 
     exec { "${bin}-download":
       command => "curl -L ${download_url_base}/${download_name} -o ${download_name}",
-      unless  => "${checksum_command} -c --ignore-missing ${checksum_name}",
+      unless  => "grep -w ${download_name} ${checksum_name} | sha256sum -c",
       require => Exec['cfssl-checksum'],
       path    => '/usr/bin:/bin',
       cwd     => $tmpdir,

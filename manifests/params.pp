@@ -27,6 +27,5 @@ class tlsinfo::params {
     'multirootca'
   ]
 
-  $cfssl_checksum_command = 'sha256sum'
   $download_tmpdir        = '/tmp'
 }
