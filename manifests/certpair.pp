@@ -1,6 +1,6 @@
-# Certificate data pair
+# Certificate pair
 #
-# @summary Certificate data pair.
+# @summary Certificate pair.
 #
 # Description
 #

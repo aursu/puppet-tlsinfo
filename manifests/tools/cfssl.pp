@@ -1,6 +1,6 @@
-# @summary A short summary of the purpose of this class
+# @summary CFSSL toolkit installation
 #
-# A description of what this class does
+# CFSSL toolkit installation
 #
 # @example
 #   include tlsinfo::tools::cfssl

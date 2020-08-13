@@ -1,6 +1,6 @@
-# A description of what this defined type does
+# SSL certificate setup
 #
-# @summary A short summary of the purpose of this defined type.
+# @summary SSL certificate setup
 #
 # @example
 #   tlsinfo::certificate { 'namevar': }
