@@ -25,6 +25,7 @@ plan tlsinfo::install (
     include tlsinfo
     tlsinfo::certpair { $lookupkey:
       identity => true,
+      cacert   => false,
     }
     if $restart_nginx {
       service { 'nginx':
