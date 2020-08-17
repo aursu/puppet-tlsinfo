@@ -6,7 +6,7 @@
 # @param targets
 #   Nodes on which certificate should be installed
 #
-# @param cert_lookupkey
+# @param lookupkey
 #   Certificate for which lookup inside Hiera. In most cases it is subject
 #   common name
 #
@@ -15,7 +15,7 @@
 #
 plan tlsinfo::install (
   TargetSpec $targets,
-  String     $cert_lookupkey,
+  String     $lookupkey,
   Boolean    $restart_nginx = false,
 ) {
   run_plan(puppet::agent5::install, $targets)
@@ -23,13 +23,13 @@ plan tlsinfo::install (
 
   return apply($targets) {
     include tlsinfo
-    tlsinfo::certpair { $cert_lookupkey:
+    tlsinfo::certpair { $lookupkey:
       identity => true,
     }
     if $restart_nginx {
       service { 'nginx':
         ensure    => running,
-        subscribe => Tlsinfo::Certpair[$cert_lookupkey],
+        subscribe => Tlsinfo::Certpair[$lookupkey],
       }
     }
   }
