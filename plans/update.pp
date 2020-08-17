@@ -1,6 +1,6 @@
-# @summary Install certificate and private key
+# @summary Update certificate and private key
 #
-# Install certificate and private key. Works only in conjuction
+# Update certificate and private key. Works only in conjuction
 # with Hiera
 #
 # @param targets
@@ -13,7 +13,7 @@
 # @param restart_nginx
 #   Flag whether to restart Nginx or not
 #
-plan tlsinfo::install (
+plan tlsinfo::update (
   TargetSpec $targets,
   String     $lookupkey,
   Boolean    $restart_nginx = false,
