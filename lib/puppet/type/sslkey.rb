@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/tlsinfo/x509_tools'
 require 'puppet/util/checksums'
+require 'puppet/parameter/boolean'
 
 Puppet::Type.newtype(:sslkey) do
   def self.title_patterns
