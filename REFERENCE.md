@@ -120,8 +120,6 @@ Default value: `$tlsinfo::params::download_tmpdir`
 
 SSL certificate setup
 
- certificate chain has 2 or more Intermediate CA)
-
 #### Examples
 
 ##### 
@@ -200,6 +198,7 @@ Could be Boolean true or false:
 * `false` means we do not manage CA Intermediate certificate
   (therefore validation over CA will not happen)
 Also could be a Full path to certificate or array of paths (for example, if
+certificate chain has 2 or more Intermediate CA)
 
 Default value: ``undef``
 
