@@ -120,15 +120,6 @@ Default value: `$tlsinfo::params::download_tmpdir`
 
 SSL certificate setup
 
- }
-
- tlsinfo::certificate { '/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO RSA Domain Validation Secure Server CA':
-   cert   => file('profile/certs/COMODORSADomainValidationSecureServerCA.crt'),
-   link   => 'COMODORSADomainValidationSecureServerCA.pem',
-   path   => 'COMODORSADomainValidationSecureServerCA.crt',
-   cacert => true,
- }
-
  certificate chain has 2 or more Intermediate CA)
 
 #### Examples
@@ -136,10 +127,10 @@ SSL certificate setup
 ##### 
 
 ```puppet
-Considering `basepath` as `/etc/pki/tls/certs` (default to CentOS)
-this will create certificate file `/etc/pki/tls/certs/<subject_hash>.pem` as well
-as will create file `/etc/pki/tls/certs/4f06f81d.crt` and also will create symlink
-`/etc/pki/tls/certs/LetsEncryptAuthorityX3.pem` which points to `<subject_hash>.pem`
+Considering 'basepath' as '/etc/pki/tls/certs' (default to CentOS)
+this will create certificate file '/etc/pki/tls/certs/<subject_hash>.pem' as well
+as will create file '/etc/pki/tls/certs/4f06f81d.crt' and also will create symlink
+'/etc/pki/tls/certs/LetsEncryptAuthorityX3.pem' which points to '<subject_hash>.pem'
 Also it will push content of Intermediate CA certificate into certificate
 file as well as Root CA certificate
 
@@ -150,15 +141,21 @@ tlsinfo::certificate { "/C=US/O=Let's Encrypt/CN=Let's Encrypt Authority X3":
   cacert => true,
   rootca => true,
 }
-```
 
-##### 
+Example of intermediate certificates chain:
 
-```puppet
 tlsinfo::certificate { '/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO High Assurance Secure Server CA':
- cert => file('profile/certs/ComodoHighAssuranceSecureServerCA.crt'),
- link => 'ComodoHighAssuranceSecureServerCA.pem',
- path => 'ComodoHighAssuranceSecureServerCA.crt',
+  cert => file('profile/certs/ComodoHighAssuranceSecureServerCA.crt'),
+  link => 'ComodoHighAssuranceSecureServerCA.pem',
+  path => 'ComodoHighAssuranceSecureServerCA.crt',
+}
+
+tlsinfo::certificate { '/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO RSA Domain Validation Secure Server CA':
+  cert   => file('profile/certs/COMODORSADomainValidationSecureServerCA.crt'),
+  link   => 'COMODORSADomainValidationSecureServerCA.pem',
+  path   => 'COMODORSADomainValidationSecureServerCA.crt',
+  cacert => true,
+}
 ```
 
 #### Parameters
