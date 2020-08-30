@@ -52,7 +52,7 @@
 #   * `false` means we do not manage CA Intermediate certificate
 #     (therefore validation over CA will not happen)
 #   Also could be a Full path to certificate or array of paths (for example, if
-#  certificate chain has 2 or more Intermediate CA)
+#   certificate chain has 2 or more Intermediate CA)
 #
 # @param path
 #   Absolute path or relative to system certificate base directory where
