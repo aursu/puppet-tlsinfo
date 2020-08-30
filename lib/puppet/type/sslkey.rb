@@ -77,14 +77,16 @@ Puppet::Type.newtype(:sslkey) do
   newparam(:replace, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc "Whether to replace a private key file that already exists on the local
       system but whose content doesn't match what the `content` attribute
-      specifies. Setting this to false allows sslkey resources to initialize private
-      key file without overwriting future changes.  Note that this only affects
+      specifies. Setting this to false allows `Sslkey` resources to initialize private
+      key file without overwriting already existing.  Note that this only affects
       content; Puppet will still manage ownership and permissions. Defaults to
       `true`."
     defaultto :true
   end
 
   newproperty(:content) do
+    desc 'Private Key content'
+
     include Puppet::Util::Checksums
 
     attr_reader :actual_content, :keyobj

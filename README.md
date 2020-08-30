@@ -6,14 +6,23 @@
 1. [Description](#description)
 2. [Setup - The basics of getting started with tlsinfo](#setup)
     * [Beginning with tlsinfo](#beginning-with-tlsinfo)
-    * [sslkey](#sslkey)
+    * [Sslkey](#sslkey)
     * [Sslcertificate](#sslcertificate)
 3. [Usage - Configuration options and additional functionality](#usage)
 4. [Limitations - OS compatibility, etc.](#limitations)
 
 ## Description
 
-tlsinfo module rpovide ability to manage x509 certificates and private keys on web node with proper validation checking (over dates, CA issuers, common names etc)
+tlsinfo module rpovide ability to manage x509 certificates and private keys on server node with proper validation checking (over dates, CA issuers, common names etc)
+
+Also there is tlsinfo::tools::cfssl which installs CloudFlare CF SSL toolkits into /usr/local/bin
+
+There are useful defined types provided:
+
+* `tlsinfo::certpair`
+* `tlsinfo::certificate`
+
+See REFERENCE.md for details
 
 ## Setup
 
@@ -211,13 +220,16 @@ Path to certificate could be get via function `tlsinfo::certpath` and path to pr
 
 ## Reference
 
+See REFERENCE.md
+
 ## Limitations
 
 Module uses Ruby library 'openssl'
 
-For unknown reasons this module has unpredicted behavior like:
+For unknown reasons this library has unpredicted behavior like:
 
-1) returns old hash instead of new (for certificate Subject and Issuer fields)
+1) returns old hash instead of new (for certificate Subject and Issuer fields) therefore both hashes in use
+   for certificates lookup
 2) returns negative (signed) values for Subject and Issuer hashes (eg `-ece330c` instead of `f131ccf4`)
 
 Therefore it is better to use module functions for default path calculation (`tlsinfo::certpath` and `tlsinfo::keypath`)

@@ -45,7 +45,7 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:subject_hash_old) do
-    desc 'Certificate subject hash (read only)'
+    desc 'Certificate subject hash for old algorithm (read only)'
 
     munge do |_value|
       resource.cert_hash_old
@@ -55,7 +55,7 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:path) do
-    desc 'The path to the private key to manage.  Must be fully qualified.'
+    desc 'The path to the certificate to manage. Must be fully qualified.'
 
     isnamevar
 
@@ -97,13 +97,20 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newparam(:cacert) do
-    desc 'The path to the private key to use. Must be fully qualified.'
+    desc     <<-PRECOND
+    Could be Boolean true or false:
+    * `true` means CA Intermediate certificate already MUST be defined in catalog
+    * `false` means we do not manage CA Intermediate certificate
+      (therefore validation over CA will not happen)
+    Also could be a Full path to certificate or array of paths (for example, if
+    certificate chain has 2 or more Intermediate CA)
+    PRECOND
 
     attr_reader :sslcert
 
     validate do |value|
       if !!value == value # rubocop:disable Style/DoubleNegation : Could not find a better way to check if a boolean
-        # cacert => true means CA Intermediate certificate already MUST be defined in caralog
+        # cacert => true means CA Intermediate certificate already MUST be defined in catalog
         # cacert => false means we do not manage CA Intermediate certificate (therefore validation passed)
         if value && resource.lookupcatalog(resource.cert_issuer_hash).nil?
           raise Puppet::Error, _('You must define Sslcertificate resource with subject %{subject}') %
@@ -159,16 +166,18 @@ Puppet::Type.newtype(:sslcertificate) do
 
   newparam(:replace, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc "Whether to replace a certificate file that already exists on the local
-      system but whose content doesn't match what the `content` attribute
-      specifies. Setting this to false allows sslkey resources to initialize private
-      key file without overwriting future changes.  Note that this only affects
-      content; Puppet will still manage ownership and permissions. Defaults to
-      `true`."
+      system but which content doesn't match what the `content` attribute
+      specifies. Set this to false allows `Sslcertificate` resources to initialize
+      certificate file without overwriting it (for example, by updating it with IM
+      CA).  Note that this only affects content; Puppet will still manage ownership
+      and permissions. Defaults to `true`."
+
     defaultto :true
   end
 
   newparam(:chain, boolean: true, parent: Puppet::Parameter::Boolean) do
     desc 'Whether to place Intermediate certificate into certificate file or not'
+
     defaultto :true
   end
 
@@ -189,7 +198,7 @@ Puppet::Type.newtype(:sslcertificate) do
 
   newparam(:identity) do
     desc "Identtity which certificate should represent (eg domain name). Certificate
-    Common Name or any of DNS name must match identity field"
+    Common Name or any of DNS names must match identity field"
 
     validate do |value|
       if value.is_a?(String)
@@ -210,6 +219,8 @@ Puppet::Type.newtype(:sslcertificate) do
   end
 
   newproperty(:content) do
+    desc 'Certificate content'
+
     include Puppet::Util::Checksums
 
     attr_reader :actual_content, :certobj, :chain, :selfsigned

@@ -3,7 +3,34 @@
 # @summary SSL certificate setup
 #
 # @example
-#   tlsinfo::certificate { 'namevar': }
+#   Considering `basepath` as `/etc/pki/tls/certs` (default to CentOS)
+#   this will create certificate file `/etc/pki/tls/certs/<subject_hash>.pem` as well
+#   as will create file `/etc/pki/tls/certs/4f06f81d.crt` and also will create symlink
+#   `/etc/pki/tls/certs/LetsEncryptAuthorityX3.pem` which points to `<subject_hash>.pem`
+#   Also it will push content of Intermediate CA certificate into certificate
+#   file as well as Root CA certificate
+#
+#   tlsinfo::certificate { "/C=US/O=Let's Encrypt/CN=Let's Encrypt Authority X3":
+#     cert   => file('profile/certs/4f06f81d.crt'),
+#     link   => 'LetsEncryptAuthorityX3.pem',
+#     path   => '4f06f81d.crt',
+#     cacert => true,
+#     rootca => true,
+#   }
+#
+# @example
+#   tlsinfo::certificate { '/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO High Assurance Secure Server CA':
+#    cert => file('profile/certs/ComodoHighAssuranceSecureServerCA.crt'),
+#    link => 'ComodoHighAssuranceSecureServerCA.pem',
+#    path => 'ComodoHighAssuranceSecureServerCA.crt',
+#  }
+#
+#  tlsinfo::certificate { '/C=GB/ST=Greater Manchester/L=Salford/O=COMODO CA Limited/CN=COMODO RSA Domain Validation Secure Server CA':
+#    cert   => file('profile/certs/COMODORSADomainValidationSecureServerCA.crt'),
+#    link   => 'COMODORSADomainValidationSecureServerCA.pem',
+#    path   => 'COMODORSADomainValidationSecureServerCA.crt',
+#    cacert => true,
+#  }
 #
 # @param cert
 #   Certificate data to use for verification and processing. If not provided
@@ -15,11 +42,33 @@
 #     4) "'" -> '_'
 #     5) ' ' -> '_'
 #
+# @param basepath
+#   System path where certificate data usually stored (eg /etc/pki/tls/certs on CentOS)
+#
+# @param cacert
+#   Could be Boolean true or false:
+#   * `true` means CA Intermediate certificate already MUST be defined in catalog
+#   * `false` means we do not manage CA Intermediate certificate
+#     (therefore validation over CA will not happen)
+#   Also could be a Full path to certificate or array of paths (for example, if
+#  certificate chain has 2 or more Intermediate CA)
+#
 # @param path
 #   Absolute path or relative to system certificate base directory where
-#   provided (with parameter "cert") or found (using Hiera key
-#   "#{name}_certificate") certificate data should be stored (as is without
-#   verification and processing)
+#   certificate data either provided with parameter `cert` or found using Hiera key
+#   `#{name}_certificate` should be stored. It will be saved "as is" without
+#   verification and processing
+#
+# @param rootca
+#   Whether to place Root CA certificate into certificate file or not
+#
+# @param chain
+#   Whether to place Intermediate certificate into certificate file or not
+#
+# @param link
+#   If provided - will create human  symbolic link to certificate file (with link
+#   name provided)
+#
 define tlsinfo::certificate (
     Optional[String]
             $cert     = undef,
