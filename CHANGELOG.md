@@ -11,3 +11,13 @@ All notable changes to this project will be documented in this file.
 * Updated dependencies' versions
 
 **Known Issues**
+
+## Release 0.3.7
+
+**Features**
+
+**Bugfixes**
+
+* Updated plan to match latest puppet module changes
+
+**Known Issues**

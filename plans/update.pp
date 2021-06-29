@@ -14,11 +14,14 @@
 #   Flag whether to restart Nginx or not
 #
 plan tlsinfo::update (
-  TargetSpec $targets,
-  String     $lookupkey,
-  Boolean    $restart_nginx = false,
+  TargetSpec
+          $targets,
+  String  $lookupkey,
+  Boolean $restart_nginx = false,
+  Puppet::Platform
+          $collection = 'puppet7',
 ) {
-  run_plan(puppet::agent5::install, $targets)
+  run_plan(puppet::agent::install, $targets, collection => $collection)
   run_plan(facts, $targets)
 
   return apply($targets) {
