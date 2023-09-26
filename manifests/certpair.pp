@@ -78,94 +78,85 @@
 #      strict   => false,
 #    }
 define tlsinfo::certpair (
-    Optional[String]
-            $lookupkey = undef,
-    Optional[String]
-            $cert      = undef,
-    Optional[String]
-            $pkey      = undef,
-    Optional[String]
-            $secret    = undef,
-    Optional[
-        Variant[
-            Boolean,
-            Stdlib::Unixpath,
-            Array[Stdlib::Unixpath]
-        ]
-    ]       $cacert    = true,
-    Optional[Stdlib::Unixpath]
-            $certbase  = $tlsinfo::certbase,
-    Optional[Stdlib::Unixpath]
-            $keybase   = $tlsinfo::keybase,
-    Optional[
-        Variant[
-            Boolean,
-            String,
-            Array[String, 1]
-        ]
-    ]       $identity  = undef,
-    Boolean $rootca    = false,
-    Boolean $validate  = true,
-    Boolean $strict    = true,
-)
-{
-    if $lookupkey {
-        $hierakey = tlsinfo::normalize($lookupkey)
-    }
-    else {
-        $hierakey = tlsinfo::normalize($name)
-    }
+  Optional[String] $lookupkey = undef,
+  Optional[String] $cert = undef,
+  Optional[String] $pkey = undef,
+  Optional[String] $secret = undef,
+  Variant[
+    Boolean,
+    Stdlib::Unixpath,
+    Array[Stdlib::Unixpath]
+  ] $cacert = true,
+  Optional[Stdlib::Unixpath] $certbase = $tlsinfo::certbase,
+  Optional[Stdlib::Unixpath] $keybase = $tlsinfo::keybase,
+  Optional[
+    Variant[
+      Boolean,
+      String,
+      Array[String, 1]
+    ]
+  ] $identity = undef,
+  Boolean $rootca = false,
+  Boolean $validate = true,
+  Boolean $strict = true,
+) {
+  if $lookupkey {
+    $hierakey = tlsinfo::normalize($lookupkey)
+  }
+  else {
+    $hierakey = tlsinfo::normalize($name)
+  }
 
-    if $cert {
-        $certdata = $cert
-    }
-    else {
-        $certdata = tlsinfo::lookup($hierakey)
-    }
+  if $cert {
+    $certdata = $cert
+  }
+  else {
+    $certdata = tlsinfo::lookup($hierakey)
+  }
 
-    unless $certdata {
-        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${hierakey}_certificate\"")
-    }
+  unless $certdata {
+    fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${hierakey}_certificate\"")
+  }
 
-    if $pkey {
-        $pkeydata = $pkey
-    }
-    else {
-        $pkeydata = tlsinfo::lookup($hierakey, true)
-    }
+  if $pkey {
+    $pkeydata = $pkey
+  }
+  else {
+    $pkeydata = tlsinfo::lookup($hierakey, true)
+  }
 
-    unless $pkeydata {
-        fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${hierakey}_private\"")
-    }
+  unless $pkeydata {
+    fail("Private key data does not exists. Please specify either parameter \$pkey or Hiera key \"${hierakey}_private\"")
+  }
 
-    if $identity =~ Boolean and $identity {
-        $identityinfo = $name
-    }
-    # tlsinfo::certpair name (title) must match one of ceritficate names
-    elsif $identity =~ Array {
-        $identityinfo = $identity + [ $name ]
-    }
-    elsif $identity =~ String {
-        $identityinfo = [ $identity, $name ]
-    }
-    else {
-        $identityinfo = undef
-    }
+  if $identity =~ Boolean and $identity {
+    $identityinfo = $name
+  }
+  # tlsinfo::certpair name (title) must match one of ceritficate names
+  elsif $identity =~ Array {
+    $identityinfo = $identity + [$name]
+  }
+  elsif $identity =~ String {
+    $identityinfo = [$identity, $name]
+  }
+  else {
+    $identityinfo = undef
+  }
 
-    $keypath = tlsinfo::keypath($certdata, $keybase)
-    sslkey { $keypath:
-        content  => $pkeydata,
-        password => $secret,
-    }
+  $keypath = tlsinfo::keypath($certdata, $keybase)
+  sslkey { $keypath:
+    content  => $pkeydata,
+    password => $secret,
+  }
 
-    $certpath = tlsinfo::certpath($certdata, $certbase)
-    sslcertificate { $certpath:
-        content    => $certdata,
-        pkey       => $keypath,
-        cacert     => $cacert,
-        identity   => $identityinfo,
-        rootca     => $rootca,
-        expiration => $validate,
-        strict     => $strict,
-    }
+  $certpath = tlsinfo::certpath($certdata, $certbase)
+  sslcertificate { $certpath:
+    content    => $certdata,
+    pkey       => $keypath,
+    cacert     => $cacert,
+    identity   => $identityinfo,
+    rootca     => $rootca,
+    expiration => $validate,
+    strict     => $strict,
+  }
 }

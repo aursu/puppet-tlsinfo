@@ -12,12 +12,10 @@ Puppet::Type.type(:sslcertificate).provide :posix do
   def make_x509_store(*chain)
     store = OpenSSL::X509::Store.new
     chain.flatten.each do |c|
-      begin
-        store.add_cert(c) if c.is_a?(OpenSSL::X509::Certificate)
-      rescue OpenSSL::X509::StoreError
-        # in case of duplicate certificate
-        next
-      end
+      store.add_cert(c) if c.is_a?(OpenSSL::X509::Certificate)
+    rescue OpenSSL::X509::StoreError
+      # in case of duplicate certificate
+      next
     end
     store
   end

@@ -71,75 +71,73 @@
 #   name provided)
 #
 define tlsinfo::certificate (
-    Optional[String]
-            $cert     = undef,
-    Optional[Stdlib::Unixpath]
-            $basepath = $tlsinfo::certbase,
-    Optional[
-        Variant[
-            Boolean,
-            Stdlib::Unixpath,
-            Array[Stdlib::Unixpath]
-        ]
-    ]       $cacert = undef,
-    Boolean $rootca = false,
-    Boolean $chain  = true,
-    Optional[
-        Variant[
-            Stdlib::Unixpath,
-            Pattern[/^[^\/]+\.pem$/]  # basename (relative to basepath/certbase)
-        ]
-    ]       $link    = undef,
-    Optional[
-        Variant[
-            Stdlib::Unixpath,
-            Pattern[/^[^\/]+\.(pem|crt|cer|cert)$/]  # basename (relative to basepath/certbase)
-        ]
-    ]       $path    = undef,
+  Optional[String] $cert = undef,
+  Optional[Stdlib::Unixpath] $basepath = $tlsinfo::certbase,
+  Optional[
+    Variant[
+      Boolean,
+      Stdlib::Unixpath,
+      Array[Stdlib::Unixpath]
+    ]
+  ] $cacert = undef,
+  Boolean $rootca = false,
+  Boolean $chain = true,
+  Optional[
+    Variant[
+      Stdlib::Unixpath,
+      Pattern[/^[^\/]+\.pem$/]  # basename (relative to basepath/certbase)
+    ]
+  ] $link = undef,
+  Optional[
+    Variant[
+      Stdlib::Unixpath,
+      Pattern[/^[^\/]+\.(pem|crt|cer|cert)$/]  # basename (relative to basepath/certbase)
+    ]
+  ] $path = undef,
 ) {
-    $lookupkey = tlsinfo::normalize($name)
-    if $cert {
-        $certdata = $cert
+  $lookupkey = tlsinfo::normalize($name)
+  if $cert {
+    $certdata = $cert
+  }
+  else {
+    $certdata = lookup("${lookupkey}_certificate", Optional[String], 'first', undef)
+  }
+
+  unless $certdata {
+    fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${lookupkey}_certificate\"")
+  }
+
+  $certpath = tlsinfo::certpath($certdata, $basepath)
+
+  sslcertificate { $certpath:
+    content => $certdata,
+    cacert  => $cacert,
+    rootca  => $rootca,
+    chain   => $chain,
+  }
+
+  if $link {
+    $link_path = $link? {
+      Stdlib::Unixpath => $link,
+      default          => "${basepath}/${link}",
     }
-    else {
-        $certdata = lookup("${lookupkey}_certificate", Optional[String], 'first', undef)
+    # create human readable symlink to certificate
+    file { $link_path:
+      ensure  => 'link',
+      target  => $certpath,
+      require => Sslcertificate[$certpath],
+    }
+  }
+
+  if $path {
+    $data_path = $path? {
+      Stdlib::Unixpath => $path,
+      default          => "${basepath}/${path}",
     }
 
-    unless $certdata {
-        fail("Certificate data does not exists. Please specify either parameter \$cert or Hiera key \"${lookupkey}_certificate\"")
+    file { $data_path:
+      ensure  => file,
+      content => $certdata,
     }
-
-    $certpath = tlsinfo::certpath($certdata, $basepath)
-
-    sslcertificate { $certpath:
-        content => $certdata,
-        cacert  => $cacert,
-        rootca  => $rootca,
-        chain   => $chain,
-    }
-
-    if $link {
-        $link_path = $link? {
-            Stdlib::Unixpath => $link,
-            default          => "${basepath}/${link}",
-        }
-        # create human readable symlink to certificate
-        file { $link_path:
-            ensure  => 'link',
-            target  => $certpath,
-            require => Sslcertificate[$certpath],
-        }
-    }
-
-    if $path {
-        $data_path = $path? {
-            Stdlib::Unixpath => $path,
-            default          => "${basepath}/${path}",
-        }
-
-        file { $data_path:
-            ensure  => file,
-            content => $certdata,
-        }
-    }
+  }
 }

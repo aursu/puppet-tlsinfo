@@ -18,12 +18,9 @@
 #   see https://github.com/cloudflare/cfssl/releases
 #
 class tlsinfo (
-    Optional[Stdlib::Unixpath]
-        $certbase,
-    Optional[Stdlib::Unixpath]
-        $keybase,
-    Optional[String]
-        $cfssl_version,
-){
-    include tlsinfo::params
+  Optional[Stdlib::Unixpath] $certbase,
+  Optional[Stdlib::Unixpath] $keybase,
+  Optional[String] $cfssl_version,
+) {
+  include tlsinfo::params
 }

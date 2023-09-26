@@ -5,13 +5,10 @@
 # @example
 #   include tlsinfo::tools::cfssl
 class tlsinfo::tools::cfssl (
-    Optional[Pattern[/^1\.[4-9][1-9]?\./]]
-            $version          = $tlsinfo::cfssl_version,
-    String  $download_source  = $tlsinfo::params::cfssl_download_source,
-    Stdlib::Absolutepath
-            $tmpdir           = $tlsinfo::params::download_tmpdir,
-) inherits tlsinfo::params
-{
+  Optional[Pattern[/^1\.[4-9][1-9]?\./]] $version = $tlsinfo::cfssl_version,
+  String $download_source = $tlsinfo::params::cfssl_download_source,
+  Stdlib::Absolutepath $tmpdir = $tlsinfo::params::download_tmpdir,
+) inherits tlsinfo::params {
   $cfssl_tools      = $tlsinfo::params::cfssl_tools
   # we allow user to not care about cfssl version and keep it default
   # (specified in params)
@@ -24,7 +21,7 @@ class tlsinfo::tools::cfssl (
   }
 
   # in URL base folder resides CFSSL binaries and checksum file
-  # eg https://github.com/cloudflare/cfssl/releases/download/v1.4.1
+  # eg https://github.com/cloudflare/cfssl/releases/download/v1.6.4
   $download_url_base = "${download_source}/v${download_version}"
 
   # checksum file name

@@ -10,7 +10,7 @@ class tlsinfo::params {
   }
 
   # predefined CFSSL version - could  be overriden with kubeinstall::cfssl_version
-  $cfssl_version          = '1.5.0'
+  $cfssl_version          = '1.6.4'
   $cfssl_download_source  = 'https://github.com/cloudflare/cfssl/releases/download'
 
   # cfssl project provides binaries only for x86_64 architecture
@@ -24,7 +24,7 @@ class tlsinfo::params {
     'cfssl-scan',
     'cfssljson',
     'mkbundle',
-    'multirootca'
+    'multirootca',
   ]
 
   $download_tmpdir        = '/tmp'
