@@ -33,3 +33,13 @@ All notable changes to this project will be documented in this file.
 * Updated dependencies
 
 **Known Issues**
+
+## Release 0.5.0
+
+**Features**
+
+* Use bsys for certbase and keybase
+
+**Bugfixes**
+
+**Known Issues**

@@ -1,3 +1,1 @@
----
-tlsinfo::certbase: /etc/ssl/certs
-tlsinfo::keybase: /etc/ssl/private
+--- {}

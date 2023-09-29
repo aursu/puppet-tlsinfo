@@ -18,9 +18,7 @@
 #   see https://github.com/cloudflare/cfssl/releases
 #
 class tlsinfo (
-  Optional[Stdlib::Unixpath] $certbase,
-  Optional[Stdlib::Unixpath] $keybase,
-  Optional[String] $cfssl_version,
-) {
-  include tlsinfo::params
-}
+  Optional[String] $cfssl_version = $tlsinfo::params::cfssl_version,
+  Optional[Stdlib::Unixpath] $certbase = $tlsinfo::params::certbase,
+  Optional[Stdlib::Unixpath] $keybase = $tlsinfo::params::keybase,
+) inherits tlsinfo::params {}

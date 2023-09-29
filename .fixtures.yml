@@ -6,3 +6,6 @@ fixtures:
     stdlib:
       repo: puppetlabs/stdlib
       ref: 9.3.0
+    bsys:
+      repo: aursu/bsys
+      ref: 0.3.1
