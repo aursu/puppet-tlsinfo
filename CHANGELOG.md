@@ -63,3 +63,13 @@ All notable changes to this project will be documented in this file.
 * Bugfix: in `Tlsinfo::Signing` fix for `default` keyword
 
 **Known Issues**
+
+## Release 0.7.0
+
+**Features**
+
+* Added Bolt plan `tlsinfo::cfssl`
+
+**Bugfixes**
+
+**Known Issues**
