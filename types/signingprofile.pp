@@ -1,3 +1,5 @@
+# A SigningProfile stores information that the CA needs to store
+# signature policy.
 type Tlsinfo::SigningProfile = Struct[{
     Optional[usages]               => Array[Variant[Tlsinfo::KeyUsage, Tlsinfo::ExtKeyUsage]],
     Optional[issuer_urls]          => Array[String],

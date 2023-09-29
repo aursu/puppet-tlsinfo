@@ -1,3 +1,4 @@
+# Config stores configuration information for the CA
 type Tlsinfo::CAConfig = Struct[{
     signing             => Tlsinfo::Signing,
     Optional[ocsp]      => Tlsinfo::OCSPConfig,
