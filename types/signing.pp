@@ -3,5 +3,5 @@ type Tlsinfo::Signing = Struct[{
       String,
       Tlsinfo::SigningProfile,
     ],
-    default => Tlsinfo::SigningProfile,
+    'default' => Tlsinfo::SigningProfile,
 }]
