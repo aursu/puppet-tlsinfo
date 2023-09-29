@@ -5,8 +5,7 @@ require 'spec_helper'
 describe 'tlsinfo::cfssl::ca_config' do
   let(:title) { 'namevar' }
   let(:params) do
-    {
-    }
+    {}
   end
 
   let(:default_content) do

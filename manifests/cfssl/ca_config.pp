@@ -13,8 +13,11 @@
 # @param default_expiry
 #   CA signing configuration default expire time (default is 43824h)
 #
-# @param config
-#   CA configuration to be written into file
+# @param default_profile
+#   Default signing profile for CA configuration
+#
+# @param signing_profiles
+#   Signing profiles for CA configuration
 #
 # @example
 #   tlsinfo::cfssl::ca_config { 'namevar': }
@@ -63,6 +66,6 @@ define tlsinfo::cfssl::ca_config (
 
   file { $config_path:
     ensure  => file,
-    content => stdlib::to_json_pretty($config, true, {indent => '    ', space => ' '}),
+    content => stdlib::to_json_pretty($config, true, { indent => '    ', space => ' ' }),
   }
 }
