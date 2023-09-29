@@ -1,0 +1,15 @@
+type Tlsinfo::ExtKeyUsage = Enum[
+  'any',
+  'server auth',
+  'client auth',
+  'code signing',
+  'email protection',
+  's/mime',
+  'ipsec end system',
+  'ipsec tunnel',
+  'ipsec user',
+  'timestamping',
+  'ocsp signing',
+  'microsoft sgc',
+  'netscape sgc',
+]
