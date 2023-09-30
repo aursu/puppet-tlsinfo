@@ -73,3 +73,13 @@ All notable changes to this project will be documented in this file.
 **Bugfixes**
 
 **Known Issues**
+
+## Release 0.8.0
+
+**Features**
+
+* Added `tlsinfo::cfssl::ca_config` to manage CA configuration for CFSSL
+
+**Bugfixes**
+
+**Known Issues**

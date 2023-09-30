@@ -1,6 +1,6 @@
 # @summary CA configuration file for CFSSL
 #
-# CA configuration file for CloudFlare's PKI/TLS toolkit 
+# CA configuration file for CloudFlare's PKI/TLS toolkit
 #
 # @param filename
 #   CA configuration file name (not a path)
