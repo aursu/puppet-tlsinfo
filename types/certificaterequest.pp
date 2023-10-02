@@ -1,6 +1,6 @@
 type Tlsinfo::CertificateRequest = Struct[{
     'CN'                         => String,
-    names                        => Tlsinfo::PKIXName,
+    names                        => Array[Tlsinfo::PKIXName, 1],
     key                          => Tlsinfo::KeyRequest,
     Optional[hosts]              => Array[String],
     Optional[ca]                 => Tlsinfo::CAConfigSection,

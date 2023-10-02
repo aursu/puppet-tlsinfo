@@ -11,13 +11,38 @@ describe 'tlsinfo::cfssl::crt_req' do
   let(:default_content) do
     <<-JSONDATA
 {
-    "names": {
-        "C": "DE",
-        "ST": "Hesse",
-        "L": "Frankfurt"
-    },
+    "names": [
+        {
+            "C": "DE",
+            "ST": "Hesse",
+            "L": "Frankfurt"
+        }
+    ],
     "key": {
         "size": 2048,
+        "algo": "rsa"
+    }
+}
+JSONDATA
+  end
+
+  let(:sample_content) do
+    <<-JSONDATA
+{
+    "CN": "Kubernetes",
+    "names": [
+        {
+            "C": "DE",
+            "ST": "Berlin",
+            "L": "Berlin"
+        },
+        {
+            "O": "Kubernetes",
+            "OU": "IM CA"
+        }
+    ],
+    "key": {
+        "size": 4096,
         "algo": "rsa"
     }
 }
@@ -63,7 +88,7 @@ JSONDATA
             path: '/etc/kubernetes/pki/',
             req: {
               'CN' => 'K8S Cluster',
-              names: {},
+              names: [{}],
               key: {
                 algo: 'rsa',
                 size: 4096,
@@ -83,7 +108,7 @@ JSONDATA
         }
       end
 
-      context 'when names is provided in few sources' do
+      context 'when names are provided in few sources' do
         let(:params) do
           {
             path: '/etc/kubernetes/pki/',
@@ -92,10 +117,10 @@ JSONDATA
             },
             req: {
               'CN' => 'Kubernetes',
-              names: {
+              names: [{
                 'L' => 'Berlin',
                 'ST' => 'Berlin',
-              },
+              }],
               key: {
                 algo: 'rsa',
                 size: 4096,
@@ -107,6 +132,39 @@ JSONDATA
         it {
           is_expected.to contain_file('/etc/kubernetes/pki/namevar.json')
             .with_content(%r{"L": "Berlin"})
+        }
+      end
+
+      context 'when multiple names are provided in few sources' do
+        let(:params) do
+          {
+            path: '/etc/kubernetes/pki/',
+            names: {
+              'L' => 'Hamburg',
+            },
+            req: {
+              'CN' => 'Kubernetes',
+              names: [
+                {
+                  'L' => 'Berlin',
+                  'ST' => 'Berlin',
+                },
+                {
+                  'O' => 'Kubernetes',
+                  'OU' => 'IM CA',
+                },
+              ],
+              key: {
+                algo: 'rsa',
+                size: 4096,
+              }
+            },
+          }
+        end
+
+        it {
+          is_expected.to contain_file('/etc/kubernetes/pki/namevar.json')
+            .with_content(sample_content)
         }
       end
     end

@@ -41,19 +41,27 @@ define tlsinfo::cfssl::crt_req (
   }
 
   $req_names = $_req['names'] ? {
-    Tlsinfo::PKIXName => $_req['names'],
+    Array => $_req['names'],
+    default => [],
+  }
+
+  $req_names0 = $req_names[0] ? {
+    Tlsinfo::PKIXName => $req_names[0],
     default => {},
   }
 
+  # key provided inside $req or empty if not
   $req_key = $_req['key'] ? {
     Tlsinfo::KeyRequest => $_req['key'],
     default => {},
   }
 
-  $config = $req_cn + $_req +
-  { names => { 'C' => $name_country } + { 'ST' => $name_state } + { 'L' => $name_locality } +
-    $names_o + $names_ou + $names + $req_names } +
-  { key => { size => $key_size } + { algo => $key_algorithm } + $req_key }
+  $_req_names = { names => [{ 'C' => $name_country } + { 'ST' => $name_state } + { 'L' => $name_locality } +
+  $names_o + $names_ou + $names + $req_names0] + $req_names[1, -1] }
+
+  $_req_key = { key => { size => $key_size } + { algo => $key_algorithm } + $req_key }
+
+  $config = $req_cn + $_req + $_req_names + $_req_key
 
   case $path {
     /\.json$/: {
