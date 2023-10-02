@@ -83,3 +83,13 @@ All notable changes to this project will be documented in this file.
 **Bugfixes**
 
 **Known Issues**
+
+## Release 0.9.0
+
+**Features**
+
+* Added `tlsinfo::cfssl::crt_req` to manage CSR requests
+
+**Bugfixes**
+
+**Known Issues**
