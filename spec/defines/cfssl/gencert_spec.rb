@@ -39,7 +39,7 @@ describe 'tlsinfo::cfssl::gencert' do
         it {
           is_expected.to contain_exec('cfssl-gencert-namevar')
             .with_cwd('/etc/kubernetes/pki')
-            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem   namevar-csr.json | cfssljson -bare namevar')
+            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem    namevar-csr.json | cfssljson -bare namevar')
             .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
             .with_onlyif(
               [
@@ -82,7 +82,7 @@ describe 'tlsinfo::cfssl::gencert' do
         it {
           is_expected.to contain_exec('cfssl-gencert-namevar')
             .with_cwd('/etc/kubernetes/pki')
-            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json  namevar-csr.json | cfssljson -bare namevar')
+            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json   namevar-csr.json | cfssljson -bare namevar')
             .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
             .with_onlyif(
               [
@@ -104,7 +104,30 @@ describe 'tlsinfo::cfssl::gencert' do
           it {
             is_expected.to contain_exec('cfssl-gencert-namevar')
               .with_cwd('/etc/kubernetes/pki')
-              .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes namevar-csr.json | cfssljson -bare namevar')
+              .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes  namevar-csr.json | cfssljson -bare namevar')
+              .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
+              .with_onlyif(
+                [
+                  'test -f /etc/kubernetes/pki/namevar-csr.json',
+                  'test -f /etc/kubernetes/pki/ca-config.json',
+                  'test -f /etc/kubernetes/pki/ca.pem',
+                  'test -f /etc/kubernetes/pki/ca-key.pem'
+                ]
+              )
+          }
+        end
+
+        context 'and hostname specified' do
+          let(:params) do
+            super().merge(
+              hostname: ['worker-0', '34.107.101.187', '10.240.0.20'],
+            )
+          end
+
+          it {
+            is_expected.to contain_exec('cfssl-gencert-namevar')
+              .with_cwd('/etc/kubernetes/pki')
+              .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json  -hostname=worker-0,34.107.101.187,10.240.0.20 namevar-csr.json | cfssljson -bare namevar')
               .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
               .with_onlyif(
                 [

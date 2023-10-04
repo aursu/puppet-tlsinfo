@@ -13,6 +13,7 @@ define tlsinfo::cfssl::gencert (
   Variant[String, Stdlib::Unixpath] $ca_key = 'ca-key.pem',
   Optional[Variant[String, Stdlib::Unixpath]] $config = undef,
   Optional[String] $profile = undef,
+  Array[Stdlib::Host] $hostname = [],
 ) {
   include tlsinfo::tools::cfssl
 
@@ -67,8 +68,15 @@ define tlsinfo::cfssl::gencert (
       $config_check = []
     }
 
+    if $hostname[0] {
+      $hostname_option = ['-hostname=', $hostname.join(',')].join('')
+    }
+    else {
+      $hostname_option = ""
+    }
+
     exec { "cfssl-gencert-${prefix}":
-      command => "cfssl gencert -ca=${ca} -ca-key=${ca_key} ${config_option} ${profile_option} ${csr} | cfssljson -bare ${prefix}",
+      command => "cfssl gencert -ca=${ca} -ca-key=${ca_key} ${config_option} ${profile_option} ${hostname_option} ${csr} | cfssljson -bare ${prefix}",
       unless  => "test -f ${run_path}/${prefix}.pem",
       onlyif => $csr_check + $config_check + $ca_check + $ca_key_check,
       path    => '/usr/local/bin:/usr/bin:/bin',
