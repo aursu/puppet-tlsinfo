@@ -6,9 +6,7 @@ describe 'tlsinfo::cfssl::gencert' do
   let(:pre_condition) { 'include tlsinfo' }
   let(:title) { 'namevar' }
   let(:params) do
-    {
-      csr: 'namevar.json',
-    }
+    {}
   end
 
   on_supported_os.each do |os, os_facts|
@@ -41,10 +39,11 @@ describe 'tlsinfo::cfssl::gencert' do
         it {
           is_expected.to contain_exec('cfssl-gencert-namevar')
             .with_cwd('/etc/kubernetes/pki')
-            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem   namevar.json | cfssljson -bare namevar')
+            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem   namevar-csr.json | cfssljson -bare namevar')
             .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
             .with_onlyif(
               [
+                'test -f /etc/kubernetes/pki/namevar-csr.json',
                 'test -f /etc/kubernetes/pki/ca.pem',
                 'test -f /etc/kubernetes/pki/ca-key.pem'
               ]
@@ -61,9 +60,13 @@ describe 'tlsinfo::cfssl::gencert' do
           it {
             is_expected.to contain_exec('cfssl-gencert-namevar')
               .with_cwd('/etc/kubernetes/pki')
-              .with_command('cfssl gencert -initca namevar.json | cfssljson -bare namevar')
+              .with_command('cfssl gencert -initca namevar-csr.json | cfssljson -bare namevar')
               .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
-              .without_onlyif()
+              .with_onlyif(
+              [
+                'test -f /etc/kubernetes/pki/namevar-csr.json',
+              ]
+            )
           }
         end
       end
@@ -79,10 +82,11 @@ describe 'tlsinfo::cfssl::gencert' do
         it {
           is_expected.to contain_exec('cfssl-gencert-namevar')
             .with_cwd('/etc/kubernetes/pki')
-            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json  namevar.json | cfssljson -bare namevar')
+            .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json  namevar-csr.json | cfssljson -bare namevar')
             .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
             .with_onlyif(
               [
+                'test -f /etc/kubernetes/pki/namevar-csr.json',
                 'test -f /etc/kubernetes/pki/ca-config.json',
                 'test -f /etc/kubernetes/pki/ca.pem',
                 'test -f /etc/kubernetes/pki/ca-key.pem'
@@ -100,10 +104,11 @@ describe 'tlsinfo::cfssl::gencert' do
           it {
             is_expected.to contain_exec('cfssl-gencert-namevar')
               .with_cwd('/etc/kubernetes/pki')
-              .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes namevar.json | cfssljson -bare namevar')
+              .with_command('cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes namevar-csr.json | cfssljson -bare namevar')
               .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
               .with_onlyif(
                 [
+                  'test -f /etc/kubernetes/pki/namevar-csr.json',
                   'test -f /etc/kubernetes/pki/ca-config.json',
                   'test -f /etc/kubernetes/pki/ca.pem',
                   'test -f /etc/kubernetes/pki/ca-key.pem'

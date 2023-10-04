@@ -5,8 +5,8 @@
 # @example
 #   tlsinfo::cfssl::gencert { 'namevar': }
 define tlsinfo::cfssl::gencert (
-  Pattern[/\.json$/] $csr,
   String $prefix = $name,
+  Pattern[/\.json$/] $csr = "${name}-csr.json",
   Optional[Stdlib::Unixpath] $path = undef,
   Boolean $initca = false,
   Variant[String, Stdlib::Unixpath] $ca = 'ca.pem',
@@ -21,6 +21,11 @@ define tlsinfo::cfssl::gencert (
     default => $bsys::params::pkibase,
   }
 
+  $csr_check = $csr ? {
+    Stdlib::Unixpath => ["test -f ${csr}"],
+    default => ["test -f ${run_path}/${csr}"],
+  }
+
   $config_option = $config ? {
     String  => "-config=${config}",
     default => "",
@@ -30,6 +35,7 @@ define tlsinfo::cfssl::gencert (
     exec { "cfssl-gencert-${prefix}":
       command => "cfssl gencert -initca ${csr} | cfssljson -bare ${prefix}",
       unless  => "test -f ${run_path}/${prefix}.pem",
+      onlyif  => $csr_check,
       path    => '/usr/local/bin:/usr/bin:/bin',
       cwd     => $run_path,
     }
@@ -64,7 +70,7 @@ define tlsinfo::cfssl::gencert (
     exec { "cfssl-gencert-${prefix}":
       command => "cfssl gencert -ca=${ca} -ca-key=${ca_key} ${config_option} ${profile_option} ${csr} | cfssljson -bare ${prefix}",
       unless  => "test -f ${run_path}/${prefix}.pem",
-      onlyif => $config_check + $ca_check + $ca_key_check,
+      onlyif => $csr_check + $config_check + $ca_check + $ca_key_check,
       path    => '/usr/local/bin:/usr/bin:/bin',
       cwd     => $run_path,
     }
