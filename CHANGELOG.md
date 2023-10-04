@@ -103,3 +103,13 @@ All notable changes to this project will be documented in this file.
 **Bugfixes**
 
 **Known Issues**
+
+## Release 0.10.1
+
+**Features**
+
+* Added `hostname` parameter into `tlsinfo::cfssl::gencert` resource
+
+**Bugfixes**
+
+**Known Issues**
