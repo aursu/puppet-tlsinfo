@@ -113,3 +113,13 @@ All notable changes to this project will be documented in this file.
 **Bugfixes**
 
 **Known Issues**
+
+## Release 0.11.0
+
+**Features**
+
+**Bugfixes**
+
+* Fixed support for stdlib < 9.0.0
+
+**Known Issues**

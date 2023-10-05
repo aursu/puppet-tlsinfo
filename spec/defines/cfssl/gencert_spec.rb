@@ -45,8 +45,8 @@ describe 'tlsinfo::cfssl::gencert' do
               [
                 'test -f /etc/kubernetes/pki/namevar-csr.json',
                 'test -f /etc/kubernetes/pki/ca.pem',
-                'test -f /etc/kubernetes/pki/ca-key.pem'
-              ]
+                'test -f /etc/kubernetes/pki/ca-key.pem',
+              ],
             )
         }
 
@@ -63,10 +63,10 @@ describe 'tlsinfo::cfssl::gencert' do
               .with_command('cfssl gencert -initca namevar-csr.json | cfssljson -bare namevar')
               .with_unless('test -f /etc/kubernetes/pki/namevar.pem')
               .with_onlyif(
-              [
-                'test -f /etc/kubernetes/pki/namevar-csr.json',
-              ]
-            )
+                [
+                  'test -f /etc/kubernetes/pki/namevar-csr.json',
+                ],
+              )
           }
         end
       end
@@ -89,8 +89,8 @@ describe 'tlsinfo::cfssl::gencert' do
                 'test -f /etc/kubernetes/pki/namevar-csr.json',
                 'test -f /etc/kubernetes/pki/ca-config.json',
                 'test -f /etc/kubernetes/pki/ca.pem',
-                'test -f /etc/kubernetes/pki/ca-key.pem'
-              ]
+                'test -f /etc/kubernetes/pki/ca-key.pem',
+              ],
             )
         }
 
@@ -111,8 +111,8 @@ describe 'tlsinfo::cfssl::gencert' do
                   'test -f /etc/kubernetes/pki/namevar-csr.json',
                   'test -f /etc/kubernetes/pki/ca-config.json',
                   'test -f /etc/kubernetes/pki/ca.pem',
-                  'test -f /etc/kubernetes/pki/ca-key.pem'
-                ]
+                  'test -f /etc/kubernetes/pki/ca-key.pem',
+                ],
               )
           }
         end
@@ -134,8 +134,8 @@ describe 'tlsinfo::cfssl::gencert' do
                   'test -f /etc/kubernetes/pki/namevar-csr.json',
                   'test -f /etc/kubernetes/pki/ca-config.json',
                   'test -f /etc/kubernetes/pki/ca.pem',
-                  'test -f /etc/kubernetes/pki/ca-key.pem'
-                ]
+                  'test -f /etc/kubernetes/pki/ca-key.pem',
+                ],
               )
           }
         end

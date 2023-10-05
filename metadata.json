@@ -1,6 +1,6 @@
 {
   "name": "aursu-tlsinfo",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "author": "aursu",
   "summary": "Manage TLS data (private keys, certificates)",
   "license": "Apache-2.0",
@@ -10,7 +10,7 @@
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.1.0 < 10.0.0"
+      "version_requirement": ">= 8.6.0 < 10.0.0"
     },
     {
       "name": "aursu/bsys",

@@ -80,6 +80,6 @@ define tlsinfo::cfssl::crt_req (
 
   file { $config_path:
     ensure  => file,
-    content => stdlib::to_json_pretty($config, true, { indent => '    ', space => ' ' }),
+    content => to_json_pretty($config, true, { indent => '    ', space => ' ' }),
   }
 }
