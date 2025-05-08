@@ -114,6 +114,11 @@ module Puppet_X
       cert.public_key.params['n'].to_s(16)
     end
 
+    def self.x509_cert_pubkey(cert, der=false)
+      return cert.public_key.to_der if der
+      cert.public_key
+    end
+
     def self.cert_serial(cert)
       cert.serial.to_s(16)
     end

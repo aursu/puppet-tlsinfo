@@ -243,7 +243,11 @@ Puppet::Type.newtype(:sslcertificate) do
       @actual_content = certobj.to_pem
       @selfsigned = (certobj.subject == certobj.issuer)
 
-      '{sha256}' + sha256(modulus)
+      if pubkey.is_a?(OpenSSL::PKey::RSA)
+        '{sha256}' + sha256(modulus)
+      else
+        '{sha256}' + sha256(pubkey(der=true))
+      end
     end
 
     def retrieve
@@ -254,7 +258,11 @@ Puppet::Type.newtype(:sslcertificate) do
         return nil if chain.nil?
 
         cert = chain[0]
-        '{sha256}' + sha256(Puppet_X::TlsInfo.x509_cert_modulus(cert))
+        if Puppet_X::TlsInfo.x509_cert_pubkey(cert).is_a?(OpenSSL::PKey::RSA)
+          '{sha256}' + sha256(Puppet_X::TlsInfo.x509_cert_modulus(cert))
+        else
+          '{sha256}' + sha256(Puppet_X::TlsInfo.x509_cert_pubkey(cert, der=true))
+        end
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
       end
@@ -334,6 +342,11 @@ Puppet::Type.newtype(:sslcertificate) do
     def modulus
       return nil if certobj.nil?
       Puppet_X::TlsInfo.x509_cert_modulus(certobj)
+    end
+
+    def pubkey(der=false)
+      return nil if certobj.nil?
+      Puppet_X::TlsInfo.x509_cert_pubkey(certobj, der)
     end
   end
 
