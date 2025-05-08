@@ -123,3 +123,13 @@ All notable changes to this project will be documented in this file.
 * Fixed support for stdlib < 9.0.0
 
 **Known Issues**
+
+## Release 0.12.0
+
+**Features**
+
+* Added support for ECDSA/ECDH private keys
+
+**Bugfixes**
+
+**Known Issues**

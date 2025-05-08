@@ -13,6 +13,20 @@ module Puppet_X
       nil
     end
 
+    def self.read_ec_key(value, password = nil)
+      raw = value.is_a?(Puppet::Pops::Types::PBinaryType::Binary) ? value.binary_buffer : value
+      password = SecureRandom.urlsafe_base64(10) unless password
+
+      OpenSSL::PKey::EC.new(raw, password)
+    rescue OpenSSL::PKey::ECError => e
+      Puppet.warning _('Can not create ECDSA/ECDH PKey object (%{message})') % { message: e.message }
+      nil
+    end
+
+    def self.read_key(value, password = nil)
+      read_rsa_key(value, password) || read_ec_key(value, password)
+    end
+
     def self.rsa_key_size(key)
       key.params['n'].num_bits
     end

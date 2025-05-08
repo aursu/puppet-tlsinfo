@@ -1,6 +1,6 @@
 {
   "name": "aursu-tlsinfo",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "author": "aursu",
   "summary": "Manage TLS data (private keys, certificates)",
   "license": "Apache-2.0",
@@ -21,8 +21,20 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "6",
         "7"
+      ]
+    },
+    {
+      "operatingsystem": "Rocky",
+      "operatingsystemrelease": [
+        "9"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "22.04",
+        "24.04"
       ]
     }
   ],

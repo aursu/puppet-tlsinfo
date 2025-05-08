@@ -95,7 +95,7 @@ Puppet::Type.newtype(:sslkey) do
       raise Puppet::Error, 'Private key must be a string' unless value.is_a?(String)
       raise Puppet::Error, 'Private must not be empty' if value.empty?
 
-      key = Puppet_X::TlsInfo.read_rsa_key(value, @resource[:password])
+      key = Puppet_X::TlsInfo.read_key(value, @resource[:password])
       raise Puppet::Error, _('Can not read private key content') if key.nil?
       raise Puppet::Error, _('Provided key is not a private key') unless key.private?
       if (size = Puppet_X::TlsInfo.rsa_key_size(key)) < 2048
@@ -104,7 +104,7 @@ Puppet::Type.newtype(:sslkey) do
     end
 
     munge do |value|
-      @keyobj = Puppet_X::TlsInfo.read_rsa_key(value, @resource[:password])
+      @keyobj = Puppet_X::TlsInfo.read_key(value, @resource[:password])
       @actual_content = Puppet_X::TlsInfo.rsa_to_pem(keyobj, @resource[:password])
       '{sha256}' + sha256(modulus)
     end
@@ -115,7 +115,7 @@ Puppet::Type.newtype(:sslkey) do
       return nil if stat.zero?
       begin
         raw = File.read(resource[:path])
-        key = Puppet_X::TlsInfo.read_rsa_key(raw, @resource[:password])
+        key = Puppet_X::TlsInfo.read_key(raw, @resource[:password])
         return nil if key.nil?
         '{sha256}' + sha256(Puppet_X::TlsInfo.rsa_key_modulus(key))
       rescue => detail
