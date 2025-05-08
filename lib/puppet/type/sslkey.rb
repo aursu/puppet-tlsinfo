@@ -98,15 +98,20 @@ Puppet::Type.newtype(:sslkey) do
       key = Puppet_X::TlsInfo.read_key(value, @resource[:password])
       raise Puppet::Error, _('Can not read private key content') if key.nil?
       raise Puppet::Error, _('Provided key is not a private key') unless key.private?
-      if (size = Puppet_X::TlsInfo.rsa_key_size(key)) < 2048
+      if key.is_a?(OpenSSL::PKey::RSA) && (size = Puppet_X::TlsInfo.rsa_key_size(key)) < 2048
         raise Puppet::Error, _("Provided key is too weak (key size is #{size}")
       end
     end
 
     munge do |value|
       @keyobj = Puppet_X::TlsInfo.read_key(value, @resource[:password])
-      @actual_content = Puppet_X::TlsInfo.rsa_to_pem(keyobj, @resource[:password])
-      '{sha256}' + sha256(modulus)
+      @actual_content = Puppet_X::TlsInfo.key_to_pem(keyobj, @resource[:password])
+      if keyobj.is_a?(OpenSSL::PKey::RSA)        
+        '{sha256}' + sha256(modulus)
+      else
+        '{sha256}' + sha256(pubkey)
+      end
+      
     end
 
     def retrieve
@@ -117,7 +122,12 @@ Puppet::Type.newtype(:sslkey) do
         raw = File.read(resource[:path])
         key = Puppet_X::TlsInfo.read_key(raw, @resource[:password])
         return nil if key.nil?
-        '{sha256}' + sha256(Puppet_X::TlsInfo.rsa_key_modulus(key))
+        if key.is_a?(OpenSSL::PKey::RSA)
+          '{sha256}' + sha256(Puppet_X::TlsInfo.rsa_key_modulus(key))
+        else
+          '{sha256}' + sha256(Puppet_X::TlsInfo.ec_key_pubkey(key))
+        end
+        
       rescue => detail
         raise Puppet::Error, "Could not read #{stat.ftype} #{resource.title}: #{detail}", detail.backtrace
       end
@@ -149,6 +159,11 @@ Puppet::Type.newtype(:sslkey) do
     def modulus
       return nil if keyobj.nil?
       Puppet_X::TlsInfo.rsa_key_modulus(keyobj)
+    end
+
+    def pubkey
+      return nil if keyobj.nil?
+      Puppet_X::TlsInfo.ec_key_pubkey(keyobj)
     end
   end
 

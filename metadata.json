@@ -1,6 +1,6 @@
 {
   "name": "aursu-tlsinfo",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "author": "aursu",
   "summary": "Manage TLS data (private keys, certificates)",
   "license": "Apache-2.0",

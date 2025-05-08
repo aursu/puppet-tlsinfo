@@ -124,7 +124,7 @@ All notable changes to this project will be documented in this file.
 
 **Known Issues**
 
-## Release 0.12.0
+## Release 0.12.1
 
 **Features**
 

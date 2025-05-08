@@ -35,8 +35,12 @@ module Puppet_X
       key.params['n'].to_s(16)
     end
 
+    def self.ec_key_pubkey(key)
+      key.public_to_der
+    end
+
     # openssl rsa -des3 -in <key> -passout pass:<@resource[:password]>
-    def self.rsa_to_pem(key, password = nil)
+    def self.key_to_pem(key, password = nil)
       return key.to_pem unless password
       cipher = OpenSSL::Cipher.new('DES3')
       key.to_pem(cipher, password)
