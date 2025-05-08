@@ -36,7 +36,12 @@ module Puppet_X
     end
 
     def self.ec_key_pubkey(key)
-      key.public_to_der
+      return key.public_to_der if key.respond_to?(:public_to_der)
+  
+      pub = OpenSSL::PKey::EC.new(key)
+      pub.private_key = nil
+
+      pub.to_der
     end
 
     # openssl rsa -des3 -in <key> -passout pass:<@resource[:password]>

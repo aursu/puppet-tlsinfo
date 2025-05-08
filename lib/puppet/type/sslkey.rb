@@ -111,7 +111,6 @@ Puppet::Type.newtype(:sslkey) do
       else
         '{sha256}' + sha256(pubkey)
       end
-      
     end
 
     def retrieve
