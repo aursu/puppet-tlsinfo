@@ -124,12 +124,14 @@ All notable changes to this project will be documented in this file.
 
 **Known Issues**
 
-## Release 0.12.1
+## Release 0.12.2
 
 **Features**
 
 * Added support for ECDSA/ECDH private keys
 
 **Bugfixes**
+
+* Fixed compatibility with Ruby 2.x
 
 **Known Issues**
