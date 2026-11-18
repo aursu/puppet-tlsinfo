@@ -135,3 +135,21 @@ All notable changes to this project will be documented in this file.
 * Fixed compatibility with Ruby 2.x
 
 **Known Issues**
+
+## Release 0.13.0
+
+**Features**
+
+* New `sslkey` property `mode`, default `0600`. A new key file is created
+  with that mode, and an existing key file with another mode is corrected.
+
+**Bugfixes**
+
+* Private keys were written world-readable (`0644`, hardcoded). Where
+  `/etc/ssl/private` is `0710 root:ssl-cert` (Debian/Ubuntu), every member of
+  `ssl-cert` - typically `postgres` - could read them. Existing keys become
+  `0600` on the next agent run.
+* The `replace` documentation promised that ownership and permissions stay
+  managed; permissions now are (through `mode`), ownership is not managed.
+
+**Known Issues**

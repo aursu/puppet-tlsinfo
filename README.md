@@ -81,6 +81,13 @@ Boolean. Default value is `true`.
 
 If `true` than `content` value will replace existing private key file. Otherwise - noop.
 
+#### sslkey::mode
+
+Octal string. Default value is `0600`: only the owner (root) may read the key.
+
+A new key file is created with this mode; an existing file with another mode
+(keys were created `0644` before 0.13.0) is corrected on the next run.
+
 #### sslkey::content
 
 String. Required parameter

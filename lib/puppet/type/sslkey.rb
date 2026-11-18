@@ -79,7 +79,7 @@ Puppet::Type.newtype(:sslkey) do
       system but whose content doesn't match what the `content` attribute
       specifies. Setting this to false allows `Sslkey` resources to initialize private
       key file without overwriting already existing.  Note that this only affects
-      content; Puppet will still manage ownership and permissions. Defaults to
+      content; Puppet will still manage the file mode (`mode`). Defaults to
       `true`."
     defaultto :true
   end
@@ -141,7 +141,9 @@ Puppet::Type.newtype(:sslkey) do
 
     def sync
       return_event = resource.stat ? :content_changed : :content_created
-      mode_int = 0o0644
+      # a new file is created with the managed mode right away, so the key is
+      # never readable by others, not even for the moment until `mode` syncs
+      mode_int = (@resource[:mode] || '0600').to_i(8)
       File.open(@resource[:path], 'wb', mode_int) { |f| write(f) }
       # configuration synced here - no need to sync it elsewhere
       return_event
@@ -163,6 +165,42 @@ Puppet::Type.newtype(:sslkey) do
     def pubkey
       return nil if keyobj.nil?
       Puppet_X::TlsInfo.ec_key_pubkey(keyobj)
+    end
+  end
+
+  newproperty(:mode) do
+    desc "Permissions of the private key file, as an octal string. Defaults to
+      `0600`: only the owner (root) may read the key. Before this property
+      existed, keys were created `0644`; an existing file is corrected on the
+      next run."
+
+    defaultto '0600'
+
+    validate do |value|
+      unless value.to_s.match?(%r{\A0?[0-7]{3}\z})
+        raise ArgumentError, _("Mode must be an octal string such as '0600', not '%{value}'") % { value: value }
+      end
+    end
+
+    munge do |value|
+      value.to_s.rjust(4, '0')
+    end
+
+    def retrieve
+      return :absent unless (stat = resource.stat)
+      '%04o' % (stat.mode & 0o7777)
+    end
+
+    def insync?(is)
+      return true unless resource.should_be_present?
+      # an absent file is created with this mode by the content sync
+      return true if is == :absent
+      is == should
+    end
+
+    def sync
+      File.chmod(should.to_i(8), resource[:path])
+      :mode_changed
     end
   end
 

@@ -1,6 +1,8 @@
 #! /usr/bin/env ruby
 require 'spec_helper'
 require 'openssl'
+require 'tmpdir'
+require 'fileutils'
 
 describe Puppet::Type.type(:sslkey) do
   let(:catalog) { Puppet::Resource::Catalog.new }
@@ -163,6 +165,56 @@ RSAKEYDATA
 
     it 'ignore password if private key is not encrypted' do
       expect { described_class.new(params.merge(password: 'secret')) }.not_to raise_error
+    end
+  end
+
+  context 'when mode is managed' do
+    let(:tmpdir) { Dir.mktmpdir }
+    let(:path) { File.join(tmpdir, 'www.domain.com.key') }
+    let(:params) do
+      {
+        title: path,
+        content: www_domain_com_private,
+        catalog: catalog,
+      }
+    end
+
+    after(:each) { FileUtils.rm_rf(tmpdir) }
+
+    it 'defaults to 0600' do
+      expect(described_class.new(params)[:mode]).to eq('0600')
+    end
+
+    it 'pads a three digit mode' do
+      expect(described_class.new(params.merge(mode: '640'))[:mode]).to eq('0640')
+    end
+
+    it 'rejects a mode that is not octal' do
+      expect { described_class.new(params.merge(mode: 'rw-------')) }.to raise_error Puppet::Error, %r{Mode must be an octal string}
+    end
+
+    it 'is in sync while the file does not exist (content creates it with the mode)' do
+      key = described_class.new(params)
+      prop = key.property(:mode)
+      expect(prop.retrieve).to eq(:absent)
+      expect(prop.safe_insync?(:absent)).to be true
+    end
+
+    it 'creates a new key file with the managed mode' do
+      key = described_class.new(params)
+      key.property(:content).sync
+      expect('%04o' % (File.stat(path).mode & 0o7777)).to eq('0600')
+    end
+
+    it 'corrects a world-readable existing key file' do
+      File.write(path, www_domain_com_private)
+      File.chmod(0o644, path)
+      key = described_class.new(params)
+      prop = key.property(:mode)
+      expect(prop.retrieve).to eq('0644')
+      expect(prop.safe_insync?('0644')).to be false
+      prop.sync
+      expect('%04o' % (File.stat(path).mode & 0o7777)).to eq('0600')
     end
   end
 end
